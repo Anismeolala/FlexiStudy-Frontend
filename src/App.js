@@ -1,15 +1,20 @@
-import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { increment, decrement, reset } from "./redux/counterSlice";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Login from "./pages/Login/Login";
+import HomePage from "./pages/HomePage/HomePage";
+import UserLayout from "./pages/layout/UserLayout";
 
-function App() {
-  const count = useSelector((state) => state.counter.value);
-  const dispatch = useDispatch();
+const route = createBrowserRouter([
+  {
+    path: "/",
+    element: <UserLayout />,
+    children: 
+      [{ index: true, element: <HomePage /> }], // Default route
+  },
+  { path: "/login", element: <Login /> },
 
-  return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1> FLEXI-STUDY !!!</h1>
-    </div>
-  );
-}
+]);
+
+const App = () => {
+  return <RouterProvider router={route} />;
+};
 export default App;
