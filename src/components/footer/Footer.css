@@ -1,45 +1,55 @@
-.custom-footer {
-  background: #0a1f44; /* xanh đậm */
-  color: #fff;
-  padding: 50px 80px;
+/* Nền full-bleed, bỏ padding mặc định của antd Footer */
+.site-footer {
+  background: #0b2347;               /* xanh đậm như ảnh */
+  color: #b9c6da;
+  padding: 0 !important;
 }
 
-.footer-logo {
-  margin-bottom: 15px;
+/* Khung căn giữa nội dung */
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 56px 72px 24px;            /* khoảng cách hai bên như ảnh */
 }
 
-.logo-img {
-  width: 150px;
-}
-
-.footer-title {
-  color: #fff !important;
+/* Logo */
+.footer-logo img {
+  height: 44px;
   margin-bottom: 16px;
 }
 
+/* Tiêu đề cột */
+.footer-heading {
+  color: #ffffff !important;
+  margin: 0 0 12px;
+}
+
+/* Danh sách link */
 .footer-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-
 .footer-list li {
-  margin-bottom: 10px;
+  margin: 10px 0;
 }
-
 .footer-list a {
-  color: #a0aec0; /* xám nhạt */
-  transition: color 0.3s;
+  color: #b9c6da !important;
 }
-
 .footer-list a:hover {
-  color: #1677ff; /* xanh hover */
+  color: #ffffff !important;
 }
 
+/* Vạch mảnh phía trên copyright + căn giữa */
 .footer-bottom {
-  text-align: center;
   margin-top: 40px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 20px;
-  color: #a0aec0;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  text-align: center;
+  color: #9fb0c8;
+}
+
+/* Responsive nhẹ cho mobile */
+@media (max-width: 575.98px) {
+  .footer-inner { padding: 40px 20px 20px; }
 }

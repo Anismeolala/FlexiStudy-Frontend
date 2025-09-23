@@ -1,16 +1,26 @@
-import Header from '../../components/Header/Header'
-import { Outlet } from 'react-router-dom'
+import { Layout } from "antd";
+import { Outlet } from "react-router-dom";
+import HeaderBar from "../../components/Header/Header";
+import AppFooter from "../../components/footer/Footer";
+import "./UserLayout.css";
+const { Header, Content, Footer } = Layout;
 
-
-function UserLayout() {
+export default function UserLayout() {
   return (
-   <>
-   <Header/>
-   <div style={{minHeight: "65vh"}}>
-      <Outlet/>
-   </div>
-   </>
-  )
-}
+    <Layout style={{ minHeight: "100vh" }}>
+      <Header style={{ background: "transparent", padding: 0 }}>
+        <HeaderBar />
+      </Header>
 
-export default UserLayout
+      <Content className="site-content">
+        <Outlet />
+      </Content>
+
+      <Footer className="custom-footer">
+        <div className="container">
+          <AppFooter />
+        </div>
+      </Footer>
+    </Layout>
+  );
+}
