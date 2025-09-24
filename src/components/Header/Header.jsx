@@ -1,7 +1,7 @@
 import React from "react";
 import { Layout, Dropdown, Avatar, Space } from "antd";
 import { DownOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const { Header: AntHeader } = Layout;
 
@@ -22,10 +22,11 @@ const cvMenu = {
 };
 
 const Header = () => {
+  const navigate = useNavigate();
   return (
     <AntHeader style={{ background: "#fff", padding: "0 40px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 1px 4px rgba(0,0,0,0.1)" }}>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <Link to="/"><img src="/Flexistudy-logo.png" alt="FlexiStudy" style={{ height: 60, marginRight: 8 }} /></Link>
+        <Link to="/"><img src="/logo.png" alt="FlexiStudy" style={{ height: 200, marginRight: 8, marginTop: 20 }} /></Link>
       </div>
 
       <Space size="large">
@@ -42,7 +43,10 @@ const Header = () => {
       </Space>
 
       <Space size="large">
-        <Avatar src="https://i.pravatar.cc/40" />
+      <div onClick={() => navigate("/login")} style={{ cursor: "pointer" }}>
+ <Avatar src="https://i.pravatar.cc/40" />
+      </div>
+       
       </Space>
     </AntHeader>
   );

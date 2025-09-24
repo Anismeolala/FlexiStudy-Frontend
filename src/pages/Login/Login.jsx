@@ -27,7 +27,7 @@ const Login = () => {
         </Col>
         <Col xs={24} md={12} className="login-right">
           <div className="login-form-wrapper">
-            <img src="/Flexistudy-Logo.png" alt="Flexistudy Logo" className="login-logo" />
+            <img src="/Logo.png" alt="Flexistudy Logo" className="login-logo"  />
             <Form form={form} layout="vertical" className="login-form" onFinish={handleLogin}>
               <Form.Item
                 name="username"

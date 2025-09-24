@@ -2,7 +2,7 @@
   position: relative;
   background-size: cover;
   background-position: center;
-  height: 400px;
+  height: 500px;
   display: flex;
   align-items: center;
   padding: 0 80px;
@@ -47,3 +47,184 @@
   background: #f90 !important;
   border: none !important;
 }
+
+.job-carousel-slide {
+  display: flex;
+  justify-content: space-between; /* dàn đều 4 card */
+  gap: 16px;
+}
+
+.job-carousel-slide .ant-card {
+  flex: 1;                  /* card co giãn */
+  min-width: 200px;         /* giữ kích thước tối thiểu */
+  max-width: 24%;           /* ~1/4 chiều ngang */
+}
+
+/* .promotion-section {
+  height: 500px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  padding: 0 80px;
+  color: #fff;
+}
+
+.promotion-content {
+  max-width: 600px;
+}
+
+.promotion-sub {
+  font-size: 16px;
+  color: #cce0ff;
+  margin-bottom: 12px;
+}
+
+.promotion-title {
+  font-size: 36px !important;
+  font-weight: bold !important;
+  color: #fff !important;
+  line-height: 1.4;
+  margin-bottom: 24px;
+}
+
+.promotion-text {
+  font-size: 18px;
+  color: #fff;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.promotion-btn {
+  background-color: #1677ff !important;
+  border: none !important;
+  font-size: 16px;
+  padding: 0 24px;
+} */
+
+.why-section {
+  padding: 60px 80px;
+  text-align: center;
+  background: #fff;
+}
+
+.why-title {
+  font-size: 28px !important;
+  font-weight: bold !important;
+  margin-bottom: 40px !important;
+}
+
+.why-card {
+  min-height: 250px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  padding: 20px;
+}
+
+.why-icon {
+  margin-bottom: 16px;
+}
+
+.why-card-title {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+.why-card-text {
+  font-size: 15px;
+  color: #555;
+}
+
+.career-section {
+  padding: 60px 80px;
+  background: #fff;
+}
+
+.career-step {
+  text-align: center;
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.career-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: #1677ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 20px auto;
+  font-size: 32px;
+  color: #fff;
+}
+
+/* Tạo mũi tên nối giữa các bước */
+.career-step::after {
+  content: "➜";
+  position: absolute;
+  right: -30px;
+  top: 40%;
+  font-size: 28px;
+  color: #91caff;
+}
+
+.career-step:last-child::after {
+  display: none;
+}
+
+.pricing-section {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.pricing-title {
+  font-size: 22px;
+  margin-bottom: 0;
+}
+
+.pricing-subtitle {
+  font-size: 28px;
+  margin-bottom: 40px;
+  background: linear-gradient(to right, #4a90e2, #005bea);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* cột và card cùng cao */
+.plan-col { display: flex; }
+.plan-card { width: 100%; }
+.plan-card .ant-card-body { height: 100%; padding: 24px; }
+
+/* xếp layout cố định các vùng: title, price, desc, list, button */
+.plan-inner{
+  display: grid;
+  grid-template-rows: auto auto auto 1fr auto; /* button luôn sát đáy */
+  row-gap: 16px;
+  height: 100%;
+}
+
+/* typography */
+.plan-title{ font-size:18px; font-weight:600; margin:0; }
+.plan-price{ font-size:28px; font-weight:800; color:#005bea; margin:0; }
+.plan-desc{ margin:0; color:#555; line-height:1.6; }
+
+/* list co giãn chiếm phần còn lại để các nút thẳng hàng */
+.plan-list{ list-style:none; padding:0; margin:0; align-self:start; }
+.plan-list li{ margin:8px 0; }
+
+/* nút nằm hàng chân */
+.plan-btn{ margin-top: 0; }
+
+/* nền từng gói */
+.plan-card.free   { background:#fff; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
+.plan-card.premium{ background:#eaf3ff; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
+.plan-card.pro    { background:#005bea; color:#fff; border-radius:10px; box-shadow:0 10px 24px rgba(0,0,0,.15); }
+.plan-card.pro .plan-price,
+.plan-card.pro .plan-desc,
+.plan-card.pro .plan-list li { color:#fff; }
+
