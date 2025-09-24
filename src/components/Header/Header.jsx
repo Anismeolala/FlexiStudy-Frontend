@@ -1,75 +1,51 @@
 import React from "react";
-import { Layout, Menu, Dropdown, Avatar, Space } from "antd";
-import {
-  BellOutlined,
-  MessageOutlined,
-  DownOutlined,
-} from "@ant-design/icons";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import { Layout, Dropdown, Avatar, Space } from "antd";
+import { DownOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 
-const { Header } = Layout;
+const { Header: AntHeader } = Layout;
 
-const HeaderBar = () => {
-  const jobsMenu = (
-    <Menu
-      items={[
-        { key: "1", label: "Tìm kiếm việc làm" },
-        { key: "2", label: "Việc làm đã lưu" },
-        { key: "3", label: "Việc làm đã ứng tuyển" },
-      ]}
-    />
-  );
+const jobsMenu = {
+  items: [
+    { key: "1", label: <Link to="/jobs">Tìm kiếm việc làm</Link> },
+    { key: "2", label: <Link to="/jobs/saved">Việc làm đã lưu</Link> },
+    { key: "3", label: <Link to="/jobs/applied">Việc làm đã ứng tuyển</Link> },
+  ],
+};
 
-  const cvMenu = (
-    <Menu
-      items={[
-        { key: "1", label: "Mẫu CV" },
-        { key: "2", label: "Tải CV lên" },
-        { key: "3", label: "Hướng dẫn viết CV" },
-      ]}
-    />
-  );
+const cvMenu = {
+  items: [
+    { key: "1", label: <Link to="/cv/templates">Mẫu CV</Link> },
+    { key: "2", label: <Link to="/cv/upload">Tải CV lên</Link> },
+    { key: "3", label: <Link to="/cv/guide">Hướng dẫn viết CV</Link> },
+  ],
+};
 
+const Header = () => {
   return (
-    <Header
-      style={{
-        background: "#fff",
-        padding: "0 40px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
-      }}
-    >
-      {/* Logo */}
+    <AntHeader style={{ background: "#fff", padding: "0 40px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 1px 4px rgba(0,0,0,0.1)" }}>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <img src="./Flexistudy-logo.png" alt="FlexiStudy" style={{ height: 200, marginRight: 8 }} />
+        <Link to="/"><img src="/Flexistudy-logo.png" alt="FlexiStudy" style={{ height: 60, marginRight: 8 }} /></Link>
       </div>
 
-      {/* Menu chính */}
       <Space size="large">
-        <Dropdown overlay={jobsMenu}>
-          <a onClick={(e) => e.preventDefault()}>
-            Việc làm <DownOutlined />
-          </a>
+        <Dropdown menu={jobsMenu}>
+          <span style={{ cursor: "pointer" }}>Việc làm <DownOutlined /></span>
         </Dropdown>
 
-        <Dropdown overlay={cvMenu}>
-          <a onClick={(e) => e.preventDefault()}>
-            Hồ sơ/CV <DownOutlined />
-          </a>
+        <Dropdown menu={cvMenu}>
+          <span style={{ cursor: "pointer" }}>Hồ sơ/CV <DownOutlined /></span>
         </Dropdown>
 
-        <a>Cập nhật lịch</a>
-        <a>Cẩm nang nghề nghiệp</a>
+        <Link to="/schedule">Cập nhật lịch</Link>
+        <Link to="/career-guide">Cẩm nang nghề nghiệp</Link>
       </Space>
 
-      {/* Icon & Avatar */}
       <Space size="large">
         <Avatar src="https://i.pravatar.cc/40" />
       </Space>
-    </Header>
+    </AntHeader>
   );
 };
 
-export default HeaderBar;
+export default Header;
