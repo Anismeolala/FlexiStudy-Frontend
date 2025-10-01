@@ -1,0 +1,85 @@
+.cv-template-page {
+  background: #fff;
+  padding: 20px 40px;
+}
+
+/* Banner xanh */
+.cv-template-banner {
+  background: #0073ff;
+  color: #fff;
+  border-radius: 8px;
+  padding: 30px 20px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.cv-template-banner h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.cv-template-banner p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Filter */
+.cv-template-filter {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+  gap: 10px;
+}
+
+.filter-tag {
+    padding: 6px 14px;
+  font-size: 14px;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.filter-tag.active {
+  background: #0073ff !important;
+  color: #fff !important;
+  border: none;
+}
+
+/* Card CV */
+.cv-card {
+  text-align: center;
+  border-radius: 8px;
+}
+
+.cv-img {
+  width: 100%;
+  border-radius: 8px;
+  height: 350px;
+  object-fit: cover;
+}
+
+.cv-name {
+  margin: 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Phân trang dạng chấm */
+.cv-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 25px;
+  gap: 8px;
+}
+
+.cv-pagination .dot {
+  width: 10px;
+  height: 10px;
+  background: #ddd;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.cv-pagination .dot.active {
+  background: #0073ff;
+}

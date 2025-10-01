@@ -3,6 +3,9 @@ import { Layout, Menu, Dropdown, Avatar, Space, message, Button } from "antd";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   DownOutlined,
+  LogoutOutlined,
+  SettingOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { ROLE } from "../../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,8 +13,10 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { fetchLogoutAPI } from "../../apis";
 import { resetUser, setIsAuthorized } from "../../redux/userSlice";
 import ProfilePopup from "../ProfilePopup/ProfilePopup";
+import { NavDropdown } from "react-bootstrap";
 
 const { Header: AntHeader } = Layout;
+
 
 const jobsMenu = {
   items: [
@@ -31,14 +36,50 @@ const cvMenu = {
 
 const HeaderBar = () => {
   const isAuthorized = useSelector((state) => state.user.isAuthorized);
+    const dispatch = useDispatch();
   const [user, setUser] = useState(null);
   const userData = useSelector((state) => state.user);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const navigate = useNavigate();
 
+      const onMenuClick = ({ key }) => {
+    if (key === "logout") handleButtonLogin();
+    if (key === "profile") handleProfileClick();
+  };
+  
+
+   const items = [
+    {
+      key: "profile",
+      label: (
+        <span>
+          <UserOutlined style={{ marginRight: 8 }} />
+          Profile
+        </span>
+      ),
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "logout",
+      label: (
+        <span>
+          <LogoutOutlined style={{ marginRight: 8 }} />
+          Log out
+        </span>
+      ),
+    },
+  ];
+
     const handleClosePopup = () => {
     setShowProfilePopup(false);
   };
+
+  const handleProfileClick = () => {
+     message.info("Chức năng đang được phát triển");
+      console.log("Profile clicked");
+  }
 
 
   const handleButtonLogin = () => {
@@ -140,13 +181,16 @@ return (
     </Link>
   </Space>
 
-  {/* Avatar */}
-  <div
-    onClick={() => navigate("/login")}
-    style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
-  >
+  <div style={{ cursor: "pointer", display: "flex", alignItems: "center" }}>
     {isAuthorized ? (
-                <ProfilePopup visible={showProfilePopup} onClose={handleClosePopup} />
+                 <Dropdown menu={{ items, onClick: onMenuClick }} trigger={["click"]}>
+      <Space style={{ cursor: "pointer" }}>
+        <SettingOutlined />
+        Setting
+        <DownOutlined style={{ fontSize: 10 }} />
+      </Space>
+    </Dropdown>
+              
               ) : (
                 <Button
                   className="btn btn-outline-light me-2"
@@ -156,14 +200,6 @@ return (
                   Login
                 </Button>
               )}
-              {user?.role === ROLE.USER &&
-                <Link to="/profile" className="btn btn-outline-light">
-                  <i className="fas fa-user"></i>
-                </Link>}
-              {/* {[ROLE.VETERINARIAN, ROLE.STAFF,ROLE.MANAGER].includes(user?.role) &&
-                <Link to={user?.role === ROLE.MANAGER ? "/admin" : "/admin/appointment"} className="btn btn-outline-light">
-                  <i className="fas fa-user"></i>
-                </Link>} */}
   </div>
 </AntHeader>
 
