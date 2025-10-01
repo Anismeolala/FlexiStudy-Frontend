@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import "./HomePage.css";
 import { Input, Button, Card, Carousel, Typography, Row, Col } from "antd";
 import { EnvironmentOutlined, SearchOutlined } from "@ant-design/icons";
-import banner_home from "../../assets/img/banner_home4.png";
-import bgBanner from "../../assets/img/banner_home4.png";
+import banner_home from "../../assets/img/galweb-banner.jpg";
 import {
   AppstoreOutlined,
   CodeOutlined,
