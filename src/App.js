@@ -12,6 +12,9 @@ import UploadCV from "./pages/CV/UploadCV";
 
 import CareerGuide from "./pages/Career/CareerGuide";
 import Schedule from "./pages/Schedules/Schedule";
+import AdminLayout from "./pages/layout/AdminLayout";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import UserManagement from "./pages/UserManagement/UserManagement";
 const route = createBrowserRouter([
   {
     path: "/",
@@ -30,7 +33,15 @@ const route = createBrowserRouter([
       ], 
   },
   { path: "/login", element: <Login /> },
-
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    children: 
+      [
+        { index: true, element: <Dashboard /> },
+        { path: "manage-users", element: <UserManagement /> },
+      ], 
+  },
 ]);
 
 const App = () => {
