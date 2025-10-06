@@ -28,19 +28,21 @@ const Login = () => {
       const { username, password } = values;
 
       const res = await loginAPI(username, password);
-      console.log(res);
       if (res.code === 1000) {
         localStorage.setItem("accessToken", res.result.token);
         dispatch(setIsAuthorized(true));
         // Decode token để lấy scope
       const decoded = jwtDecode(res.result.token);
-      console.log(decoded);
       const scope = decoded.scope || "";
-        message.success("Đăng nhập thành công");
         if (scope.includes("ROLE_USER")) {
           navigate("/");
+          message.success("Đăng nhập thành công");
+        } else if (scope.includes("ROLE_ADMIN")) {
+          navigate("/admin");
+          console.log("Admin logged in", scope);
+          message.success("Đăng nhập thành công");
         } else {
-          message.warning("Bạn không có quyền hợp lệ");
+          message.error("Vai trò người dùng không xác định");
         }
       }
     } catch (error) {

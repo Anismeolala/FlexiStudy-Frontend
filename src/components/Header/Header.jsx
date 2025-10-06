@@ -110,7 +110,7 @@ return (
         style={{
           height: 200,
           marginRight: 12,
-          marginTop: 20
+          marginTop: 5
         }}
       />
     </Link>
