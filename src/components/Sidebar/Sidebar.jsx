@@ -41,7 +41,7 @@ const Sidebar = ({ collapsed, toggled, handleToggleSidebar }) => {
       <SidebarHeader>
         <div className="sidebar-header" onClick={() => navigate(".")}>
           <img
-            // src= "/logo.png"
+            src= "/logo2.png"
             alt="Flexistudy Logo"
             className="sidebar-logo"
           />

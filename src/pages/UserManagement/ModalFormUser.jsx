@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import "./ModalFormUser.css";
 import ButtonPrimary from '../../components/PrimaryButton/PrimaryButton'
 import DangerButton from "../../components/DangerButton/DangerButton";
+import { uploadAvatarAPI } from "../../apis";
 const { Option } = Select;
 
 const ModalFormUser = ({
@@ -19,18 +20,18 @@ const ModalFormUser = ({
 }) => {
   const [form] = Form.useForm();
   const isEdit = !!editingUser;
-  const [imageUrl, setImageUrl] = useState("");
-  const [uploadingImage, setUploadingImage] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   useEffect(() => {
     if (visible) {
       if (editingUser) {
         form.setFieldsValue(editingUser);
-        setImageUrl(editingUser.avatarUrl || "");
+        setAvatarUrl(editingUser.avatarUrl || "");
       }
     } else {
       form.resetFields();
-      setImageUrl("");
+      setAvatarUrl("");
     }
   }, [visible, editingUser, form]);
 
@@ -39,7 +40,7 @@ const ModalFormUser = ({
       const values = await form.validateFields();
       const payload = {
         ...values,
-        avatarUrl: imageUrl || "", // Thêm avatar từ state
+        avatarUrl: avatarUrl || "", // Thêm avatar từ state
       };
       onSubmit(payload);
     } catch (error) {
@@ -47,35 +48,34 @@ const ModalFormUser = ({
     }
   };
 
-  // Handle image upload
-  // const handleImageUpload = async (file) => {
-  //   setUploadingImage(true);
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append("file", file);
+  const handleAvatarUpload = async (file) => {
+  setUploadingAvatar(true);
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await uploadAvatarAPI(editingUser?.id, formData);
+    console.log("Upload avatar response:", response);
+    if (response.data.code === 1000) {
+      const newAvatarUrl = response.data.result;
+      setAvatarUrl(newAvatarUrl);
+      message.success("Tải lên ảnh đại diện thành công!");
+    } else {
+      message.error("Tải lên ảnh đại diện thất bại!");
+    }
+  } catch (error) {
+    console.error("Upload avatar error:", error);
+    message.error("Tải lên ảnh đại diện thất bại!");
+  } finally {
+    setUploadingAvatar(false);
+  }
+  return false;
+};
 
-  //     const response = await uploadProfileImageAPI(formData);
-
-  //     if (response.code === 200) {
-  //       const newImageUrl = response.result;
-  //       setImageUrl(newImageUrl);
-  //       message.success("Upload ảnh thành công!");
-  //     } else {
-  //       message.error("Upload ảnh thất bại!");
-  //     }
-  //   } catch (error) {
-  //     message.error("Upload ảnh thất bại!");
-  //   } finally {
-  //     setUploadingImage(false);
-  //   }
-
-  //   return false; // Prevent default upload behavior
-  // };
 
   // Handle modal cancel
   const handleCancel = () => {
     form.resetFields();
-    setImageUrl("");
+    setAvatarUrl("");
     onCancel?.();
   };
 
@@ -207,8 +207,8 @@ const ModalFormUser = ({
             >
               <Select disabled={isEdit} >
                 {isCanManageUser && <Option value="USER">Người dùng</Option>}
-                {isCanManageAdmin && <Option value="RECRUITER">Nhà tuyển dụng</Option>} 
-                {isCanManageRecruiter && <Option value="ADMIN">Quản lý</Option>}
+                {isCanManageRecruiter && <Option value="RECRUITER">Nhà tuyển dụng</Option>} 
+                {isCanManageAdmin && <Option value="ADMIN">Quản lý</Option>}
               </Select>
             </Form.Item>
           </Col>
@@ -219,7 +219,7 @@ const ModalFormUser = ({
             <div className="image-preview">
               <Avatar
                 size={120}
-                src={imageUrl}
+                src={avatarUrl}
                 icon={<EnvironmentOutlined />}
                 shape="square"
               />
@@ -227,21 +227,21 @@ const ModalFormUser = ({
             <div className="upload-controls">
               <Upload
                 name="userImage"
-                // beforeUpload={handleImageUpload}
+                beforeUpload={handleAvatarUpload}
                 showUploadList={false}
                 accept="image/*"
               >
                 <ButtonPrimary
                   icon={<CameraOutlined />}
-                  loading={uploadingImage}
+                  loading={uploadingAvatar}
                   type="primary"
                   ghost
                 >
-                  {uploadingImage ? "Đang upload..." : "Chọn ảnh"}
+                  {uploadingAvatar ? "Đang upload..." : "Chọn ảnh"}
                 </ButtonPrimary>
               </Upload>
-              {imageUrl && (
-                <DangerButton onClick={() => setImageUrl("")} variant="outline">
+              {avatarUrl && (
+                <DangerButton onClick={() => setAvatarUrl("")} variant="outline">
                   Xóa ảnh
                 </DangerButton>
               )}

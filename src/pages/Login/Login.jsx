@@ -3,14 +3,14 @@ import React, { useEffect, useState } from 'react'
 import { jwtDecode } from "jwt-decode";
 import './Login.css'
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Preloader from '../../components/Preloader/Preloader';
 import  banner  from "../../assets/video/flexistudy_banner.gif"
 import { loginAPI } from '../../apis';
 import { resetUser, setIsAuthorized } from '../../redux/userSlice';
 
 const Login = () => {
-    const [form] = Form.useForm();
+  const [form] = Form.useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -73,7 +73,7 @@ const Login = () => {
         </Col>
         <Col xs={24} md={12} className="login-right">
           <div className="login-form-wrapper">
-            <img src="/logo.png" alt="Flexistudy Logo" className="login-logo" />
+            <img src="/logo2.png" alt="Flexistudy Logo" className="login-logo" />
             <Form form={form} layout="vertical" className="login-form" onFinish={handleLogin}>
               <Form.Item
                 name="username"
@@ -89,13 +89,15 @@ const Login = () => {
               >
                 <Input.Password size="large" placeholder="Mật khẩu" />
               </Form.Item>
-              <Form.Item>
-                <Button className="login-button" type="primary" htmlType="submit" size="login">Đăng nhập</Button>
+              <Form.Item >
+                <Button className="login-button" type="primary" htmlType="submit" size="large" block>Đăng nhập</Button>
               </Form.Item>
+              
               <Form.Item>
-              {/* <div div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Link to="/forgot-password">Quên mật khẩu?</Link>
-              </div> */}
+                <div className="register-link">
+                  <span>Bạn chưa có tài khoản? </span>
+                  <Link to="/register">Đăng ký ngay</Link>
+                </div>
               </Form.Item>
             </Form>
           </div>
