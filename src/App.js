@@ -15,6 +15,7 @@ import Schedule from "./pages/Schedules/Schedule";
 import AdminLayout from "./pages/layout/AdminLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import UserManagement from "./pages/UserManagement/UserManagement";
+import CompanyManagement from "./pages/CompanyManagement/CompanyManagement";
 const route = createBrowserRouter([
   {
     path: "/",
@@ -40,6 +41,7 @@ const route = createBrowserRouter([
       [
         { index: true, element: <Dashboard /> },
         { path: "manage-users", element: <UserManagement /> },
+        { path: "manage-companies", element: <CompanyManagement /> },
       ], 
   },
 ]);

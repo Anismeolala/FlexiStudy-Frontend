@@ -6,12 +6,33 @@
    height: 100vh !important;
 }
 
+.admin-sidebar {
+  width: 240px;         /* 👈 đặt chiều rộng sidebar cố định */
+  min-width: 240px;
+  position: fixed;      /* 👈 giữ cố định sidebar bên trái */
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 10;
+  background: #001529;  /* hoặc màu sidebar của bạn */
+}
+
+.admin-sidebar.collapsed {
+  width: 80px;
+  min-width: 80px;
+}
+
+.admin-content.collapsed {
+  margin-left: 80px;
+}
+
 .admin-content {
    flex: 1 1 auto;
    display: flex;
    flex-direction: column;
    height: 100vh;
    min-width: 0;
+   margin-left: 240px;
 }
 
 .admin-main{

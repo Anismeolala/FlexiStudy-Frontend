@@ -8,7 +8,7 @@ import PerfectScrollbar from "react-perfect-scrollbar";
 import ProfilePopup from '../../components/ProfilePopup/ProfilePopup';
 import Sidebar from '../../components/Sidebar/Sidebar';
 
-const MainLayout = (children) => {
+const AdminLayout = (children) => {
   const [collapsed, setCollapsed] = useState(true);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const user = useSelector((state) => state.user);
@@ -27,13 +27,12 @@ const MainLayout = (children) => {
 
   return (
     <div className="admin-container">
-      <div className="admin-sidebar">
+      <div className={`admin-sidebar ${collapsed ? 'collapsed' : ''}`}>
         <Sidebar
-          collapsed={collapsed}
-          handleToggleSidebar={handleToggleSidebar}
+          collapsed={collapsed} handleToggleSidebar={handleToggleSidebar}
         />
       </div>
-      <div className="admin-content">
+      <div className={`admin-content ${collapsed ? 'collapsed' : ''}`}>
         <div className="admin-header">
           <div className="left-side">
             <div className="admin-title">
@@ -70,4 +69,4 @@ const MainLayout = (children) => {
   );
 };
 
-export default MainLayout;
+export default AdminLayout;
