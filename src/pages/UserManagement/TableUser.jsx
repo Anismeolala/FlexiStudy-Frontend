@@ -106,8 +106,6 @@ const TableUser = ({
           </div>
         );
 
-        console.log("Rendering status for user:", dataSource);
-
         return (
           <Popover 
             content={statusOptions} 

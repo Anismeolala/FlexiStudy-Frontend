@@ -41,11 +41,20 @@ import api from "../services/api";
       export const getAllUsersAPI = async (paramsOrPage = 1, size = 10, extra = {}) => {
         const params =
           typeof paramsOrPage === "object"
-            ? paramsOrPage
-            : { page: paramsOrPage, size, ...extra };
+            ? paramsOrPage                // 👉 Nếu là object → dùng trực tiếp làm params
+            : { page: paramsOrPage, size, ...extra }; // 👉 Nếu là số → build params từ page + size + extra
 
         const res = await api.get("users", { params });
-        return res.data; // { code, result }
+        return res.data;
+      };
+
+      // apis/userApi.js
+      export const uploadAvatarAPI = (userId, formData) => {
+        return api.post(`users/avatar/${userId}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
       };
 
   // - Company API -
@@ -56,10 +65,15 @@ import api from "../services/api";
 
       export const getAllCompaniesAPI = async ({ page = 1, size = 10, search = '' }) => {
         const res = await api.get(`/companies`, {
-          params: { page, size }, 
+          params: {
+            page,
+            size,
+            ...(search && { search }),  
+          },
         });
         return res.data;
       };
+
 
       export const getCompanyByIdAPI = async (companyId) => {
         const res = await api.get(`companies/${companyId}`);
@@ -81,24 +95,10 @@ import api from "../services/api";
         return res.data;
       };
 
-      export const uploadCompanyLogoAPI = async (companyId, file) => {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const res = await api.post(`companies/upload-logo/${companyId}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-
-        return res.data;
+      export const uploadCompanyLogoAPI = (companyId, formData) => {
+        return api.post(`companies/upload-logo/${companyId}`, formData);
       };
 
 
-      //  - Image API -
-      // export const uploadAvatarAPI = async (image) => {
-      //   const res = await api.post("uploads/users", image);
-      //   return res.data;
-      // };
 
 

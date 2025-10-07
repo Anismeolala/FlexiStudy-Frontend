@@ -16,6 +16,7 @@ import AdminLayout from "./pages/layout/AdminLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import UserManagement from "./pages/UserManagement/UserManagement";
 import CompanyManagement from "./pages/CompanyManagement/CompanyManagement";
+import Register from "./pages/Register/Register";
 const route = createBrowserRouter([
   {
     path: "/",
@@ -34,6 +35,7 @@ const route = createBrowserRouter([
       ], 
   },
   { path: "/login", element: <Login /> },
+  { path: "/register", element: <Register /> },
   {
     path: "/admin",
     element: <AdminLayout />,

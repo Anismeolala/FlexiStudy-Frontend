@@ -58,9 +58,9 @@ const CompanyModal = ({
       formData.append("file", file);
 
       const response = await uploadCompanyLogoAPI(editingCompany?.id, formData);
-
-      if (response.code === 1000) {
-        const newLogoUrl = response.result;
+      console.log("Upload logo response:", response);
+      if (response.data.code === 1000) {
+        const newLogoUrl = response.data.result;
         setLogoUrl(newLogoUrl);
         message.success("Tải lên logo thành công!");
       } else {
@@ -71,11 +71,9 @@ const CompanyModal = ({
     } finally {
       setUploadingLogo(false);
     }
-
-    return false; // Không upload mặc định của antd
+    return false;
   };
 
-  // 💾 Submit form
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();

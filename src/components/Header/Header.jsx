@@ -36,7 +36,7 @@ const cvMenu = {
 
 const HeaderBar = () => {
   const isAuthorized = useSelector((state) => state.user.isAuthorized);
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const [user, setUser] = useState(null);
   const userData = useSelector((state) => state.user);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
@@ -105,7 +105,7 @@ return (
   <div style={{ display: "flex", alignItems: "center" }}>
     <Link to="/">
       <img
-        src="/logo.png"
+        src="/logo2.png"
         alt="FlexiStudy"
         style={{
           height: 200,
