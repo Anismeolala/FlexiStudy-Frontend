@@ -30,6 +30,7 @@ const Login = () => {
       const res = await loginAPI(username, password);
       if (res.code === 1000) {
         localStorage.setItem("accessToken", res.result.token);
+        localStorage.setItem("refreshToken", res.result.token); 
         dispatch(setIsAuthorized(true));
         // Decode token để lấy scope
       const decoded = jwtDecode(res.result.token);

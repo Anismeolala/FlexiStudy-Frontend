@@ -8,16 +8,11 @@ import {
 } from "react-pro-sidebar";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  FaUserCheck,
   FaUser,
-  FaTrain,
-  FaBus,
-  FaTicketAlt,
   FaLock,
-  FaSubway,
   FaCode,
-  FaMoneyBillWave,
 } from "react-icons/fa";
+import { MdCorporateFare } from "react-icons/md";
 import { MdOutlineAnalytics } from "react-icons/md";
 import { BiSolidNews } from "react-icons/bi";
 import { ScanOutlined } from "@ant-design/icons";
@@ -73,6 +68,13 @@ const Sidebar = ({ collapsed, toggled, handleToggleSidebar }) => {
               <MenuItem icon={<FaUser />} className="pro-menu-item">
                 Người dùng
                 <Link to={"/admin/manage-users"} />
+              </MenuItem>
+            </Tooltip>
+
+            <Tooltip placement="right" title={collapsed ? "Công ty" : ""}>
+              <MenuItem icon={<MdCorporateFare />} className="pro-menu-item">
+                Công ty
+                <Link to={"/admin/manage-companies"} />
               </MenuItem>
             </Tooltip>
         
