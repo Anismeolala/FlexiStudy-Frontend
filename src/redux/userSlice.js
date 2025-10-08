@@ -51,15 +51,18 @@ const userSlice = createSlice({
             state.email = userData.email;
             state.firstName = userData.firstName;
             state.lastName = userData.lastName;
-            state.fullName = userData.fullName;
+            state.fullName = `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
             state.phone = userData.phone;
             state.avatarUrl = userData.avatarUrl;
             state.address = userData.address;
-            state.role = userData.role;
-            state.permissions = userData.permissions;
+
+            state.role = userData.roles?.[0]?.name || null;
+
+            state.permissions = userData.roles?.flatMap(r => r.permissions?.map(p => p.name)) || [];
+
             state.isLoading = false;
             state.isError = false;
-        });
+            });
         builder.addCase(getMyInfo.rejected, (state) => {
             state.isLoading = false;
             state.isError = true;

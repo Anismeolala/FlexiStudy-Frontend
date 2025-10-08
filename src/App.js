@@ -5,7 +5,7 @@ import UserLayout from "./pages/layout/UserLayout";
 import Jobs from "./pages/Job/Jobs";
 import SavedJobs from "./pages/Job/SavedJobs";
 import AppliedJobs from "./pages/Job/AppliedJobs";
-
+import { getMyInfo } from './redux/userSlice';
 import CVGuide from "./pages/CV/CVGuide";
 import CVTemplates from "./pages/CV/CVTemplates";
 import UploadCV from "./pages/CV/UploadCV";
@@ -17,10 +17,18 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import UserManagement from "./pages/UserManagement/UserManagement";
 import CompanyManagement from "./pages/CompanyManagement/CompanyManagement";
 import Register from "./pages/Register/Register";
+import EditProfile from "./pages/EditProfile/EditProfile";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import RoleRoute from "./components/RoleRoute/RoleRoute";
+import { ROLE } from "./utils/constants";
+
 const route = createBrowserRouter([
   {
     path: "/",
-    element: <UserLayout />,
+    element: (<RoleRoute allowedRoles={[ROLE.USER, ROLE.ADMIN]}>
+              <UserLayout />
+            </RoleRoute>),
     children: 
       [
         { index: true, element: <HomePage /> },
@@ -32,13 +40,16 @@ const route = createBrowserRouter([
         { path: "cv/upload", element: <UploadCV /> },
         { path: "career-guide", element: <CareerGuide /> },
         { path: "schedule", element: <Schedule /> },
+        { path: "/profile", element: <EditProfile /> },
       ], 
   },
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
   {
     path: "/admin",
-    element: <AdminLayout />,
+    element: (<RoleRoute allowedRoles={[ ROLE.ADMIN]}>
+              <AdminLayout />
+            </RoleRoute>),
     children: 
       [
         { index: true, element: <Dashboard /> },
@@ -49,6 +60,37 @@ const route = createBrowserRouter([
 ]);
 
 const App = () => {
+  const dispatch = useDispatch();
+  const [appReady, setAppReady] = useState(false); // ✅ Trạng thái khởi tạo App
+
+  useEffect(() => {
+    const initApp = async () => {
+      const token = localStorage.getItem("accessToken");
+
+      if (token) {
+        await dispatch(getMyInfo());
+      }
+      setAppReady(true);
+    };
+    initApp();
+  }, [dispatch]);
+
+  if (!appReady) {
+    return (
+      <div
+        style={{
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 18,
+        }}
+      >
+        Đang tải ứng dụng...
+      </div>
+    );
+  }
+
   return <RouterProvider router={route} />;
 };
 export default App;

@@ -13,7 +13,6 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { fetchLogoutAPI } from "../../apis";
 import { resetUser, setIsAuthorized } from "../../redux/userSlice";
 import ProfilePopup from "../ProfilePopup/ProfilePopup";
-import { NavDropdown } from "react-bootstrap";
 
 const { Header: AntHeader } = Layout;
 
@@ -42,11 +41,11 @@ const HeaderBar = () => {
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const navigate = useNavigate();
 
-      const onMenuClick = ({ key }) => {
-    if (key === "logout") handleButtonLogin();
-    if (key === "profile") handleProfileClick();
-  };
-  
+    const onMenuClick = ({ key }) => {
+      if (key === "logout") handleButtonLogin();
+      if (key === "profile") handleProfileClick();
+    };
+    
 
    const items = [
     {
@@ -77,8 +76,7 @@ const HeaderBar = () => {
   };
 
   const handleProfileClick = () => {
-     message.info("Chức năng đang được phát triển");
-      console.log("Profile clicked");
+    navigate("/profile");
   }
 
 
@@ -182,25 +180,31 @@ return (
   </Space>
 
   <div style={{ cursor: "pointer", display: "flex", alignItems: "center" }}>
-    {isAuthorized ? (
-                 <Dropdown menu={{ items, onClick: onMenuClick }} trigger={["click"]}>
-      <Space style={{ cursor: "pointer" }}>
-        <SettingOutlined />
-        Setting
-        <DownOutlined style={{ fontSize: 10 }} />
-      </Space>
-    </Dropdown>
-              
-              ) : (
-                <Button
-                  className="btn btn-outline-light me-2"
-                  type="primary"
-                  onClick={() => handleButtonLogin()}
-                >
-                  Login
-                </Button>
-              )}
-  </div>
+  {isAuthorized ? (
+    <>
+      <Avatar
+        src={user?.avatarUrl}
+        icon={<UserOutlined />}
+        onClick={() => setShowProfilePopup(!showProfilePopup)}
+        style={{ cursor: "pointer" }}
+      />
+      <ProfilePopup 
+        visible={showProfilePopup} 
+        onClose={handleClosePopup} 
+      />
+    </>
+  ) : (
+    <Button
+      className="btn btn-outline-light me-2"
+      type="primary"
+      onClick={handleButtonLogin}
+    >
+      Login
+    </Button>
+  )}
+</div>
+
+
 </AntHeader>
 
   );

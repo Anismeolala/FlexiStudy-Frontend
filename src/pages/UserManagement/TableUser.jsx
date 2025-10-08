@@ -15,6 +15,7 @@ const TableUser = ({
   handleStatusChange,
   pagination = { current: 1, pageSize: 10, total: 0 },
   onTableChange,
+  onStatusChange,
 }) => {
   const columns = [
     {
@@ -79,7 +80,7 @@ const TableUser = ({
                 borderRadius: '6px',
                 transition: 'background 0.2s',
               }}
-              onClick={() => handleStatusChange(record, 0)}
+              onClick={() => onStatusChange(record, 0)}
               onMouseEnter={(e) => e.target.style.background = '#f0f0f0'}
               onMouseLeave={(e) => e.target.style.background = 'transparent'}
             >
@@ -96,7 +97,7 @@ const TableUser = ({
                 borderRadius: '6px',
                 transition: 'background 0.2s',
               }}
-              onClick={() => handleStatusChange(record, 1)}
+              onClick={() => onStatusChange(record, 1)}
               onMouseEnter={(e) => e.target.style.background = '#f0f0f0'}
               onMouseLeave={(e) => e.target.style.background = 'transparent'}
             >
