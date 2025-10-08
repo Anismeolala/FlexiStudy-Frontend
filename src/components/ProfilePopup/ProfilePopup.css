@@ -11,16 +11,12 @@
 
 /* Profile Popup Card */
 .profile-popup-card {
-  position: fixed;
+  position: absolute;
   top: 70px;
-  right: 20px;
-  width: 320px;
-  z-index: 1001;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  border: 1px solid #f0f0f0;
-  animation: profilePopupSlideIn 0.2s ease-out;
-  background: white;
+  right: 40px;
+  width: 280px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 @keyframes profilePopupSlideIn {

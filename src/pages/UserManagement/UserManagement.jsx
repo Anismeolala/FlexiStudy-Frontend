@@ -1,9 +1,9 @@
-import { Col, Form, Input, message, Row, Select, Spin } from 'antd';
+import { Col, Form, Input, message, Modal, Row, Select, Spin } from 'antd';
 import { FaUser, FaUserPlus } from "react-icons/fa";
 import PrimaryButton from '../../components/PrimaryButton/PrimaryButton';
 import { useEffect, useState } from 'react';
 import { useDispatch } from "react-redux";
-import { createUserAPI, getAllUsersAPI, updateUserAPI } from '../../apis';
+import { createUserAPI, deleteUserAPI, getAllUsersAPI, updateUserAPI } from '../../apis';
 import { setLayoutData } from "../../redux/layoutSlice";
 import { usePermission } from "../../components/hooks/usePermission";
 import TableUser from './TableUser';
@@ -126,6 +126,28 @@ const UserManagement = () => {
     }
   };
 
+  const handleStatusChange = async (user, newStatus) => {
+    const isActivating = newStatus === 0;
+    const actionText = isActivating ? "kích hoạt" : "vô hiệu hóa";
+
+    Modal.confirm({
+      title: `Xác nhận ${actionText} tài khoản`,
+      content: `Bạn có chắc chắn muốn ${actionText} tài khoản "${user.username}"?`,
+      okText: isActivating ? "Kích hoạt" : "Vô hiệu hóa",
+      okType: isActivating ? "primary" : "danger",
+      cancelText: "Hủy",
+      onOk: async () => {
+        try {
+            await deleteUserAPI(user.id);
+            message.success("Đã vô hiệu hóa tài khoản thành công");
+            await loadUsers(false, filters, pagination);
+        } catch (error) {
+          console.error(`Lỗi khi ${actionText} tài khoản:`, error);
+          message.error(`Không thể ${actionText} tài khoản`);
+        }
+      },
+    })}
+  
   // ✅ Lần đầu load
   useEffect(() => {
     dispatch(setLayoutData({ title: "Quản lý người dùng", icon: <FaUser /> }));
@@ -211,6 +233,7 @@ const UserManagement = () => {
               loading={loading}
               pagination={pagination}
               onTableChange={handleTableChange}
+              onStatusChange={handleStatusChange}
             />
           )}
         </div>

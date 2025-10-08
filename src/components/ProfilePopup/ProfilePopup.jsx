@@ -24,7 +24,7 @@ const ProfilePopup = ({ visible, onClose }) => {
   };
 
   const handleEditProfile = () => {
-    navigate("/edit-profile");
+    navigate("/profile");
     onClose();
   };
 

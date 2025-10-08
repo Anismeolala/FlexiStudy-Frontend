@@ -8,6 +8,7 @@ import Preloader from '../../components/Preloader/Preloader';
 import  banner  from "../../assets/video/flexistudy_banner.gif"
 import { loginAPI } from '../../apis';
 import { resetUser, setIsAuthorized } from '../../redux/userSlice';
+import { getMyInfo } from '../../redux/userSlice';
 
 const Login = () => {
   const [form] = Form.useForm();
@@ -32,19 +33,21 @@ const Login = () => {
         localStorage.setItem("accessToken", res.result.token);
         localStorage.setItem("refreshToken", res.result.token); 
         dispatch(setIsAuthorized(true));
-        // Decode token để lấy scope
-      const decoded = jwtDecode(res.result.token);
-      const scope = decoded.scope || "";
-        if (scope.includes("ROLE_USER")) {
-          navigate("/");
-          message.success("Đăng nhập thành công");
-        } else if (scope.includes("ROLE_ADMIN")) {
-          navigate("/admin");
-          console.log("Admin logged in", scope);
-          message.success("Đăng nhập thành công");
-        } else {
-          message.error("Vai trò người dùng không xác định");
-        }
+        await dispatch(getMyInfo());
+
+         // Decode token để lấy scope
+        const decoded = jwtDecode(res.result.token);
+        const scope = decoded.scope || "";
+          if (scope.includes("ROLE_USER")) {
+            navigate("/");
+            message.success("Đăng nhập thành công");
+          } else if (scope.includes("ROLE_ADMIN")) {
+            navigate("/admin");
+            console.log("Admin logged in", scope);
+            message.success("Đăng nhập thành công");
+          } else {
+            message.error("Vai trò người dùng không xác định");
+          }
       }
     } catch (error) {
       if (error.response?.status === 401) {
