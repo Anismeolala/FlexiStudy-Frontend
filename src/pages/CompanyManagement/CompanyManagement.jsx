@@ -44,7 +44,7 @@ const CompanyManagement = () => {
     showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} công ty`,
   });
 
-  // 🧠 Load company list
+  // Load company list
   const loadCompanies = async (options = {}) => {
     const {
       isInitial = false,

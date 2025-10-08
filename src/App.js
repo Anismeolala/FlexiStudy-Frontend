@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import RoleRoute from "./components/RoleRoute/RoleRoute";
 import { ROLE } from "./utils/constants";
+import JobMangement from "./pages/ManagementJob/JobManagement";
 
 const route = createBrowserRouter([
   {
@@ -55,6 +56,7 @@ const route = createBrowserRouter([
         { index: true, element: <Dashboard /> },
         { path: "manage-users", element: <UserManagement /> },
         { path: "manage-companies", element: <CompanyManagement /> },
+        { path: "manage-jobs", element: <JobMangement /> },
       ], 
   },
 ]);

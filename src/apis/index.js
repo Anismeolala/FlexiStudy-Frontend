@@ -41,8 +41,8 @@ import api from "../services/api";
       export const getAllUsersAPI = async (paramsOrPage = 1, size = 10, extra = {}) => {
         const params =
           typeof paramsOrPage === "object"
-            ? paramsOrPage                // 👉 Nếu là object → dùng trực tiếp làm params
-            : { page: paramsOrPage, size, ...extra }; // 👉 Nếu là số → build params từ page + size + extra
+            ? paramsOrPage                
+            : { page: paramsOrPage, size, ...extra }; 
 
         const res = await api.get("users", { params });
         return res.data;
@@ -98,6 +98,46 @@ import api from "../services/api";
       export const uploadCompanyLogoAPI = (companyId, formData) => {
         return api.post(`companies/upload-logo/${companyId}`, formData);
       };
+
+    //  - Job API -
+
+      // Lấy danh sách Job (phân trang + search)
+      export const getAllJobsAPI = async ({ page = 1, size = 10, search = '' }) => {
+        const res = await api.get(`jobs`, {
+          params: {
+            page,
+            size,
+            ...(search && { search }), // chỉ truyền search nếu có
+          },
+        });
+        return res.data;
+      };
+
+      // Lấy chi tiết 1 Job
+      export const getJobByIdAPI = async (jobId) => {
+        const res = await api.get(`jobs/${jobId}`);
+        return res.data;
+      };
+
+      // Tạo mới Job
+      export const createJobAPI = async (payload) => {
+        const res = await api.post(`jobs`, payload);
+        return res.data;
+      };
+
+      // Cập nhật Job
+      export const updateJobAPI = async (jobId, payload) => {
+        const res = await api.put(`jobs/${jobId}`, payload);
+        return res.data;
+      };
+
+      // Xóa Job
+      export const deleteJobAPI = async (jobId) => {
+        const res = await api.delete(`jobs/${jobId}`);
+        return res.data;
+      };
+
+      
 
 
 
