@@ -15,6 +15,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  
 
   useEffect(() => {
     localStorage.removeItem("accessToken");
@@ -22,45 +23,61 @@ const Login = () => {
     dispatch(setIsAuthorized(false));
   }, [dispatch]);
 
-  const handleLogin = async () => {
-    try {
-      setIsLoading(true);
-      const values = await form.validateFields();
-      const { username, password } = values;
+    const handleLogin = async () => {
+      try {
+        setIsLoading(true);
+        const values = await form.validateFields();
+        const { username, password } = values;
 
-      const res = await loginAPI(username, password);
-      if (res.code === 1000) {
-        localStorage.setItem("accessToken", res.result.token);
-        localStorage.setItem("refreshToken", res.result.token); 
-        dispatch(setIsAuthorized(true));
-        await dispatch(getMyInfo());
+        const res = await loginAPI(username, password);
 
-         // Decode token để lấy scope
-        const decoded = jwtDecode(res.result.token);
-        const scope = decoded.scope || "";
-          if (scope.includes("ROLE_USER")) {
-            navigate("/");
-            message.success("Đăng nhập thành công");
-          } else if (scope.includes("ROLE_ADMIN")) {
+        if (res.code === 1000) {
+          // Lưu token
+          localStorage.setItem("accessToken", res.result.token);
+          localStorage.setItem("refreshToken", res.result.token);
+          dispatch(setIsAuthorized(true));
+
+          //  Gọi API lấy thông tin user
+          const resultAction = await dispatch(getMyInfo());
+          const userData = resultAction.payload?.result;
+
+          console.log("User Data:", userData);
+
+          // 🧠 Kiểm tra role + profile_completed để điều hướng
+          const decoded = jwtDecode(res.result.token);
+          const scope = decoded.scope || "";
+
+          if (scope.includes("ROLE_ADMIN")) {
             navigate("/admin");
-            console.log("Admin logged in", scope);
-            message.success("Đăng nhập thành công");
-          } else {
+            message.success("Đăng nhập thành công (Admin)");
+          } 
+          else if (scope.includes("ROLE_USER")) {
+            if (userData?.profileCompleted === false) {
+              navigate("/onboard");
+              message.info("Chào mừng! Hãy hoàn thiện hồ sơ của bạn để bắt đầu.");
+            } else {
+              // User đã hoàn thành hồ sơ
+              navigate("/");
+              message.success("Đăng nhập thành công!");
+            }
+          } 
+          else {
             message.error("Vai trò người dùng không xác định");
           }
+        }
+      } catch (error) {
+        console.error(error);
+        if (error.response?.status === 401) {
+          message.error("Tài khoản hoặc mật khẩu không đúng");
+        } else if (error.errorFields) {
+          // Validation error
+        } else {
+          message.error("Đăng nhập thất bại, có lỗi xảy ra");
+        }
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      if (error.response?.status === 401) {
-        message.error("Tài khoản hoặc mật khẩu không đúng");
-      } else if (error.errorFields) {
-        // Form validation error
-      } else {
-        message.error("Đăng nhập thất bại, có lỗi xảy ra");
-      } 
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
 
   return (
      <>

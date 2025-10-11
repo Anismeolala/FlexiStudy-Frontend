@@ -10,7 +10,8 @@ import {
   Col,
   Card,
   Typography,
-  Divider
+  Divider,
+  Spin
 } from "antd";
 import { 
   UserOutlined, 
@@ -22,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import { uploadAvatarAPI, updateUserAPI } from "../../apis";
 import { setUser } from "../../redux/userSlice";
 import { setLayoutData } from "../../redux/layoutSlice";
+import { getMyInfo } from '../../redux/userSlice';
 import "./EditProfile.css";
 
 const { Title, Text } = Typography;
@@ -35,6 +37,53 @@ const EditProfile = () => {
   const [imageUrl, setImageUrl] = useState(user.avatarUrl || "");
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageKey, setImageKey] = useState(Date.now()); // Force re-render
+  const [loadingUser, setLoadingUser] = useState(false);
+
+  useEffect(() => {
+  const loadUser = async () => {
+    try {
+      setLoadingUser(true);
+
+      // Nếu Redux chưa có hoặc user thiếu dữ liệu → fetch lại
+      if (
+        !user?.id ||
+        !user.firstName ||
+        !user.email ||
+        !user.phone
+      ) {
+        const action = await dispatch(getMyInfo());
+        const data = action.payload?.result;
+        console.log("📥 getMyInfo payload:", data);
+        if (data) {
+          form.setFieldsValue({
+            firstName: data.firstName || "",
+            lastName: data.lastName || "",
+            avatarUrl: data.avatarUrl || "",
+            email: data.email || "",
+            phone: data.phone || "",
+            address: data.address || "",
+          });
+        }
+      } else {
+        console.log("🧩 Using Redux user:", user);
+        form.setFieldsValue({
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+          avatarUrl: user.avatarUrl || "",
+          email: user.email || "",
+          phone: user.phone || "",
+          address: user.address || "",
+        });
+      }
+    } catch (err) {
+      console.error("❌ loadUser error:", err);
+    } finally {
+      setLoadingUser(false);
+    }
+  };
+
+  loadUser();
+}, [user?.id]);
 
   // Set page title and icon
   useEffect(() => {
@@ -45,20 +94,6 @@ const EditProfile = () => {
       })
     );
   }, [dispatch]);
-
-  // Khi user thay đổi → cập nhật lại form
-useEffect(() => {
-  if (user && user.id) {
-    form.setFieldsValue({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      avatarUrl: user.avatarUrl,
-      email: user.email,
-      phone: user.phone,
-      address: user.address,
-    });
-  }
-}, [user, form]);
 
   // Sync imageUrl with user.avatarUrl when user data changes
   useEffect(() => {
@@ -127,10 +162,9 @@ useEffect(() => {
     }
   };
 
-  console.log("🔹 user trong EditProfile:", user);
-
 
   return (
+    
     <div className="edit-profile-page">
       <div className="edit-profile-header">
         <Button 
@@ -190,18 +224,13 @@ useEffect(() => {
         <Col xs={24} lg={16}>
           {/* Form Card */}
           <Card title="Thông tin cá nhân" className="form-card">
+          {loadingUser ? (
+          <Spin tip="Đang tải dữ liệu..." />
+        ) : (
             <Form
               form={form}
               layout="vertical"
               onFinish={handleSubmit}
-              initialValues={{
-                firstName: user.firstName,
-                lastName: user.lastName,
-                avatarUrl: user.avatarUrl,
-                email: user.email,
-                phone: user.phone,
-                address: user.address
-              }}
             >
               <Row gutter={16}>
                 <Col span={12}>
@@ -279,6 +308,7 @@ useEffect(() => {
                 </Button>
               </Form.Item>
             </Form>
+            )}
           </Card>
         </Col>
       </Row>

@@ -6,6 +6,11 @@ import api from "../services/api";
         return res.data;
       };
 
+      export const registerAPI = async (username, password) => {
+        const res = await api.post("users/register", { username, password });
+        return res.data;
+      };
+
       export const getMyInfoAPI = async () => {
         const res = await api.get("users/myInfo");
         return res.data;
@@ -22,6 +27,11 @@ import api from "../services/api";
       };
 
   //  - User API -
+      export const onboardAPI = async (payload) => {
+        const res = await api.post("profile", payload);
+        return res.data;
+      };
+
       export const updateUserAPI = async (id, payload) => {
           const res = await api.put(`users/${id}`, payload);
           console.log("updateUserAPI -> res", res); 
@@ -102,16 +112,25 @@ import api from "../services/api";
     //  - Job API -
 
       // Lấy danh sách Job (phân trang + search)
-      export const getAllJobsAPI = async ({ page = 1, size = 10, search = '' }) => {
+      export const getAllJobsAPI = async ({ page = 1, size = 10, search = '', city, urgent }) => {
         const res = await api.get(`jobs`, {
           params: {
             page,
             size,
-            ...(search && { search }), // chỉ truyền search nếu có
+            ...(search && { search }),city, urgent // chỉ truyền search nếu có
           },
         });
         return res.data;
       };
+
+      // Lấy danh sách job trong 30 ngày gần nhất (phân trang)
+      export const getRecentJobsAPI = async ({ page = 1, size = 8, search = '', city = '' }) => {
+        const res = await api.get(`jobs`, {
+          params: { page, size, ...(search && { search }), city },
+        });
+        return res.data;
+      };
+
 
       // Lấy chi tiết 1 Job
       export const getJobByIdAPI = async (jobId) => {
@@ -137,6 +156,17 @@ import api from "../services/api";
         return res.data;
       };
 
+    export const getJobCategoriesAPI = async () => {
+      const res = await api.get(`jobs/categories`);
+      return res.data;
+    };
+
+
+      // - SKill API -
+      export const suggestSkillAPI = async (keyword) => {
+        const res = await api.get(`skills/suggest?keyword=${encodeURIComponent(keyword)}`);
+        return res.data;
+      };
       
 
 

@@ -7,20 +7,21 @@ import {
   Space,
   Button,
   Input,
-  Select,
-  DatePicker,
   message,
   Tabs,
   Modal,
   Descriptions,
   Image,
   Tooltip,
+  Popover,
 } from "antd";
 import {
   SearchOutlined,
   CheckOutlined,
   CloseOutlined,
   EyeOutlined,
+  CheckCircleOutlined,
+  StopOutlined,
 } from "@ant-design/icons";
 import { getAllJobsAPI, updateJobAPI } from "../../apis";
 
@@ -33,6 +34,7 @@ export default function AdminJobManagement() {
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(false);
+  const [openPopoverId, setOpenPopoverId] = useState(null);
 
   const [jobs, setJobs] = useState([]);
   const [pagination, setPagination] = useState({
@@ -62,8 +64,6 @@ export default function AdminJobManagement() {
             size: pageSize,
             search,
           });
-          
-          console.log("Jobs API response:", response);
 
           if (response.code === 1000) {
             const {
@@ -126,8 +126,9 @@ export default function AdminJobManagement() {
         );
 
         message.success(
-          `Đã ${newStatus === "APPROVED" ? "duyệt" : "từ chối"} công việc`
+          `Đã ${newStatus === "OPEN" ? "duyệt" : "đóng"} công việc`
         );
+        setOpenPopoverId(null);
       } catch (error) {
         console.error("Error updating job status:", error);
         message.error("Cập nhật trạng thái thất bại");
@@ -197,32 +198,106 @@ export default function AdminJobManagement() {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      render: (status) => (
-        <Tag
-          color={
-            status === "APPROVED"
-              ? "green"
-              : status === "PENDING"
-              ? "gold"
-              : status === "REJECTED"
-              ? "red"
-              : "blue"
-          }
-        >
-          {status}
-        </Tag>
-      ),
-      filters: [
-        { text: "ACTIVE", value: "ACTIVE" },
-        { text: "PENDING", value: "PENDING" },
-        { text: "INACTIVE", value: "INACTIVE" },
-      ],
-      onFilter: (value, record) => record.status === value,
-    },
+      width: 300,
+      align: "center",
+      render: (_, record) => {
+      const status = record.status?.toUpperCase();
+      const colorMap = {
+        OPEN: "green",
+        CLOSED: "yellow",
+      };
+      const iconMap = {
+        OPEN: <CheckCircleOutlined />,
+        CLOSED: <StopOutlined />,
+      };
+
+      // Menu trong Popover
+      const actionOptions = (
+        <div style={{ minWidth: 140 }}>
+          {status === "OPEN" ? (
+            <div
+              style={{
+                padding: "8px 12px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                borderRadius: "6px",
+                transition: "background 0.2s",
+              }}
+              onClick={() => handleUpdateStatus(record.id, "CLOSED")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "#f0f0f0")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "transparent")
+              }
+            >
+              <CloseOutlined style={{ color: "#ff4d4f" }} />
+              <span>Đóng công việc</span>
+            </div>
+          ) : (
+            <div
+              style={{
+                padding: "8px 12px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                borderRadius: "6px",
+                transition: "background 0.2s",
+              }}
+              onClick={() => handleUpdateStatus(record.id, "OPEN")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "#f0f0f0")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "transparent")
+              }
+            >
+              <CheckOutlined style={{ color: "#52c41a" }} />
+              <span>Mở lại công việc</span>
+            </div>
+          )}
+        </div>
+      );
+
+      return (
+        <Space>
+          <Popover
+            content={actionOptions}
+            trigger="click"
+            placement="bottom"
+            overlayStyle={{ padding: 0 }}
+            open={openPopoverId === record.id}
+            onOpenChange={(visible) =>
+              setOpenPopoverId(visible ? record.id : null)
+            }
+          >
+            <Tag
+              color={colorMap[status]}
+              style={{
+                cursor: "pointer",
+                margin: 0,
+                padding: "4px 8px",
+                borderRadius: "6px",
+                fontWeight: 500,
+                userSelect: "none",
+              }}
+              icon={iconMap[status]}
+            >
+              {status === "OPEN" ? "Đang mở" : "Đã đóng"}
+            </Tag>
+          </Popover>
+        </Space>
+      );
+      },
+  },
   {
     title: "Hành động",
     key: "action",
     render: (_, record) => (
+      
         <Space>
           <Tooltip title="Xem chi tiết">
             <Button
@@ -231,26 +306,6 @@ export default function AdminJobManagement() {
               onClick={() => showDetails(record)}
             />
           </Tooltip>
-          {record.status === "PENDING" ? (
-            <>
-              <Button
-                icon={<CheckOutlined />}
-                type="primary"
-                onClick={() => handleUpdateStatus(record.id, "APPROVED")} // ✅ đổi ACTIVE -> APPROVED
-              >
-                Duyệt
-              </Button>
-              <Button
-                icon={<CloseOutlined />}
-                danger
-                onClick={() => handleUpdateStatus(record.id, "REJECTED")} // ✅ đổi INACTIVE -> REJECTED
-              >
-                Từ chối
-              </Button>
-            </>
-          ) : (
-            <Tag color="blue">Đã xử lý</Tag>
-          )}
         </Space>
       ),
 },
@@ -270,9 +325,8 @@ export default function AdminJobManagement() {
         onChange={(key) => setStatusFilter(key)}
         items={[
           { label: "Tất cả", key: "ALL" },
-          { label: "Chờ duyệt", key: "PENDING" },
-          { label: "Đã duyệt", key: "APPROVED" },
-          { label: "Từ chối", key: "REJECTED" },
+          { label: "Đang mở", key: "OPEN" },
+          { label: "Đã đóng", key: "CLOSED" },
         ]}
         style={{ marginBottom: 16 }}
       />
@@ -360,9 +414,9 @@ export default function AdminJobManagement() {
             <Descriptions.Item label="Trạng thái">
               <Tag
                 color={
-                  selectedRecord.status === "APPROVED"
+                  selectedRecord.status === "OPEN"
                     ? "green"
-                    : selectedRecord.status === "PENDING"
+                    : selectedRecord.status === "CLOSED"
                     ? "gold"
                     : "red"
                 }

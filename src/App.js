@@ -23,6 +23,8 @@ import { useEffect, useState } from "react";
 import RoleRoute from "./components/RoleRoute/RoleRoute";
 import { ROLE } from "./utils/constants";
 import JobMangement from "./pages/ManagementJob/JobManagement";
+import FormOnboard from "./pages/FormOnboard/FormOnboard";
+import JobDetailPage from "./pages/Job/JobDetailPage/JobDetailPage";
 
 const route = createBrowserRouter([
   {
@@ -42,6 +44,8 @@ const route = createBrowserRouter([
         { path: "career-guide", element: <CareerGuide /> },
         { path: "schedule", element: <Schedule /> },
         { path: "/profile", element: <EditProfile /> },
+        { path: "/onboard", element: <FormOnboard /> },
+        { path: "//jobs/:jobId", element: <JobDetailPage /> },
       ], 
   },
   { path: "/login", element: <Login /> },
