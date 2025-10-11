@@ -64,14 +64,11 @@ api.interceptors.response.use(
           throw new Error("No refresh token");
         }
 
-        console.log("📤 Gọi refresh với chính access token:", refreshToken);
-
         const res = await axios.post(`${API_ROOT}auth/refresh`, {
           token: refreshToken,  // 👈 gửi chính access token lên
         });
 
         const newAccessToken = res.data.result.token;
-        console.log("✅ Refresh thành công:", newAccessToken);
 
         // Cập nhật token mới vào localStorage
         localStorage.setItem("accessToken", newAccessToken);

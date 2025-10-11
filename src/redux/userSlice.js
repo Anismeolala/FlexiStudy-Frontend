@@ -21,6 +21,7 @@ const initialState = {
     avatarUrl: '',
     address: '',
     role: '',
+    profile_completed: false,
     permissions: [],
     isLoading: false,
     isError: false,
@@ -55,6 +56,7 @@ const userSlice = createSlice({
             state.phone = userData.phone;
             state.avatarUrl = userData.avatarUrl;
             state.address = userData.address;
+            state.profile_completed = userData.profile_completed;
 
             state.role = userData.roles?.[0]?.name || null;
 

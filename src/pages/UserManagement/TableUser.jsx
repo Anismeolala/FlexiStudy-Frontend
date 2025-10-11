@@ -12,7 +12,6 @@ const TableUser = ({
   dataSource = [],
   loading = false,
   handleEdit,
-  handleStatusChange,
   pagination = { current: 1, pageSize: 10, total: 0 },
   onTableChange,
   onStatusChange,
