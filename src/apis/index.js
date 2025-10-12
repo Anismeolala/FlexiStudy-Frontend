@@ -112,16 +112,17 @@ import api from "../services/api";
     //  - Job API -
 
       // Lấy danh sách Job (phân trang + search)
-      export const getAllJobsAPI = async ({ page = 1, size = 10, search = '', city, urgent }) => {
-        const res = await api.get(`jobs`, {
-          params: {
-            page,
-            size,
-            ...(search && { search }),city, urgent // chỉ truyền search nếu có
-          },
-        });
+     export const getAllJobsAPI = async (params) => {
+        const res = await api.get('jobs', { params });
         return res.data;
       };
+
+      export const getAllJobsAdminAPI = async (params) => {
+          const res = await api.get(`jobs/admin`, { params });
+          console.log("getAllJobsAdminAPI -> res", res);
+          return res.data;
+        };
+
 
       // Lấy danh sách job trong 30 ngày gần nhất (phân trang)
       export const getRecentJobsAPI = async ({ page = 1, size = 8, search = '', city = '' }) => {

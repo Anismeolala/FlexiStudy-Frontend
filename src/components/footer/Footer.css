@@ -1,9 +1,12 @@
 /* Nền full-bleed, bỏ padding mặc định của antd Footer */
 .site-footer {
-  background: #0b2347;               /* xanh đậm như ảnh */
-  color: #b9c6da;
-  padding: 0 !important;
+  background:#0b2347;
+  color:#b9c6da;
+  padding:0 !important;
+  position: static;
+  z-index: auto;
 }
+.site-footer__content { width:100%; }
 
 /* Khung căn giữa nội dung */
 .footer-inner {

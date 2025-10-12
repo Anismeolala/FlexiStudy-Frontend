@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { getJobByIdAPI } from "../../../apis";
 import {
   Card,
@@ -10,7 +10,6 @@ import {
   Button,
   Divider,
   Tag,
-  Space,
 } from "antd";
 import {
   EnvironmentOutlined,
@@ -18,21 +17,27 @@ import {
   FieldTimeOutlined,
   ApartmentOutlined,
   CalendarOutlined,
+  LeftOutlined,
+  CheckCircleTwoTone,
+  BuildOutlined ,
 } from "@ant-design/icons";
+import "./JobDetailPage.css"; 
 
 const { Title, Text, Paragraph } = Typography;
 
 const JobDetailPage = () => {
   const { jobId } = useParams();
+  const navigate = useNavigate();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [logoOk, setLogoOk] = useState(true);
 
   useEffect(() => {
     async function fetchJob() {
       try {
         const res = await getJobByIdAPI(jobId);
         setJob(res.result);
-        console.log("Chi tiết job:", res.result);
+        setLogoOk(!!res?.result?.companyLogoUrl);
       } catch (error) {
         console.error("❌ Lỗi khi tải job:", error);
       } finally {
@@ -55,157 +60,205 @@ const JobDetailPage = () => {
     job.minSalary && job.maxSalary
       ? `${job.minSalary.toLocaleString("vi-VN")} - ${job.maxSalary.toLocaleString(
           "vi-VN"
-        )} ${job.currency}`
+        )} ${job.currency || "VND"}`
+      : job.minSalary
+      ? `${job.minSalary.toLocaleString("vi-VN")} ${job.currency || "VND"}`
       : "Thoả thuận";
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "";
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("vi-VN");
-  };
+  const formatDate = (dateStr) =>
+    dateStr
+      ? new Date(dateStr).toLocaleDateString("vi-VN", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : "";
+
+  const isFeatured = !!job.featured || !!job.urgent;
+
+  const reqList = (text) =>
+    (text || "")
+      .split(/\r?\n/)
+      .map((s) => s.trim())
+      .filter(Boolean);
 
   return (
-    <div style={{ padding: "40px 80px", backgroundColor: "#fafafa" }}>
-      <Row gutter={32}>
-        {/* =============== Cột trái =============== */}
-        <Col xs={24} md={16}>
-          <Card bordered={false} style={{ borderRadius: 8, padding: "24px 32px" }}>
-            {/* --- Header job --- */}
-            <Title level={3} style={{ marginBottom: 0 }}>
-              {job.title}
-            </Title>
-            <Text type="secondary" style={{ fontSize: 16 }}>
-              {job.companyName}
-            </Text>
+    <div className="jobdetail">
+      <div className="container">
+        <Button
+          icon={<LeftOutlined />}
+          type="text"
+          className="jd-back"
+          onClick={() => navigate(-1)}
+        >
+          Quay lại
+        </Button>
 
-            <Divider />
+        <Row gutter={24}>
+          {/* =================== Main =================== */}
+          <Col xs={24} lg={16}>
+            {/* Header Card */}
+            <Card className="jd-card">
+              <div className="jd-head">
+                <div className="jd-head__left">
+                  <div className="jd-logo">
+                    {logoOk ? (
+                      <img
+                        src={job.companyLogoUrl}
+                        alt={job.companyName}
+                        onError={() => setLogoOk(false)}
+                      />
+                    ) : (
+                      <div className="jd-logo__fallback">
+                        {(job.companyName || "CT")
+                          .split(" ")
+                          .map((w) => w[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  <div className="jd-titlebox">
+                    <h1 className="jd-title">{job.title}</h1>
+                    <div className="jd-company">
+                      <BuildOutlined /> <span>{job.companyName}</span>
+                    </div>
+                  </div>
+                </div>
 
-            {/* --- Tag thông tin nhanh --- */}
-            <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-              <Col>
-                <Tag color="blue">
+                {isFeatured && <Tag className="jd-badge">Nổi bật</Tag>}
+              </div>
+
+              <div className="jd-infos">
+                <span>
+                  <EnvironmentOutlined /> {job.city || "Toàn quốc"}
+                </span>
+                <span>
+                  <ApartmentOutlined /> {job.mode || "Không rõ"}
+                </span>
+                <span>
+                  <FieldTimeOutlined /> {job.type || "Không rõ"}
+                </span>
+                <span className="jd-salary">
                   <DollarOutlined /> {salaryText}
-                </Tag>
-              </Col>
-              <Col>
-                <Tag color="green">
-                  <EnvironmentOutlined /> {job.city || "Không rõ"}
-                </Tag>
-              </Col>
-              <Col>
-                <Tag color="orange">
-                  <ApartmentOutlined /> {job.mode}
-                </Tag>
-              </Col>
-              <Col>
-                <Tag color="purple">
-                  <FieldTimeOutlined /> {job.type}
-                </Tag>
-              </Col>
-            </Row>
+                </span>
+                {job.postedAt && (
+                  <span>
+                    <CalendarOutlined /> {formatDate(job.postedAt)}
+                  </span>
+                )}
+              </div>
+            </Card>
 
-            {/* =============== I. Mô tả công việc =============== */}
+            {/* Description */}
             {job.description && (
-              <>
-                <Divider />
-                <Title level={4}>I. Mô tả công việc</Title>
-                <Paragraph style={{ whiteSpace: "pre-line" }}>
-                  {job.description}
-                </Paragraph>
-              </>
+              <Card className="jd-card">
+                <Title level={4} className="jd-section-title">
+                  Mô tả công việc
+                </Title>
+                <Paragraph className="jd-text">{job.description}</Paragraph>
+              </Card>
             )}
 
-            {/* =============== II. Yêu cầu ứng viên =============== */}
+            {/* Requirements */}
             {job.requirements && (
-              <>
-                <Divider />
-                <Title level={4}>II. Yêu cầu ứng viên</Title>
-                <Paragraph style={{ whiteSpace: "pre-line" }}>
-                  {job.requirements}
-                </Paragraph>
-              </>
-            )}
-
-            {/* =============== III. Quyền lợi =============== */}
-            {job.benefits && (
-              <>
-                <Divider />
-                <Title level={4}>III. Quyền lợi</Title>
-                <Paragraph style={{ whiteSpace: "pre-line" }}>
-                  {job.benefits}
-                </Paragraph>
-              </>
-            )}
-
-            {/* =============== IV. Thông tin chung =============== */}
-            <Divider />
-            <Title level={4}>IV. Thông tin chung</Title>
-            <Paragraph>
-              <EnvironmentOutlined /> <b>Địa điểm làm việc:</b>{" "}
-              {job.address || "Không xác định"}
-            </Paragraph>
-            <Paragraph>
-              <CalendarOutlined /> <b>Hạn nộp hồ sơ:</b>{" "}
-              {job.expiryDate ? formatDate(job.expiryDate) : "Không rõ"}
-            </Paragraph>
-
-            {/* =============== Kỹ năng yêu cầu =============== */}
-            {job.requiredSkills?.length > 0 && (
-              <>
-                <Divider />
-                <Title level={4}>V. Kỹ năng yêu cầu</Title>
-                <Space wrap>
-                  {job.requiredSkills.map((s, i) => (
-                    <Tag key={i} color="geekblue">
-                      {s.name}
-                    </Tag>
+              <Card className="jd-card">
+                <Title level={4} className="jd-section-title">
+                  Yêu cầu công việc
+                </Title>
+                <ul className="jd-list">
+                  {reqList(job.requirements).map((req, i) => (
+                    <li key={i}>
+                      <CheckCircleTwoTone twoToneColor="#52c41a" />
+                      <span>{req}</span>
+                    </li>
                   ))}
-                </Space>
-              </>
+                </ul>
+              </Card>
             )}
 
-            <Divider />
-            <div style={{ textAlign: "center", marginTop: 16 }}>
-              <Button type="primary" size="large">
-                Ứng tuyển ngay
-              </Button>
-              <Button
-                style={{ marginLeft: 12 }}
-                size="large"
-                ghost
-                type="default"
-              >
-                Lưu công việc
-              </Button>
-            </div>
-          </Card>
-        </Col>
+            {/* Benefits */}
+            {job.benefits && (
+              <Card className="jd-card">
+                <Title level={4} className="jd-section-title">
+                  Quyền lợi
+                </Title>
+                <ul className="jd-list">
+                  {reqList(job.benefits).map((b, i) => (
+                    <li key={i}>
+                      <CheckCircleTwoTone twoToneColor="#52c41a" />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
 
-        {/* =============== Cột phải =============== */}
-        <Col xs={24} md={8}>
-          <Card
-            bordered={false}
-            style={{ textAlign: "center", borderRadius: 8, padding: "24px 16px" }}
-          >
-            <img
-              src={job.companyLogoUrl || "/default-company.png"}
-              alt={job.companyName}
-              style={{
-                maxHeight: 80,
-                objectFit: "contain",
-                marginBottom: 12,
-              }}
-            />
-            <Title level={4}>{job.companyName}</Title>
-            <Text>{job.city}</Text>
-            <Divider />
-            <Paragraph>
-              Công ty cung cấp môi trường làm việc năng động, chuyên nghiệp và
-              tạo điều kiện phát triển nghề nghiệp cho sinh viên.
-            </Paragraph>
-          </Card>
-        </Col>
-      </Row>
+            {/* General info */}
+            <Card className="jd-card">
+              <Title level={4} className="jd-section-title">
+                Thông tin chung
+              </Title>
+              <Paragraph className="jd-text">
+                <EnvironmentOutlined /> <b>Địa điểm:</b> {job.address || "Không xác định"}
+              </Paragraph>
+              <Paragraph className="jd-text">
+                <CalendarOutlined /> <b>Hạn nộp hồ sơ:</b>{" "}
+                {job.expiryDate ? formatDate(job.expiryDate) : "Không rõ"}
+              </Paragraph>
+            </Card>
+          </Col>
+
+          {/* =================== Sidebar =================== */}
+          <Col xs={24} lg={8}>
+            <div className="jd-sticky">
+              <Card className="jd-apply">
+                <Button size="large" className="jd-btn-primary" block>
+                  Ứng tuyển ngay
+                </Button>
+                <Button size="large" block>
+                  Lưu tin
+                </Button>
+              </Card>
+
+              <Card className="jd-card">
+                <Title level={4} className="jd-section-title">
+                  Về công ty
+                </Title>
+                <div className="jd-companybox">
+                  <div className="jd-logo jd-logo--sm">
+                    {logoOk ? (
+                      <img
+                        src={job.companyLogoUrl}
+                        alt={job.companyName}
+                        onError={() => setLogoOk(false)}
+                      />
+                    ) : (
+                      <div className="jd-logo__fallback">{(job.companyName || "CT")
+                        .split(" ")
+                        .map((w) => w[0])
+                        .join("")
+                        .slice(0, 2)
+                        .toUpperCase()}</div>
+                    )}
+                  </div>
+                  <div>
+                    <div className="jd-companyname">{job.companyName}</div>
+                    <div className="jd-companysub">Technology</div>
+                  </div>
+                </div>
+                <Divider />
+                <Paragraph className="jd-text">
+                  Công ty công nghệ hàng đầu chuyên phát triển giải pháp phần mềm
+                  cho thị trường quốc tế.
+                </Paragraph>
+                <Button block>Trang công ty</Button>
+              </Card>
+            </div>
+          </Col>
+        </Row>
+      </div>
     </div>
   );
 };

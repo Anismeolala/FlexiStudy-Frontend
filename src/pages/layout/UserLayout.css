@@ -1,22 +1,30 @@
-/* Không để Content bị padding mặc định */
-.site-content {
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+.layout-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.layout-header {
+  flex-shrink: 0;
+  background: transparent !important;
   padding: 0 !important;
 }
 
-/* Footer nền full width, bỏ hẳn padding mặc định của antd */
-.custom-footer {
-  background: #0b2347;   /* ví dụ */
+.layout-content {
+  flex: 1 0 auto;
+  padding: 0 !important;
+}
+
+.layout-footer {
+  flex-shrink: 0;
+  background: #0b2347;
   color: #fff;
-  padding: 0 !important; /* quan trọng: remove 24px 50px mặc định */
+  position: relative;
+  z-index: 2;
+  padding: 0;
 }
-
-/* Bọc nội dung footer để căn giữa, KHÔNG giới hạn nền */
-.container {
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 50px 80px;     /* padding cho nội dung, không ảnh hưởng nền */
-}
-
-/* Đảm bảo footer luôn chạm đáy khi trang ngắn */
-html, body, #root { height: 100%; }
