@@ -1,194 +1,445 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Layout,
-  InputNumber,
-  Button,
-  Card,
-  Select,
-  Pagination,
-  Modal,
-  message,
+  Card, Button, Input, Select, InputNumber,
+  Pagination, Drawer, Spin, Empty, Tag, message,
+  Radio
 } from "antd";
+import {
+  SearchOutlined,
+  EnvironmentOutlined,
+  AppstoreOutlined,
+  StarFilled,
+  DollarOutlined,
+} from "@ant-design/icons";
+import { getAllJobsAPI } from "../../apis";
+import "./Jobs.css";
+import { useNavigate } from "react-router-dom";
 
-const { Content, Sider } = Layout;
 const { Option } = Select;
+const PAGE_SIZE = 12;
 
-const mockJobs = [
-  { id: 1, title: "Frontend Developer", company: "TechCorp", location: "HCM", salary: "15-20tr", description: "ReactJS, Ant Design, Redux" },
-  { id: 2, title: "Backend Developer", company: "SoftInc", location: "HN", salary: "20-25tr", description: "NodeJS, Express, MongoDB" },
-  { id: 3, title: "UI/UX Designer", company: "Creative Studio", location: "Remote", salary: "12-18tr", description: "Figma, Photoshop" },
-  { id: 4, title: "DevOps Engineer", company: "CloudNet", location: "HCM", salary: "25-30tr", description: "AWS, Docker, Kubernetes" },
-  { id: 5, title: "Mobile Developer", company: "AppWorks", location: "HN", salary: "18-22tr", description: "React Native, iOS/Android" },
-  { id: 6, title: "Project Manager", company: "BizSoft", location: "HCM", salary: "30-35tr", description: "Agile/Scrum, Team management" },
-  { id: 7, title: "Data Scientist", company: "AI Lab", location: "HN", salary: "28-40tr", description: "Python, ML, TensorFlow" },
-  { id: 8, title: "QA Engineer", company: "QualityPro", location: "Remote", salary: "12-16tr", description: "Automation Testing, Selenium" },
-  { id: 9, title: "System Admin", company: "NetWorld", location: "HCM", salary: "18-25tr", description: "Linux, Networking" },
-  { id: 10, title: "Content Writer", company: "MediaHouse", location: "HN", salary: "10-15tr", description: "SEO, Copywriting" },
-];
+const JobFilters = ({
+  type, setType,
+  city, setCity,
+  minSalary, setMinSalary,
+  maxSalary, setMaxSalary,
+  onSearch, resetTrigger,
+  onAfterSelect
+}) => {
+  useEffect(() => {
+    setType("");
+    setCity("");
+    setMinSalary(null);
+    setMaxSalary(null);
+  }, [resetTrigger]);
 
-const JobSearchPage = () => {
-  const [savedJobs, setSavedJobs] = useState(() => JSON.parse(localStorage.getItem("savedJobs")) || []);
-  const [appliedJobs, setAppliedJobs] = useState(() => JSON.parse(localStorage.getItem("appliedJobs")) || []);
-  const [selectedJob, setSelectedJob] = useState(null);
+  // 🟢 Toggle logic cho từng filter
+  const toggleType = (value) => {
+    const newType = type === value ? "" : value;
+    setType(newType);
+    onSearch({ type: newType || null, page: 1 });
+    onAfterSelect?.();
+  };
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 5;
+  const toggleCity = (value) => {
+    const newCity = city === value ? "" : value;
+    setCity(newCity);
+    onSearch({ city: newCity || null, page: 1 });
+    onAfterSelect?.();
+  };
 
-  const toggleSaveJob = (job) => {
-    let updated;
-    if (savedJobs.some((j) => j.id === job.id)) {
-      updated = savedJobs.filter((j) => j.id !== job.id);
-      message.info("Đã bỏ lưu công việc");
+  const toggleSalary = (value) => {
+    let min = null, max = null;
+    if (value) {
+      switch (value) {
+        case "under15": min = 0; max = 15000000; break;
+        case "15to25": min = 15000000; max = 25000000; break;
+        case "25to35": min = 25000000; max = 35000000; break;
+        case "35to50": min = 35000000; max = 50000000; break;
+        case "above50": min = 50000000; max = null; break;
+      }
+    }
+
+    const currentValue =
+      minSalary === 0 && maxSalary === 15000000 ? "under15" :
+      minSalary === 15000000 && maxSalary === 25000000 ? "15to25" :
+      minSalary === 25000000 && maxSalary === 35000000 ? "25to35" :
+      minSalary === 35000000 && maxSalary === 50000000 ? "35to50" :
+      minSalary === 50000000 ? "above50" : "";
+
+    const isSame = currentValue === value;
+
+    if (isSame) {
+      setMinSalary(null);
+      setMaxSalary(null);
+      onSearch({ minSalary: null, maxSalary: null, page: 1 });
     } else {
-      updated = [...savedJobs, job];
-      message.success("Đã lưu công việc");
+      setMinSalary(min);
+      setMaxSalary(max);
+      onSearch({ minSalary: min, maxSalary: max, page: 1 });
     }
-    setSavedJobs(updated);
-    localStorage.setItem("savedJobs", JSON.stringify(updated));
+    onAfterSelect?.();
   };
 
-  const handleApply = (job) => {
-    if (appliedJobs.some((j) => j.id === job.id)) {
-      message.warning("Bạn đã ứng tuyển công việc này rồi");
-      return;
-    }
-    const updated = [...appliedJobs, job];
-    setAppliedJobs(updated);
-    localStorage.setItem("appliedJobs", JSON.stringify(updated));
-    message.success("Ứng tuyển thành công!");
-    setSelectedJob(null);
-  };
-
-  // job theo trang
-  const start = (currentPage - 1) * pageSize;
-  const paginatedJobs = mockJobs.slice(start, start + pageSize);
+  const salaryValue =
+    minSalary === 0 && maxSalary === 15000000 ? "under15" :
+    minSalary === 15000000 && maxSalary === 25000000 ? "15to25" :
+    minSalary === 25000000 && maxSalary === 35000000 ? "25to35" :
+    minSalary === 35000000 && maxSalary === 50000000 ? "35to50" :
+    minSalary === 50000000 ? "above50" : "";
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      {/* Sidebar bộ lọc */}
-      <Sider width={250} style={{ background: "#fff", padding: 20, overflowY: "auto" }}>
-        <h3>Bộ lọc</h3>
+    <div className="filters-stack space-y-6">
 
-        {/* Theo danh mục nghề */}
-        <div style={{ marginBottom: 20 }}>
-          <p><b>Theo danh mục nghề</b></p>
-          <div><input type="checkbox" /> Marketing</div>
-          <div><input type="checkbox" /> Quảng cáo / Sáng tạo</div>
-          <div><input type="checkbox" /> Marketing / PR / Content</div>
-          <div><input type="checkbox" /> Sales dịch vụ Quảng cáo / Truyền thông</div>
-          <div><input type="checkbox" /> Kinh doanh / Bán hàng khác</div>
-        </div>
-
-        {/* Theo lịch rảnh */}
-        <div style={{ marginBottom: 20 }}>
-          <p><b>Theo lịch rảnh</b></p>
-          <div><input type="checkbox" /> Thứ 2</div>
-          <div><input type="checkbox" /> Thứ 3</div>
-          <div><input type="checkbox" /> Thứ 4</div>
-          <div><input type="checkbox" /> Thứ 5</div>
-          <div><input type="checkbox" /> Thứ 6</div>
-          <div><input type="checkbox" /> Thứ 7</div>
-          <div><input type="checkbox" /> Chủ nhật</div>
-        </div>
-
-        {/* Theo kinh nghiệm */}
-        <div style={{ marginBottom: 20 }}>
-          <p><b>Theo kinh nghiệm</b></p>
-          <div><input type="checkbox" /> Không yêu cầu</div>
-          <div><input type="checkbox" /> Dưới 1 năm</div>
-          <div><input type="checkbox" /> 1 - 2 năm</div>
-          <div><input type="checkbox" /> 3 - 5 năm</div>
-          <div><input type="checkbox" /> Trên 5 năm</div>
-        </div>
-
-        {/* Theo địa điểm */}
-        <div style={{ marginBottom: 20 }}>
-          <p><b>Theo địa điểm</b></p>
-          <Select style={{ width: "100%" }} placeholder="Chọn địa điểm">
-            <Option value="HCM">Hồ Chí Minh</Option>
-            <Option value="HN">Hà Nội</Option>
-            <Option value="BienHoa">Biên Hòa</Option>
-            <Option value="CanTho">Cần Thơ</Option>
-            <Option value="BinhDuong">Bình Dương</Option>
-          </Select>
-        </div>
-
-        {/* Mức lương */}
-        <div style={{ marginBottom: 20 }}>
-          <p><b>Mức lương mong muốn</b></p>
-          <InputNumber
-            style={{ width: "45%", marginRight: "10%" }}
-            placeholder="Min"
-            min={0}
-          />
-          <InputNumber
-            style={{ width: "45%" }}
-            placeholder="Max"
-            min={0}
-          />
-        </div>
-
-        <Button type="primary" style={{ width: "100%" }}>
-          Tìm kiếm
-        </Button>
-        <Button style={{ width: "100%", marginTop: 10 }}>
-          Xóa lọc
-        </Button>
-      </Sider>
-
-      {/* Content danh sách job */}
-      <Layout>
-        <Content style={{ padding: 20 }}>
-          <h2>Danh sách việc làm</h2>
-          {paginatedJobs.map((job) => (
-            <Card
-              key={job.id}
-              style={{ marginBottom: 16 }}
-              title={job.title}
-              onClick={() => setSelectedJob(job)}
-              hoverable
+      {/* 🔹 Loại hình công việc */}
+      <Card size="small" className="filter-card">
+        <div className="filter-title">Loại hình công việc</div>
+        <div className="flex flex-col space-y-2 mt-2">
+          {[
+            { value: "FULLTIME", label: "Toàn thời gian" },
+            { value: "PARTTIME", label: "Bán thời gian" },
+            { value: "INTERN", label: "Thực tập" },
+          ].map((opt) => (
+            <Radio
+              key={opt.value}
+              checked={type === opt.value}
+              onClick={() => toggleType(opt.value)}
             >
-              <p><b>Công ty:</b> {job.company}</p>
-              <p><b>Địa điểm:</b> {job.location}</p>
-              <p><b>Lương:</b> {job.salary}</p>
-            </Card>
+              {opt.label}
+            </Radio>
           ))}
+        </div>
+      </Card>
 
-          <Pagination
-            current={currentPage}
-            pageSize={pageSize}
-            total={mockJobs.length}
-            onChange={(page) => setCurrentPage(page)}
-            style={{ marginTop: 20, textAlign: "center" }}
-          />
-        </Content>
-      </Layout>
+      {/* 🔹 Địa điểm */}
+      <Card size="small" className="filter-card">
+        <div className="filter-title">Địa điểm</div>
+        <div className="flex flex-col space-y-2 mt-2">
+          {["Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Bình Dương"].map((val) => (
+            <Radio
+              key={val}
+              checked={city === val}
+              onClick={() => toggleCity(val)}
+            >
+              {val}
+            </Radio>
+          ))}
+        </div>
+      </Card>
 
-      {/* Modal chi tiết job */}
-      <Modal
-        open={!!selectedJob}
-        title={selectedJob?.title}
-        onCancel={() => setSelectedJob(null)}
-        footer={[
-          <Button key="close" onClick={() => setSelectedJob(null)}>Đóng</Button>,
-          <Button
-            key="favorite"
-            onClick={() => toggleSaveJob(selectedJob)}
-          >
-            {savedJobs.some((j) => j.id === selectedJob?.id)
-              ? "Bỏ yêu thích"
-              : "Thêm vào yêu thích"}
-          </Button>,
-          <Button key="apply" type="primary" onClick={() => handleApply(selectedJob)}>Ứng tuyển</Button>,
-        ]}
-      >
-        <p><b>Công ty:</b> {selectedJob?.company}</p>
-        <p><b>Địa điểm:</b> {selectedJob?.location}</p>
-        <p><b>Lương:</b> {selectedJob?.salary}</p>
-        <p>{selectedJob?.description}</p>
-      </Modal>
-    </Layout>
+      {/* 🔹 Mức lương */}
+      <Card size="small" className="filter-card">
+        <div className="filter-title">Mức lương</div>
+        <div className="flex flex-col space-y-2 mt-2">
+          {[
+            { val: "under15", label: "Dưới 15 triệu" },
+            { val: "15to25", label: "15–25 triệu" },
+            { val: "25to35", label: "25–35 triệu" },
+            { val: "35to50", label: "35–50 triệu" },
+            { val: "above50", label: "Trên 50 triệu" },
+          ].map(({ val, label }) => (
+            <Radio
+              key={val}
+              checked={salaryValue === val}
+              onClick={() => toggleSalary(val)}
+            >
+              {label}
+            </Radio>
+          ))}
+        </div>
+      </Card>
+    </div>
   );
 };
 
-export default JobSearchPage;
+
+/* ----------------- Job card ----------------- */
+function JobCardItem({ job, onClick }) {
+  const logoSrc = (job?.companyLogoUrl || "/default-company.png").replace(/ /g, "%20");
+
+  const typeLabel = (t) =>
+    ({ INTERN: "Thực tập", PARTTIME: "Bán thời gian", FULLTIME: "Toàn thời gian" }[t] || t || "");
+
+  const modeLabel = (m) => ({ ONSITE: "Onsite", HYBRID: "Hybrid", REMOTE: "Remote" }[m] || m || "");
+
+  const fmtSalaryMil = (min, max, cur = "VND") => {
+    if (!min && !max) return "Thoả thuận";
+    const toMil = (v) => Math.round(v / 1_000_000);
+    if (min && max) return `${toMil(min)}–${toMil(max)} triệu ${cur}`;
+    if (min) return `${toMil(min)} triệu ${cur}`;
+    return `${toMil(max)} triệu ${cur}`;
+  };
+
+  const salaryText = fmtSalaryMil(job?.minSalary, job?.maxSalary, job?.currency || "VND");
+  const desc = String(job?.description || "");
+  const shortDesc = desc.length > 200 ? `${desc.slice(0, 200)}…` : desc;
+  const posted = job?.postedAt ? new Date(job.postedAt).toLocaleDateString("vi-VN") : "";
+
+  return (
+    <div className="jobcard-neo">
+      {job?.urgent && (
+        <div className="jobcard-badge">
+          <StarFilled /> <span>Nổi bật</span>
+        </div>
+      )}
+
+      <div className="jc-row top">
+        <div className="logo-wrap">
+          <img
+            src={logoSrc}
+            alt={job?.companyName || "Logo"}
+            onError={(e) => {
+              e.currentTarget.src = "/default-company.png";
+            }}
+            loading="lazy"
+          />
+        </div>
+
+        <div className="title-wrap">
+          <div className="title">{job?.title}</div>
+          <div className="company">{job?.companyName}</div>
+          <div className="meta">
+            <span><EnvironmentOutlined /> {job?.city || "Toàn quốc"}</span>
+            <span><AppstoreOutlined /> {typeLabel(job?.type)}{job?.mode ? ` · ${modeLabel(job.mode)}` : ""}</span>
+            <span className="salary"><DollarOutlined /> {salaryText}</span>
+          </div>
+        </div>
+      </div>
+
+      {shortDesc && <p className="desc">{shortDesc}</p>}
+
+      <div className="jc-row foot">
+        <span className="posted">{posted}</span>
+        <Button type="primary" className="cta" onClick={onClick}>Xem chi tiết</Button>
+      </div>
+    </div>
+  );
+}
+
+/* ----------------- Page ----------------- */
+export default function Jobs() {
+  // list & state
+  const [jobs, setJobs] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [type, setType] = useState("");
+  // filters
+  const [keyword, setKeyword] = useState("");
+  const [city, setCity] = useState("");
+  const [minSalary, setMinSalary] = useState();
+  const [maxSalary, setMaxSalary] = useState();
+  const [resetTrigger, setResetTrigger] = useState(0);
+  const navigate = useNavigate();
+
+
+  // pagination
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // drawer (mobile)
+  const [openDrawer, setOpenDrawer] = useState(false);
+
+ const fetchJobs = async (override = {}) => {
+  try {
+    setLoading(true);
+
+    const take = (key, fallback) =>
+      Object.prototype.hasOwnProperty.call(override, key) ? override[key] : fallback;
+
+    const page = take("page", currentPage);
+    const kwRaw = take("keyword", keyword);
+    const ctRaw = take("city", city);
+    const min = take("minSalary", minSalary);
+    const max = take("maxSalary", maxSalary);
+    const tp  = take("type", type);
+
+    const params = { page, size: PAGE_SIZE };
+    const kw = (kwRaw ?? "").trim();
+    const ct = (ctRaw ?? "").trim();
+
+    if (kw) params.search = kw;
+    if (ct) params.city = ct;
+    if (min !== null && min !== undefined && min !== "") params.minSalary = min;
+    if (max !== null && max !== undefined && max !== "") params.maxSalary = max;
+    if (tp  !== null && tp  !== undefined && tp  !== "") params.type = tp;
+
+    const res = await getAllJobsAPI(params);
+    console.log("Fetched jobs:", res);
+    setJobs(res?.result?.data ?? []);
+    setTotal(res?.result?.totalElements ?? 0);
+  } catch (e) {
+    console.error(e);
+    message.error("Không tải được danh sách việc làm");
+    setJobs([]); setTotal(0);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+  // chỉ đổi trang -> fetch lại với page mới
+  useEffect(() => {
+    fetchJobs({ page: currentPage });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
+
+    const onSearch = (override = {}) => {
+      // chặn trường hợp bị truyền event
+      if (override && (override.nativeEvent || typeof override.preventDefault === "function")) {
+        override = {};
+      }
+      fetchJobs({
+        page: 1,
+        ...(Object.prototype.hasOwnProperty.call(override, "keyword") ? { keyword: override.keyword } : {}),
+        ...(Object.prototype.hasOwnProperty.call(override, "city") ? { city: override.city } : {}),
+        ...(Object.prototype.hasOwnProperty.call(override, "minSalary") ? { minSalary: override.minSalary } : {}),
+        ...(Object.prototype.hasOwnProperty.call(override, "maxSalary") ? { maxSalary: override.maxSalary } : {}),
+        ...(Object.prototype.hasOwnProperty.call(override, "type") ? { type: override.type } : {}),
+      });
+    };
+
+  const onReset = () => {
+    setKeyword("");
+    setCity("");
+    setType("");
+    setMinSalary();
+    setMaxSalary();
+    setCurrentPage(1);
+    fetchJobs({ page: 1, keyword: "", city: "", minSalary: null, maxSalary: null, type: "" });
+  };
+
+
+  return (
+    <div className="jobs-wrap">
+      <div className="container">
+        {/* Title + SearchBar (pill) */}
+        <div className="jobs-top">
+          <h1 className="page-title">Tìm kiếm công việc</h1>
+
+          <div className="searchbar-pill" role="search">
+            <div className="pill">
+              <Input
+                allowClear
+                size="large"
+                bordered={false}
+                placeholder="Tên công việc, vị trí, kỹ năng..."
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && onSearch()}
+                prefix={<SearchOutlined className="pill-icon" />}
+                aria-label="Từ khóa"
+              />
+            </div>
+
+            <div className="pill">
+              <Input
+                allowClear
+                size="large"
+                bordered={false}
+                placeholder="Thành phố, khu vực..."
+                value={city} 
+                onChange={(e) => setCity(e.target.value)} 
+                onPressEnter={() => onSearch()}
+                prefix={<EnvironmentOutlined className="pill-icon" />}
+                aria-label="Địa điểm"
+              />
+            </div>
+            <Button size="large" className="pill-btn" onClick={onSearch}>
+              Tìm kiếm
+            </Button>
+          </div>
+        </div>
+
+        <div className="jobs-flex">
+        <Button
+          className="filter-toggle-btn"
+          onClick={() => setOpenDrawer(true)}
+          icon={<AppstoreOutlined />}
+        >
+          Bộ lọc
+        </Button>
+          <aside className="filters-desktop">
+            <div className="filters-sticky">
+              <div className="filters-head">
+                <h2 className="filters-title">Bộ lọc</h2>
+                <Button
+                  type="text"
+                  size="small"
+                  onClick={() => {
+                    setType("");
+                    setCity("");
+                    setMinSalary(null);
+                    setMaxSalary(null);
+                    setResetTrigger(prev => prev + 1);
+                    fetchJobs({ page: 1, keyword: "", city: "", type: "", minSalary: null, maxSalary: null });
+                  }}
+                >
+                  Xóa tất cả
+                </Button>
+              </div>
+            <JobFilters
+              type={type} setType={setType}
+              city={city} setCity={setCity}
+              minSalary={minSalary} setMinSalary={setMinSalary}
+              maxSalary={maxSalary} setMaxSalary={setMaxSalary}
+              onSearch={onSearch}
+              onReset={onReset}
+              resetTrigger={resetTrigger}
+            />
+          </div>
+        </aside>
+
+          {/* Job Listings */}
+          <div className="jobs-content">
+            <div className="jobs-count">
+              <span className="muted">Hiển thị </span>
+              <b className="count-strong">{total}</b>
+              <span className="muted"> công việc</span>
+            </div>
+
+            {loading ? (
+              <div className="center-pad"><Spin size="large" /></div>
+            ) : jobs.length === 0 ? (
+              <Empty description="Không có công việc phù hợp" />
+            ) : (
+              <div className="card-stack">
+                {jobs.map((job) => (
+                  <JobCardItem 
+                    key={job.id}
+                    job={job}
+                    onClick={() => navigate(`/jobs/${job.id}`)} />
+                  ))}
+              </div>
+            )}
+
+            <Pagination
+              current={currentPage}
+              pageSize={PAGE_SIZE}
+              total={total}
+              onChange={setCurrentPage}
+              className="pagination"
+            />
+          </div>
+        </div>
+      </div>
+
+      <Drawer
+        title={<div className="drawer-title">Lọc kết quả</div>}
+        placement="left"
+        width={320}
+        open={openDrawer}
+        onClose={() => setOpenDrawer(false)}
+      >
+        <JobFilters
+          type={type} setType={setType}
+          city={city} setCity={setCity}
+          minSalary={minSalary} setMinSalary={setMinSalary}
+          maxSalary={maxSalary} setMaxSalary={setMaxSalary}
+          onSearch={onSearch}
+          resetTrigger={resetTrigger}
+          onAfterSelect={() => setOpenDrawer(false)} // ← đóng drawer khi chọn xong
+        />
+      </Drawer>
+    </div>
+  );
+}

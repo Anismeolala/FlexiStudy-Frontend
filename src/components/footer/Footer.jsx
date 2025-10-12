@@ -3,12 +3,11 @@ import { Layout, Row, Col, Typography } from "antd";
 import { RightOutlined } from "@ant-design/icons";
 import "./Footer.css";
 
-const { Footer } = Layout;
 const { Title, Text, Link } = Typography;
 
 export default function AppFooter() {
   return (
-    <Footer className="site-footer">
+    <div className="site-footer">
       <div className="footer-inner">
         <Row gutter={[48, 32]}>
          
@@ -76,6 +75,6 @@ export default function AppFooter() {
           <Text>Copyright © FlexiStudy All rights reserved.</Text>
         </div>
       </div>
-    </Footer>
+    </div>
   );
 }

@@ -3,24 +3,27 @@ import { Outlet } from "react-router-dom";
 import HeaderBar from "../../components/Header/Header";
 import AppFooter from "../../components/footer/Footer";
 import "./UserLayout.css";
+import ScrollToTop from "../../components/ScrollToTop/ScrollToTop";
+
 const { Header, Content, Footer } = Layout;
 
 export default function UserLayout() {
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Header style={{ background: "transparent", padding: 0 }}>
+    <>
+    <ScrollToTop />
+    <Layout >
+      <Header className="layout-header">
         <HeaderBar />
       </Header>
 
-      <Content className="site-content">
+      <Content className="layout-content">
         <Outlet />
       </Content>
 
-      <Footer className="custom-footer">
-        <div className="container">
-          <AppFooter />
-        </div>
+      <Footer className="layout-footer">
+        <AppFooter />
       </Footer>
     </Layout>
+    </>
   );
 }

@@ -23,7 +23,7 @@ import {
   CheckCircleOutlined,
   StopOutlined,
 } from "@ant-design/icons";
-import { getAllJobsAPI, updateJobAPI } from "../../apis";
+import { getAllJobsAdminAPI, updateJobAPI } from "../../apis";
 
 export default function AdminJobManagement() {
   const dispatch = useDispatch();
@@ -59,11 +59,13 @@ export default function AdminJobManagement() {
         try {
           isInitial ? setInitialLoading(true) : setLoading(true);
 
-          const response = await getAllJobsAPI({
+          const response = await getAllJobsAdminAPI({
             page,
             size: pageSize,
             search,
           });
+
+          console.log("API Response:", response);
 
           if (response.code === 1000) {
             const {
