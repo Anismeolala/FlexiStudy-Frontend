@@ -4,13 +4,14 @@ import { getMyInfoAPI } from '../apis';
 
 // Async action to fetch user profile data
 export const getMyInfo = createAsyncThunk('users/myInfo', async () => {
-    const response = await getMyInfoAPI();
-    return response;
+  const response = await getMyInfoAPI();
+  return response;
 });
 
+
 // Define the initial state
-const initialState = {
-    isAuthorized: localStorage.getItem("accessToken") ? true : false,
+ const initialState = {
+    isAuthorized: !!localStorage.getItem("accessToken"),
     id: null,
     username: '',
     email: '',
@@ -23,9 +24,10 @@ const initialState = {
     role: '',
     profile_completed: false,
     permissions: [],
-    isLoading: false,
+    isLoading: false,  // ✅ chỉ giữ cái này thôi
     isError: false,
-};
+    };
+
 
 const userSlice = createSlice({
     name: 'user',
@@ -46,7 +48,12 @@ const userSlice = createSlice({
             state.isLoading = true;
         });
         builder.addCase(getMyInfo.fulfilled, (state, action) => {
-            const userData = action.payload.result;
+            const userData = action.payload?.result;
+            if (!userData) {
+                state.isAuthorized = false;
+                state.isLoading = false;
+                return;
+            }
             state.id = userData.id;
             state.username = userData.username;
             state.email = userData.email;
@@ -57,9 +64,9 @@ const userSlice = createSlice({
             state.avatarUrl = userData.avatarUrl;
             state.address = userData.address;
             state.profile_completed = userData.profile_completed;
-
+            state.isAuthorized = true;
             state.role = userData.roles?.[0]?.name || null;
-
+             state.profile_completed = userData.profileCompleted;
             state.permissions = userData.roles?.flatMap(r => r.permissions?.map(p => p.name)) || [];
 
             state.isLoading = false;
@@ -68,6 +75,7 @@ const userSlice = createSlice({
         builder.addCase(getMyInfo.rejected, (state) => {
             state.isLoading = false;
             state.isError = true;
+            state.isAuthorized = true;
         });
     },
 });

@@ -130,40 +130,6 @@ const CompanyModal = ({
     >
       <Form form={form} layout="vertical">
         {/* Upload Logo */}
-        <Form.Item label="Logo công ty">
-          <div className="company-logo-upload">
-            <div className="logo-preview">
-              <Avatar
-                size={120}
-                src={logoUrl}
-                icon={<BankOutlined />}
-                shape="square"
-              />
-            </div>
-            <div className="upload-controls">
-              <Upload
-                name="companyLogo"
-                beforeUpload={handleLogoUpload}
-                showUploadList={false}
-                accept="image/*"
-              >
-                <ButtonPrimary
-                  icon={<CameraOutlined />}
-                  loading={uploadingLogo}
-                  type="primary"
-                  ghost
-                >
-                  {uploadingLogo ? "Đang upload..." : "Chọn logo"}
-                </ButtonPrimary>
-              </Upload>
-              {logoUrl && (
-                <Button onClick={() => setLogoUrl("")} danger type="text">
-                  Xóa logo
-                </Button>
-              )}
-            </div>
-          </div>
-        </Form.Item>
 
         {/* Company Info */}
         <Row gutter={16}>
@@ -201,6 +167,41 @@ const CompanyModal = ({
           rules={[{ required: true, message: "Vui lòng nhập số lượng thành viên" }]}
         >
           <InputNumber min={1} style={{ width: "100%" }} placeholder="VD: 200" />
+        </Form.Item>
+
+                <Form.Item label="Logo công ty">
+          <div className="company-logo-upload">
+            <div className="logo-preview">
+              <Avatar
+                size={120}
+                src={logoUrl}
+                icon={<BankOutlined />}
+                shape="square"
+              />
+            </div>
+            <div className="upload-controls">
+              <Upload
+                name="companyLogo"
+                beforeUpload={handleLogoUpload}
+                showUploadList={false}
+                accept="image/*"
+              >
+                <ButtonPrimary
+                  icon={<CameraOutlined />}
+                  loading={uploadingLogo}
+                  type="primary"
+                  ghost
+                >
+                  {uploadingLogo ? "Đang upload..." : "Chọn logo"}
+                </ButtonPrimary>
+              </Upload>
+              {logoUrl && (
+                <Button onClick={() => setLogoUrl("")} danger type="text">
+                  Xóa logo
+                </Button>
+              )}
+            </div>
+          </div>
         </Form.Item>
       </Form>
     </Modal>

@@ -81,8 +81,21 @@
 .hero__input--location {}
 
 .hero__button {
-  height: 44px;
+  border: none;
+  color: #fff;
   padding: 0 18px;
+  border-radius: 14px;
+  height: 44px;
+  font-weight: 600;
+  background: linear-gradient(90deg, #4f7cf9 0%, #a259ff 100%);
+}
+
+.hero__button:hover {
+  background: linear-gradient(90deg, #4f7cf9 0%, #a259ff 100%) !important;
+  color: #fff !important;
+  border: none !important;
+  filter: brightness(1.05);
+  box-shadow: none !important;
 }
 /* Equal height for cards in grid */
 /* === Equal height for cards === */

@@ -3,12 +3,10 @@ import Login from "./pages/Login/Login";
 import HomePage from "./pages/HomePage/HomePage";
 import UserLayout from "./pages/layout/UserLayout";
 import Jobs from "./pages/Job/Jobs";
-import SavedJobs from "./pages/Job/SavedJobs";
 import AppliedJobs from "./pages/Job/AppliedJobs";
 import { getMyInfo } from './redux/userSlice';
 import CVGuide from "./pages/CV/CVGuide";
 import CVTemplates from "./pages/CV/CVTemplates";
-import UploadCV from "./pages/CV/UploadCV";
 
 import CareerGuide from "./pages/Career/CareerGuide";
 import Schedule from "./pages/Schedules/Schedule";
@@ -25,6 +23,15 @@ import { ROLE } from "./utils/constants";
 import JobMangement from "./pages/ManagementJob/JobManagement";
 import FormOnboard from "./pages/FormOnboard/FormOnboard";
 import JobDetailPage from "./pages/Job/JobDetailPage/JobDetailPage";
+import SavedMyJob from "./pages/SavedJobPage/SavedJobPage";
+import SavedJobPage from "./pages/SavedJobPage/SavedJobPage";
+import MyCV from "./pages/MyCVPage/MyCV";
+import Authenticate from "./pages/Authenticate/Authenticate";
+import VerifyOtp from "./pages/Authenticate/VerifyOtp";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage/ForgotPasswordPage";
+import VerifyForgotOtpPage from "./pages/ForgotPasswordPage/VerifyForgotOtpPage";
+import ResetPasswordPage from "./pages/ForgotPasswordPage/ResetPasswordPage";
+import SetPasswordPage from "./pages/Authenticate/SetPasswordPage";
 
 const route = createBrowserRouter([
   {
@@ -36,20 +43,26 @@ const route = createBrowserRouter([
       [
         { index: true, element: <HomePage /> },
         { path: "jobs", element: <Jobs /> },
-        { path: "jobs/saved", element: <SavedJobs /> },
+        { path: "jobs/saved", element: <SavedJobPage /> },
         { path: "jobs/applied", element: <AppliedJobs /> },
         { path: "cv/guide", element: <CVGuide /> },
         { path: "cv/templates", element: <CVTemplates /> },
-        { path: "cv/upload", element: <UploadCV /> },
+        { path: "cv/upload", element: <MyCV /> },
         { path: "career-guide", element: <CareerGuide /> },
         { path: "schedule", element: <Schedule /> },
         { path: "/profile", element: <EditProfile /> },
         { path: "/onboard", element: <FormOnboard /> },
-        { path: "//jobs/:jobId", element: <JobDetailPage /> },
+        { path: "/jobs/:jobId", element: <JobDetailPage /> },
       ], 
   },
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
+  { path: "/authenticate", element: <Authenticate /> },
+  { path: "/verify-otp", element: <VerifyOtp /> },
+  { path: "/forgot-password", element: <ForgotPasswordPage /> },
+  { path: "/verify-forgot-otp", element: <VerifyForgotOtpPage /> },
+  { path: "/reset-password", element: <ResetPasswordPage /> },
+  { path: "/set-password", element: <SetPasswordPage /> },
   {
     path: "/admin",
     element: (<RoleRoute allowedRoles={[ ROLE.ADMIN]}>
@@ -67,14 +80,15 @@ const route = createBrowserRouter([
 
 const App = () => {
   const dispatch = useDispatch();
-  const [appReady, setAppReady] = useState(false); // ✅ Trạng thái khởi tạo App
+  const [appReady, setAppReady] = useState(false); // Trạng thái khởi tạo App
 
   useEffect(() => {
     const initApp = async () => {
       const token = localStorage.getItem("accessToken");
-
+      console.log("Access token:", token);
       if (token) {
-        await dispatch(getMyInfo());
+        const result = await dispatch(getMyInfo()).unwrap();
+       console.log("✅ user info loaded:", result);
       }
       setAppReady(true);
     };

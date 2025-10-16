@@ -9,6 +9,8 @@ import  banner  from "../../assets/video/flexistudy_banner.gif"
 import { loginAPI } from '../../apis';
 import { resetUser, setIsAuthorized } from '../../redux/userSlice';
 import { getMyInfo } from '../../redux/userSlice';
+import { OAuthConfig } from '../../utils/constants';
+import { GoogleOutlined } from '@ant-design/icons';
 
 const Login = () => {
   const [form] = Form.useForm();
@@ -39,11 +41,10 @@ const Login = () => {
 
           //  Gọi API lấy thông tin user
           const resultAction = await dispatch(getMyInfo());
-          const userData = resultAction.payload?.result;
+          const userData = resultAction.payload;
+          console.log("User data after login:", userData);
 
-          console.log("User Data:", userData);
-
-          // 🧠 Kiểm tra role + profile_completed để điều hướng
+          //  Kiểm tra role + profile_completed để điều hướng
           const decoded = jwtDecode(res.result.token);
           const scope = decoded.scope || "";
 
@@ -52,7 +53,7 @@ const Login = () => {
             message.success("Đăng nhập thành công (Admin)");
           } 
           else if (scope.includes("ROLE_USER")) {
-            if (userData?.profileCompleted === false) {
+            if (userData?.result.profileCompleted === false) {
               navigate("/onboard");
               message.info("Chào mừng! Hãy hoàn thiện hồ sơ của bạn để bắt đầu.");
             } else {
@@ -77,6 +78,20 @@ const Login = () => {
       } finally {
         setIsLoading(false);
       }
+    };
+
+    const handleLoginGoogle = () => {
+       const callbackUrl = OAuthConfig.redirectUri;
+        const authUrl = OAuthConfig.authUri;
+        const googleClientId = OAuthConfig.clientId;
+
+        const targetUrl = `${authUrl}?redirect_uri=${encodeURIComponent(
+          callbackUrl
+        )}&response_type=code&client_id=${googleClientId}&scope=openid%20email%20profile`;
+
+        console.log(targetUrl);
+
+        window.location.href = targetUrl;
     };
 
   return (
@@ -109,16 +124,32 @@ const Login = () => {
               >
                 <Input.Password size="large" placeholder="Mật khẩu" />
               </Form.Item>
+              <div className="login-extra">
+                <Link to="/forgot-password" className="forgot-password">
+                  Quên mật khẩu?
+                </Link>
+              </div>
+
               <Form.Item >
-                <Button className="login-button" type="primary" htmlType="submit" size="large" block>Đăng nhập</Button>
+                <Button className="login-button" type="primary" htmlType="submit" size="large" block>
+                Đăng nhập
+                </Button>
               </Form.Item>
-              
-              <Form.Item>
-                <div className="register-link">
-                  <span>Bạn chưa có tài khoản? </span>
-                  <Link to="/register">Đăng ký ngay</Link>
-                </div>
-              </Form.Item>
+
+              <div className="google-login-wrapper">
+                <Button
+                  className="google-icon-button"
+                  shape="circle"
+                  icon={<GoogleOutlined />}
+                  onClick={handleLoginGoogle}
+                />
+                <span className="google-text">Đăng nhập bằng Google</span>
+              </div>
+
+              <div className="register-link">
+                <span>Bạn chưa có tài khoản? </span>
+                <Link to="/register">Đăng ký ngay</Link>
+              </div>
             </Form>
           </div>
         </Col>

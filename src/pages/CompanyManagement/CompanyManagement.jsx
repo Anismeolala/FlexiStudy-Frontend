@@ -24,6 +24,7 @@ import CompanyModal from "./CompanyModal";
 import { setLayoutData } from "../../redux/layoutSlice";
 import { deleteCompanyAPI, getAllCompaniesAPI } from "../../apis";
 import "./CompanyManagement.css";
+import { MdCorporateFare } from "react-icons/md";
 
 const CompanyManagement = () => {
   const dispatch = useDispatch();
@@ -99,12 +100,11 @@ const CompanyManagement = () => {
     }
   };
 
-  // 🧭 Initial load
   useEffect(() => {
     dispatch(
       setLayoutData({
         title: "Quản lý công ty",
-        icon: <FaSubway />,
+        icon: <MdCorporateFare />,
       })
     );
     loadCompanies({ isInitial: true });

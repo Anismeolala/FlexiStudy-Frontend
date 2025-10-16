@@ -28,10 +28,6 @@ import dayjs from "dayjs";
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
 
-/** -------------------------------
- *  JobCard (giữ nguyên tinh thần cũ)
- *  + thêm badge “Sắp hết hạn” & format nhỏ
- * -------------------------------- */
 const JobCard = ({ job, onClick }) => {
   const [logoOk, setLogoOk] = useState(!!job.companyLogoUrl);
 
@@ -109,14 +105,14 @@ const HomePage = () => {
   const pageSize = 8;
   const cityList = ["Tất cả", "Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Bình Dương"];
 
-  // 🔥 Featured (map từ "urgent")
+  //  Featured (map từ "urgent")
   const [urgentJobs, setUrgentJobs] = useState([]);
   const [pageUrgent, setPageUrgent] = useState(1);
   const [totalUrgent, setTotalUrgent] = useState(0);
   const [cityUrgent, setCityUrgent] = useState("");
   const [loadingUrgent, setLoadingUrgent] = useState(true);
 
-  // 🆕 Recent (mới nhất)
+  // Recent (mới nhất)
   const [newestJobs, setNewestJobs] = useState([]);
   const [pageNewest, setPageNewest] = useState(1);
   const [totalNewest, setTotalNewest] = useState(0);
@@ -136,8 +132,6 @@ const HomePage = () => {
         city: cityUrgent,
         urgent: true,
       });
-      console.log("🚀 Fetch urgent params", { pageUrgent, cityUrgent });
-      console.log("🔍 Urgent jobs:", res?.result?.data);
       setUrgentJobs(res?.result?.data || []);
       setTotalUrgent(res?.result?.totalElements || 0);
     } catch (e) {
@@ -219,7 +213,7 @@ const HomePage = () => {
               placeholder="Địa điểm"
               className="hero__input hero__input--location"
             />
-            <Button type="primary" className="hero__button">
+            <Button className="hero__button">
               Tìm kiếm
             </Button>
           </div>

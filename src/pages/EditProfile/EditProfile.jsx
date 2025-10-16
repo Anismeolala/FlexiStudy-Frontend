@@ -11,20 +11,27 @@ import {
   Card,
   Typography,
   Divider,
-  Spin
+  Spin,
+  Tabs,
+  DatePicker,
+  Space
 } from "antd";
+import dayjs from "dayjs";
 import { 
   UserOutlined, 
   CameraOutlined,
-  ArrowLeftOutlined 
+  ArrowLeftOutlined, 
+  DeleteOutlined,
+  PlusOutlined
 } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { uploadAvatarAPI, updateUserAPI } from "../../apis";
+import { uploadAvatarAPI, updateUserAPI, getMyProfileAPI, updateMyProfileAPI } from "../../apis";
 import { setUser } from "../../redux/userSlice";
 import { setLayoutData } from "../../redux/layoutSlice";
 import { getMyInfo } from '../../redux/userSlice';
 import "./EditProfile.css";
+import TabPane from "antd/es/tabs/TabPane";
 
 const { Title, Text } = Typography;
 
@@ -32,60 +39,64 @@ const EditProfile = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const user = useSelector((state) => state.user);
+
   const [loading, setLoading] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(false);
+
   const [imageUrl, setImageUrl] = useState(user.avatarUrl || "");
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageKey, setImageKey] = useState(Date.now()); // Force re-render
-  const [loadingUser, setLoadingUser] = useState(false);
+
 
   useEffect(() => {
-  const loadUser = async () => {
-    try {
-      setLoadingUser(true);
+    const loadProfile = async () => {
+      try {
+        setLoadingUser(true);
+        const res = await getMyProfileAPI();
+        console.log("Profile response:", res.result);
+        if (res?.code === 1000) {
+          const p = res.result || {};
+          // Map ngày → dayjs cho DatePicker
+          const experiences = (p.experiences || []).map((e) => ({
+            ...e,
+            startDate: e.startDate ? dayjs(e.startDate) : null,
+            endDate: e.endDate ? dayjs(e.endDate) : null,
+          }));
 
-      // Nếu Redux chưa có hoặc user thiếu dữ liệu → fetch lại
-      if (
-        !user?.id ||
-        !user.firstName ||
-        !user.email ||
-        !user.phone
-      ) {
-        const action = await dispatch(getMyInfo());
-        const data = action.payload?.result;
-        console.log("📥 getMyInfo payload:", data);
-        if (data) {
+          // Đổ form
           form.setFieldsValue({
-            firstName: data.firstName || "",
-            lastName: data.lastName || "",
-            avatarUrl: data.avatarUrl || "",
-            email: data.email || "",
-            phone: data.phone || "",
-            address: data.address || "",
+            firstName: p.firstName || "",
+            lastName: p.lastName || "",
+            email: p.email || "",
+            phone: p.phone || "",
+            address: p.address || "",
+            dob: p.dob ? dayjs(p.dob) : null,
+            educations: p.educations && p.educations.length ? p.educations : [{}],
+            experiences: experiences.length ? experiences : [{}],
           });
+
+          setImageUrl(p.avatarUrl || "");
+          console.log("✅ Image URL set to:", p.avatarUrl);
+          setImageKey(Date.now());
+
+          // (tuỳ) đồng bộ Redux user “cơ bản”
+          // dispatch(setUser({ ...user, ...p, fullName: `${p.firstName || ""} ${p.lastName || ""}`.trim() }));
+        } else {
+          message.error(res?.message || "Không lấy được hồ sơ");
         }
-      } else {
-        console.log("🧩 Using Redux user:", user);
-        form.setFieldsValue({
-          firstName: user.firstName || "",
-          lastName: user.lastName || "",
-          avatarUrl: user.avatarUrl || "",
-          email: user.email || "",
-          phone: user.phone || "",
-          address: user.address || "",
-        });
+      } catch (err) {
+        console.error(err);
+        message.error("Không lấy được hồ sơ");
+      } finally {
+        setLoadingUser(false);
       }
-    } catch (err) {
-      console.error("❌ loadUser error:", err);
-    } finally {
-      setLoadingUser(false);
-    }
-  };
+    };
+    loadProfile();
+  }, []);
 
-  loadUser();
-}, [user?.id]);
 
-  // Set page title and icon
   useEffect(() => {
     dispatch(
       setLayoutData({
@@ -99,7 +110,7 @@ const EditProfile = () => {
   useEffect(() => {
     if (user.avatarUrl) {
       setImageUrl(user.avatarUrl);
-      setImageKey(Date.now()); // Update key to force re-render
+      setImageKey(Date.now()); 
     }
   }, [user.avatarUrl]);
 
@@ -127,48 +138,103 @@ const EditProfile = () => {
     return false;
 };
   // Handle form submission
-  const handleSubmit = async (values) => {
-    if (!user?.id) {
-    message.error("Không thể cập nhật vì thiếu ID người dùng");
-    return;
-  }
+  // const handleSubmit = async (values) => {
+  //   if (!user?.id) {
+  //   message.error("Không thể cập nhật vì thiếu ID người dùng");
+  //   return;
+  // }
+  //   setLoading(true);
+  //   try {
+  //     const updatePayload = {
+  //       ...values,
+  //       avatarUrl: imageUrl
+  //     };
+
+  //     const response = await updateUserAPI(user.id, updatePayload);
+  //     console.log("Update user response:", response);
+      
+  //     if (response.code === 1000) {
+  //       // Update Redux store
+  //       dispatch(setUser({
+  //         ...user,
+  //         ...updatePayload,
+  //         fullName: `${values.firstName} ${values.lastName}`
+  //       }));
+        
+  //       message.success("Cập nhật thông tin thành công!");
+  //       navigate(-1); // Go back to previous page
+  //     } else {
+  //       message.error("Cập nhật thông tin thất bại!");
+  //     }
+  //   } catch (error) {
+  //     message.error("Cập nhật thông tin thất bại!");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+   const handleSubmit = async (values) => {
     setLoading(true);
     try {
-      const updatePayload = {
-        ...values,
-        avatarUrl: imageUrl
+      // Map lại experiences-> date string
+      const experiences = (values.experiences || [])
+        .filter((x) => x && (x.company || x.position || x.startDate || x.endDate))
+        .map((x) => ({
+          ...x,
+          startDate: x.startDate ? dayjs(x.startDate).format("YYYY-MM-DD") : null,
+          endDate: x.endDate ? dayjs(x.endDate).format("YYYY-MM-DD") : null,
+        }));
+
+      const educations = (values.educations || [])
+        .filter((x) => x && (x.school || x.degree || x.field));
+
+      const payload = {
+        firstName: values.firstName || "",
+        lastName: values.lastName || "",
+        email: values.email || "",
+        phone: values.phone || "",
+        address: values.address || "",
+        dob: values.dob ? dayjs(values.dob).format("YYYY-MM-DD") : null,
+        avatarUrl: imageUrl,
+        educations,
+        experiences,
       };
 
-      const response = await updateUserAPI(user.id, updatePayload);
-      console.log("Update user response:", response);
-      
-      if (response.code === 1000) {
-        // Update Redux store
+      const res = await updateMyProfileAPI(payload);
+
+      if (res?.code === 1000) {
+        message.success("Cập nhật thông tin thành công!");
+
+        // Gọi API lấy lại thông tin user hoặc dùng result trả về
+        const updatedProfile = res.result || {};
+
+        // Cập nhật Redux user ngay
         dispatch(setUser({
           ...user,
-          ...updatePayload,
-          fullName: `${values.firstName} ${values.lastName}`
+          ...updatedProfile,
+          fullName: `${updatedProfile.firstName || ""} ${updatedProfile.lastName || ""}`.trim(),
+          avatarUrl: updatedProfile.avatarUrl || imageUrl,
         }));
-        
-        message.success("Cập nhật thông tin thành công!");
-        navigate(-1); // Go back to previous page
-      } else {
-        message.error("Cập nhật thông tin thất bại!");
+
+        navigate("/"); // hoặc navigate(-1)
       }
-    } catch (error) {
-      message.error("Cập nhật thông tin thất bại!");
+      else {
+        message.error(res?.message || "Cập nhật thất bại!");
+      }
+    } catch (e) {
+      console.error(e);
+      message.error("Cập nhật thất bại!");
     } finally {
       setLoading(false);
     }
   };
 
 
-  return (
-    
+return (
     <div className="edit-profile-page">
       <div className="edit-profile-header">
-        <Button 
-          type="text" 
+        <Button
+          type="text"
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate(-1)}
           className="back-button"
@@ -179,15 +245,13 @@ const EditProfile = () => {
 
       <Row gutter={24}>
         <Col xs={24} lg={8}>
-          {/* Avatar Card */}
           <Card className="avatar-card">
             <div className="avatar-section">
               <Avatar
                 size={150}
-                src={imageUrl ? `${imageUrl}?cache=${imageKey}` : imageUrl}
+                src={imageUrl || user.avatarUrl}
                 icon={<UserOutlined />}
                 className="profile-avatar"
-                key={imageKey} // Force re-render when image changes
               />
               <Upload
                 name="avatar"
@@ -195,9 +259,9 @@ const EditProfile = () => {
                 showUploadList={false}
                 accept="image/*"
               >
-                <Button 
+                <Button
                   style={{ color: "white" }}
-                  icon={<CameraOutlined />} 
+                  icon={<CameraOutlined />}
                   loading={uploadingImage}
                   className="upload-button"
                   type="primary"
@@ -207,13 +271,13 @@ const EditProfile = () => {
                 </Button>
               </Upload>
             </div>
-            
+
             <Divider />
-            
+
             <div className="user-info">
               <Title level={4}>{user.fullName || user.username || "Người dùng"}</Title>
               <Text type="secondary">
-                {user.role || user.roles?.map(r => r.name).join(", ") || "Chưa có quyền"}
+                {user.role || user.roles?.map((r) => r.name).join(", ") || "Chưa có quyền"}
               </Text>
               <br />
               <Text type="secondary">{user.email || "Chưa cung cấp"}</Text>
@@ -222,93 +286,216 @@ const EditProfile = () => {
         </Col>
 
         <Col xs={24} lg={16}>
-          {/* Form Card */}
-          <Card title="Thông tin cá nhân" className="form-card">
-          {loadingUser ? (
-          <Spin tip="Đang tải dữ liệu..." />
-        ) : (
-            <Form
-              form={form}
-              layout="vertical"
-              onFinish={handleSubmit}
-            >
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    label="Họ"
-                    name="firstName"
-                    rules={[{ required: true, message: "Vui lòng nhập họ!" }]}
-                  >
-                    <Input placeholder="Nhập họ" size="large" />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    label="Tên"
-                    name="lastName"
-                    rules={[{ required: true, message: "Vui lòng nhập tên!" }]}
-                  >
-                    <Input placeholder="Nhập tên" size="large" />
-                  </Form.Item>
-                </Col>
-              </Row>
+          <Card className="form-card">
+            <Spin spinning={loadingUser}>
+              <Form form={form} layout="vertical" onFinish={handleSubmit}>
+                <Tabs defaultActiveKey="1">
+                  <TabPane tab="Hồ sơ cá nhân" key="1">
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <Form.Item
+                          label="Họ"
+                          name="firstName"
+                          rules={[{ required: true, message: "Vui lòng nhập họ!" }]}
+                        >
+                          <Input placeholder="Nhập họ" size="large" />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item
+                          label="Tên"
+                          name="lastName"
+                          rules={[{ required: true, message: "Vui lòng nhập tên!" }]}
+                        >
+                          <Input placeholder="Nhập tên" size="large" />
+                        </Form.Item>
+                      </Col>
+                    </Row>
 
-              <Form.Item
-                label="Email"
-                name="email"
-                rules={[
-                  { required: true, message: "Vui lòng nhập email!" },
-                  { type: "email", message: "Email không hợp lệ!" }
-                ]}
-              >
-                <Input placeholder="Nhập email" size="large" />
-              </Form.Item>
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <Form.Item
+                          label="Email"
+                          name="email"
+                          rules={[
+                            { required: true, message: "Vui lòng nhập email!" },
+                            { type: "email", message: "Email không hợp lệ!" },
+                          ]}
+                        >
+                          <Input placeholder="Nhập email" size="large" />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item
+                          label="Số điện thoại"
+                          name="phone"
+                          rules={[{ required: true, message: "Vui lòng nhập số điện thoại!" }]}
+                        >
+                          <Input placeholder="Nhập số điện thoại" size="large" />
+                        </Form.Item>
+                      </Col>
+                    </Row>
 
-              <Form.Item
-                label="Số điện thoại"
-                name="phone"
-                rules={[{ required: true, message: "Vui lòng nhập số điện thoại!" }]}
-              >
-                <Input placeholder="Nhập số điện thoại" size="large" />
-              </Form.Item>
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <Form.Item label="Ngày sinh" name="dob">
+                          <DatePicker format="YYYY-MM-DD" style={{ width: "100%" }} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item label="Địa chỉ" name="address">
+                          <Input placeholder="Nhập địa chỉ" size="large" />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  </TabPane>
 
-              <Form.Item
-                label="Địa chỉ"
-                name="address"
-              >
-                <Input.TextArea 
-                  placeholder="Nhập địa chỉ" 
-                  rows={4}
-                  size="large"
-                />
-              </Form.Item>
+                  <TabPane tab="Học vấn" key="2">
+                    <Form.List name="educations">
+                      {(fields, { add, remove }) => (
+                        <Card
+                          type="inner"
+                          title="Học vấn"
+                          extra={
+                            <Button type="dashed" onClick={() => add({})} icon={<PlusOutlined />}>
+                              Thêm học vấn
+                            </Button>
+                          }
+                          style={{ marginBottom: 20 }}
+                        >
+                          {fields.map(({ key, name, ...rest }) => (
+                            <Space
+                              key={key}
+                              direction="vertical"
+                              style={{
+                                display: "flex",
+                                marginBottom: 10,
+                                padding: 15,
+                                border: "1px solid #eee",
+                                borderRadius: 10,
+                              }}
+                            >
+                              <Row gutter={16}>
+                                <Col span={12}>
+                                  <Form.Item
+                                    {...rest}
+                                    name={[name, "school"]}
+                                    label="Trường học"
+                                    rules={[{ required: true, message: "Nhập tên trường" }]}
+                                  >
+                                    <Input />
+                                  </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                  <Form.Item name={[name, "degree"]} label="Bằng cấp">
+                                    <Input />
+                                  </Form.Item>
+                                </Col>
+                              </Row>
+                              <Form.Item name={[name, "field"]} label="Chuyên ngành">
+                                <Input />
+                              </Form.Item>
+                              <Button
+                                danger
+                                type="link"
+                                icon={<DeleteOutlined />}
+                                onClick={() => remove(name)}
+                              >
+                                Xóa
+                              </Button>
+                            </Space>
+                          ))}
+                        </Card>
+                      )}
+                    </Form.List>
+                  </TabPane>
 
-              <Form.Item className="form-buttons">
-                <Button 
-                  onClick={() => navigate("/change-password")} 
-                  size="large"
-                  style={{ marginRight: 16 }}
-                >
-                  Đổi mật khẩu
-                </Button>
-                <Button 
-                  onClick={() => navigate(-1)} 
-                  size="large"
-                  style={{ marginRight: 16 }}
-                >
-                  Hủy
-                </Button>
-                <Button 
-                  type="primary" 
-                  htmlType="submit" 
-                  loading={loading}
-                  size="large"
-                >
-                  Lưu thay đổi
-                </Button>
-              </Form.Item>
-            </Form>
-            )}
+                  <TabPane tab="Kinh nghiệm làm việc" key="3">
+                    <Form.List name="experiences">
+                      {(fields, { add, remove }) => (
+                        <Card
+                          type="inner"
+                          title="Kinh nghiệm làm việc"
+                          extra={
+                            <Button type="dashed" onClick={() => add({})} icon={<PlusOutlined />}>
+                              Thêm kinh nghiệm
+                            </Button>
+                          }
+                          style={{ marginBottom: 20 }}
+                        >
+                          {fields.map(({ key, name, ...rest }) => (
+                            <Space
+                              key={key}
+                              direction="vertical"
+                              style={{
+                                display: "flex",
+                                marginBottom: 10,
+                                padding: 15,
+                                border: "1px solid #eee",
+                                borderRadius: 10,
+                              }}
+                            >
+                              <Row gutter={16}>
+                                <Col span={12}>
+                                  <Form.Item
+                                    {...rest}
+                                    name={[name, "company"]}
+                                    label="Công ty / Doanh nghiệp"
+                                    rules={[{ required: true, message: "Nhập tên công ty" }]}
+                                  >
+                                    <Input />
+                                  </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                  <Form.Item
+                                    {...rest}
+                                    name={[name, "position"]}
+                                    label="Chức vụ"
+                                  >
+                                    <Input />
+                                  </Form.Item>
+                                </Col>
+                              </Row>
+                              <Row gutter={16}>
+                                <Col span={12}>
+                                  <Form.Item name={[name, "startDate"]} label="Từ ngày">
+                                    <DatePicker format="YYYY-MM-DD" style={{ width: "100%" }} />
+                                  </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                  <Form.Item name={[name, "endDate"]} label="Đến ngày">
+                                    <DatePicker format="YYYY-MM-DD" style={{ width: "100%" }} />
+                                  </Form.Item>
+                                </Col>
+                              </Row>
+                              <Button
+                                danger
+                                type="link"
+                                icon={<DeleteOutlined />}
+                                onClick={() => remove(name)}
+                              >
+                                Xóa
+                              </Button>
+                            </Space>
+                          ))}
+                        </Card>
+                      )}
+                    </Form.List>
+                  </TabPane>
+                </Tabs>
+                <Form.Item className="form-buttons" style={{ marginTop: 24 }}>
+                  <Button onClick={() => navigate("/change-password")} size="large" style={{ marginRight: 16 }}>
+                    Đổi mật khẩu
+                  </Button>
+                  <Button onClick={() => navigate(-1)} size="large" style={{ marginRight: 16 }}>
+                    Hủy
+                  </Button>
+                  <Button type="primary" htmlType="submit" loading={loading} size="large">
+                    Lưu thay đổi
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Spin>
           </Card>
         </Col>
       </Row>

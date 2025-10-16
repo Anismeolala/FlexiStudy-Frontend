@@ -78,3 +78,18 @@
   filter: brightness(1.05);
   box-shadow: none !important;
 }
+.jd-skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.skill-tag {
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #f0f7ff;
+  color: #1e3a8a;
+  border: 1px solid #d0e3ff;
+}

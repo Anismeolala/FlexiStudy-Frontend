@@ -11,6 +11,11 @@ import api from "../services/api";
         return res.data;
       };
 
+      export const createPasswordAPI = async (password) => {
+        const res = await api.post("users/create-password", { password });
+        return res.data;
+      }
+
       export const getMyInfoAPI = async () => {
         const res = await api.get("users/myInfo");
         return res.data;
@@ -111,7 +116,6 @@ import api from "../services/api";
 
     //  - Job API -
 
-      // Lấy danh sách Job (phân trang + search)
      export const getAllJobsAPI = async (params) => {
         const res = await api.get('jobs', { params });
         return res.data;
@@ -133,25 +137,21 @@ import api from "../services/api";
       };
 
 
-      // Lấy chi tiết 1 Job
       export const getJobByIdAPI = async (jobId) => {
         const res = await api.get(`jobs/${jobId}`);
         return res.data;
       };
 
-      // Tạo mới Job
       export const createJobAPI = async (payload) => {
         const res = await api.post(`jobs`, payload);
         return res.data;
       };
 
-      // Cập nhật Job
       export const updateJobAPI = async (jobId, payload) => {
         const res = await api.put(`jobs/${jobId}`, payload);
         return res.data;
       };
 
-      // Xóa Job
       export const deleteJobAPI = async (jobId) => {
         const res = await api.delete(`jobs/${jobId}`);
         return res.data;
@@ -168,7 +168,69 @@ import api from "../services/api";
         const res = await api.get(`skills/suggest?keyword=${encodeURIComponent(keyword)}`);
         return res.data;
       };
-      
+
+      // - Application API -
+      export const uploadCvAPI = async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await api.post("uploads/cv", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        return res.data; // { result: "cvUrl", message: "CV uploaded successfully" }
+      };
+      export const getApplicationsByUserAPI = async (userId) => {
+          const res = await api.get(`applications/user/${userId}`);
+          return res.data.result;
+        };
+      // Tạo Application (nộp hồ sơ)
+      export const createApplicationAPI = async (payload) => {
+        const res = await api.post("applications", payload);
+        return res.data; // { result: ApplicationResponse }
+      };
+
+      // - Saved Job API -
+      export const checkSavedJobAPI = async (jobId) => {
+        const res = await api.get(`saved-job/check/${jobId}`);
+        return res.data.result; // true hoặc false
+      };
+
+      // Lưu job
+      export const saveJobAPI = async (jobId) => {
+        const res = await api.post(`saved-job/${jobId}`);
+        return res.data;
+      };
+
+      // Bỏ lưu job
+      export const unsaveJobAPI = async (jobId) => {
+        const res = await api.delete(`saved-job/${jobId}`);
+        return res.data;
+      };
+
+      // Lấy danh sách job đã lưu
+      export const getSavedJobsAPI = async () => {
+        const res = await api.get("saved-job");
+
+        let data = res.data;
+        // Nếu là string -> parse lại thành object
+        if (typeof data === "string") {
+          data = JSON.parse(data);
+        }
+
+        return data.result || [];
+       };
+
+      // - Profile API -
+      export const getMyProfileAPI = async () => {
+        const res = await api.get("profile/me");
+        return res.data;
+      };
+
+      export const updateMyProfileAPI = async (payload) => {
+        const res = await api.put("profile/me", payload);
+        return res.data;
+      };
+
 
 
 

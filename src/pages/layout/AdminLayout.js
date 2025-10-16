@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import './AdminLayout.css' // Tạo file CSS mới này
+import './AdminLayout.css' 
 import { Avatar, Layout } from 'antd'
 import { UserOutlined } from "@ant-design/icons";
 import { Outlet } from 'react-router-dom'

@@ -210,7 +210,9 @@ function JobCardItem({ job, onClick }) {
 
       <div className="jc-row foot">
         <span className="posted">{posted}</span>
-        <Button type="primary" className="cta" onClick={onClick}>Xem chi tiết</Button>
+        <Button type="primary" className="cta" onClick={onClick}>
+          Xem chi tiết
+        </Button>
       </div>
     </div>
   );
