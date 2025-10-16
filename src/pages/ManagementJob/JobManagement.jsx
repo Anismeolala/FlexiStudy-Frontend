@@ -23,6 +23,7 @@ import {
   CheckCircleOutlined,
   StopOutlined,
 } from "@ant-design/icons";
+import { PiShoppingBagOpenBold } from "react-icons/pi";
 import { getAllJobsAdminAPI, updateJobAPI } from "../../apis";
 
 export default function AdminJobManagement() {
@@ -44,7 +45,10 @@ export default function AdminJobManagement() {
     });
 
     useEffect(() => {
-      dispatch(setLayoutData({ title: "Quản lý danh sách việc làm" }));
+      dispatch(setLayoutData({ 
+        title: "Quản lý danh sách việc làm",
+        icon: <PiShoppingBagOpenBold/>,
+      }));
       loadJobs();
     }, [dispatch]);
 

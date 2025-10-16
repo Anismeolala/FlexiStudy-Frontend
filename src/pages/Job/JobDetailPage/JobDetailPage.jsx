@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { getJobByIdAPI } from "../../../apis";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  getJobByIdAPI,
+  saveJobAPI,
+  unsaveJobAPI,
+  checkSavedJobAPI,
+} from "../../../apis";
 import {
   Card,
   Typography,
@@ -10,6 +15,7 @@ import {
   Button,
   Divider,
   Tag,
+  message,
 } from "antd";
 import {
   EnvironmentOutlined,
@@ -19,11 +25,13 @@ import {
   CalendarOutlined,
   LeftOutlined,
   CheckCircleTwoTone,
-  BuildOutlined ,
+  BuildOutlined,
 } from "@ant-design/icons";
-import "./JobDetailPage.css"; 
+import { useSelector } from "react-redux";
+import ApplicationDialog from "./ApplicationDialog";
+import "./JobDetailPage.css";
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Paragraph } = Typography;
 
 const JobDetailPage = () => {
   const { jobId } = useParams();
@@ -31,7 +39,11 @@ const JobDetailPage = () => {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [logoOk, setLogoOk] = useState(true);
+  const [openApply, setOpenApply] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const { isAuthorized } = useSelector((state) => state.user);
 
+  // Lấy chi tiết job
   useEffect(() => {
     async function fetchJob() {
       try {
@@ -47,6 +59,45 @@ const JobDetailPage = () => {
     fetchJob();
   }, [jobId]);
 
+  // Kiểm tra job đã được lưu hay chưa
+  useEffect(() => {
+    const checkSaved = async () => {
+      if (!isAuthorized) return; // nếu chưa đăng nhập thì bỏ qua
+      try {
+        const saved = await checkSavedJobAPI(jobId);
+        setIsSaved(saved);
+      } catch (err) {
+        console.warn("⚠️ Không thể kiểm tra trạng thái lưu:", err);
+      }
+    };
+    checkSaved();
+  }, [jobId, isAuthorized]);
+
+  // Toggle lưu / bỏ lưu job
+  const handleToggleSaveJob = async () => {
+    if (!isAuthorized) {
+      message.warning("Vui lòng đăng nhập để lưu công việc!");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      if (isSaved) {
+        await unsaveJobAPI(job.id);
+        setIsSaved(false);
+        message.info("Đã bỏ lưu công việc!");
+      } else {
+        await saveJobAPI(job.id);
+        setIsSaved(true);
+        message.success("Đã lưu công việc!");
+      }
+    } catch (err) {
+      console.error("❌ Lỗi khi lưu/bỏ lưu job:", err);
+      message.error("Không thể thay đổi trạng thái lưu. Vui lòng thử lại!");
+    }
+  };
+
+  //  Loading state
   if (loading)
     return (
       <div style={{ textAlign: "center", marginTop: 100 }}>
@@ -56,6 +107,7 @@ const JobDetailPage = () => {
 
   if (!job) return <div>Không tìm thấy công việc</div>;
 
+  // 💵 Hiển thị lương
   const salaryText =
     job.minSalary && job.maxSalary
       ? `${job.minSalary.toLocaleString("vi-VN")} - ${job.maxSalary.toLocaleString(
@@ -97,7 +149,6 @@ const JobDetailPage = () => {
         <Row gutter={24}>
           {/* =================== Main =================== */}
           <Col xs={24} lg={16}>
-            {/* Header Card */}
             <Card className="jd-card">
               <div className="jd-head">
                 <div className="jd-head__left">
@@ -195,13 +246,34 @@ const JobDetailPage = () => {
               </Card>
             )}
 
+            {/* Required Skills */}
+            {Array.isArray(job.requiredSkills) && job.requiredSkills.length > 0 && (
+              <Card className="jd-card">
+                <Title level={4} className="jd-section-title">
+                  Kỹ năng yêu cầu
+                </Title>
+                <div className="jd-skill-tags">
+                  {job.requiredSkills.map((skill) => (
+                    <Tag
+                      key={skill.id || skill.name}
+                      color="blue"
+                      className="skill-tag"
+                    >
+                      {skill.name}
+                    </Tag>
+                  ))}
+                </div>
+              </Card>
+            )}
+
             {/* General info */}
             <Card className="jd-card">
               <Title level={4} className="jd-section-title">
                 Thông tin chung
               </Title>
               <Paragraph className="jd-text">
-                <EnvironmentOutlined /> <b>Địa điểm:</b> {job.address || "Không xác định"}
+                <EnvironmentOutlined /> <b>Địa điểm:</b>{" "}
+                {job.address || "Không xác định"}
               </Paragraph>
               <Paragraph className="jd-text">
                 <CalendarOutlined /> <b>Hạn nộp hồ sơ:</b>{" "}
@@ -214,14 +286,25 @@ const JobDetailPage = () => {
           <Col xs={24} lg={8}>
             <div className="jd-sticky">
               <Card className="jd-apply">
-                <Button size="large" className="jd-btn-primary" block>
+                <Button
+                  size="large"
+                  className="jd-btn-primary"
+                  block
+                  onClick={() => setOpenApply(true)}
+                >
                   Ứng tuyển ngay
                 </Button>
-                <Button size="large" block>
-                  Lưu tin
+                <Button
+                  size="large"
+                  block
+                  type={isSaved ? "primary" : "default"}
+                  onClick={handleToggleSaveJob}
+                >
+                  {isSaved ? "Đã lưu" : "Lưu tin"}
                 </Button>
               </Card>
 
+              {/* Company info */}
               <Card className="jd-card">
                 <Title level={4} className="jd-section-title">
                   Về công ty
@@ -235,12 +318,14 @@ const JobDetailPage = () => {
                         onError={() => setLogoOk(false)}
                       />
                     ) : (
-                      <div className="jd-logo__fallback">{(job.companyName || "CT")
-                        .split(" ")
-                        .map((w) => w[0])
-                        .join("")
-                        .slice(0, 2)
-                        .toUpperCase()}</div>
+                      <div className="jd-logo__fallback">
+                        {(job.companyName || "CT")
+                          .split(" ")
+                          .map((w) => w[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </div>
                     )}
                   </div>
                   <div>
@@ -259,6 +344,16 @@ const JobDetailPage = () => {
           </Col>
         </Row>
       </div>
+
+      <ApplicationDialog
+        open={openApply}
+        onClose={() => setOpenApply(false)}
+        jobId={job.id}
+        jobTitle={job.title}
+        companyName={job.companyName}
+        onSubmitted={() => {
+        }}
+      />
     </div>
   );
 };

@@ -20,8 +20,7 @@ const { Header: AntHeader } = Layout;
 const jobsMenu = {
   items: [
     { key: "1", label: <Link to="/jobs">Tìm kiếm việc làm</Link> },
-    { key: "2", label: <Link to="/jobs/saved">Việc làm đã lưu</Link> },
-    { key: "3", label: <Link to="/jobs/applied">Việc làm đã ứng tuyển</Link> },
+    { key: "2", label: <Link to="/jobs/saved">Việc làm của tôi</Link> },
   ],
 };
 
