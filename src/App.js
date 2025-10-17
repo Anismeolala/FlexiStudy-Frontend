@@ -32,6 +32,8 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage/ForgotPasswordPage";
 import VerifyForgotOtpPage from "./pages/ForgotPasswordPage/VerifyForgotOtpPage";
 import ResetPasswordPage from "./pages/ForgotPasswordPage/ResetPasswordPage";
 import SetPasswordPage from "./pages/Authenticate/SetPasswordPage";
+import { resetUser } from "./redux/userSlice";
+import JobByCategory from "./pages/JobByCategory/JobByCategory";
 
 const route = createBrowserRouter([
   {
@@ -53,6 +55,7 @@ const route = createBrowserRouter([
         { path: "/profile", element: <EditProfile /> },
         { path: "/onboard", element: <FormOnboard /> },
         { path: "/jobs/:jobId", element: <JobDetailPage /> },
+        { path: "/jobs/category/:category", element: <JobByCategory /> },
       ], 
   },
   { path: "/login", element: <Login /> },
@@ -83,17 +86,23 @@ const App = () => {
   const [appReady, setAppReady] = useState(false); // Trạng thái khởi tạo App
 
   useEffect(() => {
-    const initApp = async () => {
-      const token = localStorage.getItem("accessToken");
-      console.log("Access token:", token);
-      if (token) {
-        const result = await dispatch(getMyInfo()).unwrap();
-       console.log("✅ user info loaded:", result);
+  const initApp = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      try {
+        await dispatch(getMyInfo()).unwrap();
+      } catch (err) {
+        console.warn("❌ Failed to load user info:", err);
+        // Nếu token hết hạn hoặc user không tồn tại → xóa token luôn
+        localStorage.removeItem("accessToken");
+        dispatch(resetUser());
       }
-      setAppReady(true);
-    };
-    initApp();
-  }, [dispatch]);
+    }
+    setAppReady(true);
+  };
+  initApp();
+}, [dispatch]);
+
 
   if (!appReady) {
     return (

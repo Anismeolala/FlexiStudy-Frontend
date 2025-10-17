@@ -1,8 +1,8 @@
+// pages/Job/JobsByCategory.jsx
 import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
-  Card, Button, Input, Select, InputNumber,
-  Pagination, Drawer, Spin, Empty, Tag, message,
-  Radio
+  Card, Button, Input, Pagination, Drawer, Spin, Empty, message, Radio,
 } from "antd";
 import {
   SearchOutlined,
@@ -11,94 +11,79 @@ import {
   StarFilled,
   DollarOutlined,
 } from "@ant-design/icons";
-import { getAllJobsAPI } from "../../apis";
-import "./Jobs.css";
-import { useNavigate } from "react-router-dom";
+import { getJobsByCategoryAPI } from "../../apis";
+import "./JobsByCategory.css";
 
-const { Option } = Select;
 const PAGE_SIZE = 12;
 
+/* ----------------- Filters ----------------- */
 const JobFilters = ({
   type, setType,
   city, setCity,
   minSalary, setMinSalary,
   maxSalary, setMaxSalary,
   onSearch, resetTrigger,
-  onAfterSelect
+  onAfterSelect,
 }) => {
+  // reset khi bấm "Xóa tất cả" từ ngoài
   useEffect(() => {
     setType("");
     setCity("");
     setMinSalary(null);
     setMaxSalary(null);
-  }, [resetTrigger]);
+  }, [resetTrigger, setType, setCity, setMinSalary, setMaxSalary]);
 
-  // 🟢 Toggle logic cho từng filter
-  const toggleType = (value) => {
-    const newType = type === value ? "" : value;
-    setType(newType);
-    onSearch({ type: newType || null, page: 1 });
-    onAfterSelect?.();
-  };
-
-  const toggleCity = (value) => {
-    const newCity = city === value ? "" : value;
-    setCity(newCity);
-    onSearch({ city: newCity || null, page: 1 });
-    onAfterSelect?.();
-  };
-
-  const toggleSalary = (value) => {
-    let min = null, max = null;
-    if (value) {
-      switch (value) {
-        case "under15": min = 0; max = 15000000; break;
-        case "15to25": min = 15000000; max = 25000000; break;
-        case "25to35": min = 25000000; max = 35000000; break;
-        case "35to50": min = 35000000; max = 50000000; break;
-        case "above50": min = 50000000; max = null; break;
-      }
-    }
-
-    const currentValue =
-      minSalary === 0 && maxSalary === 15000000 ? "under15" :
-      minSalary === 15000000 && maxSalary === 25000000 ? "15to25" :
-      minSalary === 25000000 && maxSalary === 35000000 ? "25to35" :
-      minSalary === 35000000 && maxSalary === 50000000 ? "35to50" :
-      minSalary === 50000000 ? "above50" : "";
-
-    const isSame = currentValue === value;
-
-    if (isSame) {
-      setMinSalary(null);
-      setMaxSalary(null);
-      onSearch({ minSalary: null, maxSalary: null, page: 1 });
-    } else {
-      setMinSalary(min);
-      setMaxSalary(max);
-      onSearch({ minSalary: min, maxSalary: max, page: 1 });
-    }
-    onAfterSelect?.();
-  };
-
-  const salaryValue =
+  const salaryKey =
     minSalary === 0 && maxSalary === 15000000 ? "under15" :
     minSalary === 15000000 && maxSalary === 25000000 ? "15to25" :
     minSalary === 25000000 && maxSalary === 35000000 ? "25to35" :
     minSalary === 35000000 && maxSalary === 50000000 ? "35to50" :
     minSalary === 50000000 ? "above50" : "";
 
+  const toggleType = (value) => {
+    const next = type === value ? "" : value;
+    setType(next);
+    onSearch({ type: next || null, page: 1 });
+    onAfterSelect?.();
+  };
+
+  const toggleCity = (value) => {
+    const next = city === value ? "" : value;
+    setCity(next);
+    onSearch({ city: next || null, page: 1 });
+    onAfterSelect?.();
+  };
+
+  const toggleSalary = (value) => {
+    let min = null, max = null;
+    if (value) {
+      if (value === "under15") { min = 0; max = 15000000; }
+      if (value === "15to25") { min = 15000000; max = 25000000; }
+      if (value === "25to35") { min = 25000000; max = 35000000; }
+      if (value === "35to50") { min = 35000000; max = 50000000; }
+      if (value === "above50") { min = 50000000; max = null; }
+    }
+    const isSame = salaryKey === value;
+    if (isSame) {
+      setMinSalary(null); setMaxSalary(null);
+      onSearch({ minSalary: null, maxSalary: null, page: 1 });
+    } else {
+      setMinSalary(min); setMaxSalary(max);
+      onSearch({ minSalary: min, maxSalary: max, page: 1 });
+    }
+    onAfterSelect?.();
+  };
+
   return (
     <div className="filters-stack space-y-6">
-
-      {/* 🔹 Loại hình công việc */}
+      {/* Loại hình công việc */}
       <Card size="small" className="filter-card">
         <div className="filter-title">Loại hình công việc</div>
         <div className="flex flex-col space-y-2 mt-2">
           {[
             { value: "FULLTIME", label: "Toàn thời gian" },
             { value: "PARTTIME", label: "Bán thời gian" },
-            { value: "INTERN", label: "Thực tập" },
+            { value: "INTERN",   label: "Thực tập" },
           ].map((opt) => (
             <Radio
               key={opt.value}
@@ -111,7 +96,7 @@ const JobFilters = ({
         </div>
       </Card>
 
-      {/* 🔹 Địa điểm */}
+      {/* Địa điểm */}
       <Card size="small" className="filter-card">
         <div className="filter-title">Địa điểm</div>
         <div className="flex flex-col space-y-2 mt-2">
@@ -127,20 +112,20 @@ const JobFilters = ({
         </div>
       </Card>
 
-      {/* 🔹 Mức lương */}
+      {/* Mức lương */}
       <Card size="small" className="filter-card">
         <div className="filter-title">Mức lương</div>
         <div className="flex flex-col space-y-2 mt-2">
           {[
             { val: "under15", label: "Dưới 15 triệu" },
-            { val: "15to25", label: "15–25 triệu" },
-            { val: "25to35", label: "25–35 triệu" },
-            { val: "35to50", label: "35–50 triệu" },
+            { val: "15to25",  label: "15–25 triệu" },
+            { val: "25to35",  label: "25–35 triệu" },
+            { val: "35to50",  label: "35–50 triệu" },
             { val: "above50", label: "Trên 50 triệu" },
           ].map(({ val, label }) => (
             <Radio
               key={val}
-              checked={salaryValue === val}
+              checked={salaryKey === val}
               onClick={() => toggleSalary(val)}
             >
               {label}
@@ -151,7 +136,6 @@ const JobFilters = ({
     </div>
   );
 };
-
 
 /* ----------------- Job card ----------------- */
 function JobCardItem({ job, onClick }) {
@@ -171,8 +155,8 @@ function JobCardItem({ job, onClick }) {
   };
 
   const salaryText = fmtSalaryMil(job?.minSalary, job?.maxSalary, job?.currency || "VND");
+  const shortDesc = (job?.description || "").slice(0, 180);
   const desc = String(job?.description || "");
-  const shortDesc = desc.length > 200 ? `${desc.slice(0, 200)}…` : desc;
   const posted = job?.postedAt ? new Date(job.postedAt).toLocaleDateString("vi-VN") : "";
 
   return (
@@ -182,16 +166,12 @@ function JobCardItem({ job, onClick }) {
           <StarFilled /> <span>Nổi bật</span>
         </div>
       )}
-
       <div className="jc-row top">
         <div className="logo-wrap">
           <img
             src={logoSrc}
             alt={job?.companyName || "Logo"}
-            onError={(e) => {
-              e.currentTarget.src = "/default-company.png";
-            }}
-            loading="lazy"
+            onError={(e) => (e.currentTarget.src = "/default-company.png")}
           />
         </div>
 
@@ -206,10 +186,12 @@ function JobCardItem({ job, onClick }) {
         </div>
       </div>
 
-      {shortDesc && <p className="desc">{shortDesc}</p>}
+      {shortDesc && <p className="desc">{shortDesc}...</p>}
 
       <div className="jc-row foot">
-        <span className="posted">{posted}</span>
+        <span className="posted">
+          {job?.postedAt ? new Date(job.postedAt).toLocaleDateString("vi-VN") : ""}
+        </span>
         <Button type="primary" className="cta" onClick={onClick}>
           Xem chi tiết
         </Button>
@@ -219,86 +201,100 @@ function JobCardItem({ job, onClick }) {
 }
 
 /* ----------------- Page ----------------- */
-export default function Jobs() {
+export default function JobsByCategory() {
+  const { category: rawCategory } = useParams();
+  const category = (() => { try { return decodeURIComponent(rawCategory || "").trim(); } catch { return rawCategory || ""; }})();
+  const navigate = useNavigate();
+
   // list & state
   const [jobs, setJobs] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [type, setType] = useState("");
+
   // filters
   const [keyword, setKeyword] = useState("");
   const [city, setCity] = useState("");
+  const [type, setType] = useState("");
   const [minSalary, setMinSalary] = useState();
   const [maxSalary, setMaxSalary] = useState();
   const [resetTrigger, setResetTrigger] = useState(0);
-  const navigate = useNavigate();
-
 
   // pagination
-  const [currentPage, setCurrentPage] = useState(1);
+  const [page, setPage] = useState(1);
 
   // drawer (mobile)
   const [openDrawer, setOpenDrawer] = useState(false);
 
- const fetchJobs = async (override = {}) => {
-  try {
-    setLoading(true);
+  const fetchJobs = async (override = {}) => {
+    try {
+      setLoading(true);
 
-    const take = (key, fallback) =>
-      Object.prototype.hasOwnProperty.call(override, key) ? override[key] : fallback;
+      const take = (k, fb) =>
+        Object.prototype.hasOwnProperty.call(override, k) ? override[k] : fb;
 
-    const page = take("page", currentPage);
-    const kwRaw = take("keyword", keyword);
-    const ctRaw = take("city", city);
-    const min = take("minSalary", minSalary);
-    const max = take("maxSalary", maxSalary);
-    const tp  = take("type", type);
+      const nextPage = take("page", page);
+      const kwRaw = take("keyword", keyword);
+      const ctRaw = take("city", city);
+      const min = take("minSalary", minSalary);
+      const max = take("maxSalary", maxSalary);
+      const tp  = take("type", type);
 
-    const params = { page, size: PAGE_SIZE };
-    const kw = (kwRaw ?? "").trim();
-    const ct = (ctRaw ?? "").trim();
+      const params = { category, page: nextPage, size: PAGE_SIZE };
 
-    if (kw) params.search = kw;
-    if (ct) params.city = ct;
-    if (min !== null && min !== undefined && min !== "") params.minSalary = min;
-    if (max !== null && max !== undefined && max !== "") params.maxSalary = max;
-    if (tp  !== null && tp  !== undefined && tp  !== "") params.type = tp;
+      const kw = (kwRaw ?? "").trim();
+      const ct = (ctRaw ?? "").trim();
+      if (kw) params.search = kw;
+      if (ct) params.city = ct;
+      if (min !== null && min !== undefined && min !== "") params.minSalary = min;
+      if (max !== null && max !== undefined && max !== "") params.maxSalary = max;
+      if (tp  !== null && tp  !== undefined && tp  !== "") params.type = tp;
 
-    const res = await getAllJobsAPI(params);
-    console.log("Fetched jobs:", res);
-    setJobs(res?.result?.data ?? []);
-    setTotal(res?.result?.totalElements ?? 0);
-  } catch (e) {
-    console.error(e);
-    message.error("Không tải được danh sách việc làm");
-    setJobs([]); setTotal(0);
-  } finally {
-    setLoading(false);
-  }
-};
+      const res = await getJobsByCategoryAPI(params);
+      console.log("getJobsByCategoryAPI", { params, res });
+      setJobs(res?.result?.data ?? []);
+      setTotal(res?.result?.totalElements ?? 0);
+    } catch (err) {
+      console.error(err);
+      message.error("Không tải được danh sách việc làm theo ngành");
+      setJobs([]); setTotal(0);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-
-
-  // chỉ đổi trang -> fetch lại với page mới
+  // load lần đầu + khi đổi page hoặc đổi category
   useEffect(() => {
-    fetchJobs({ page: currentPage });
+    fetchJobs({ page });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage]);
+  }, [category, page]);
 
-    const onSearch = (override = {}) => {
-      // chặn trường hợp bị truyền event
-      if (override && (override.nativeEvent || typeof override.preventDefault === "function")) {
-        override = {};
-      }
-      fetchJobs({
-        page: 1,
-        ...(Object.prototype.hasOwnProperty.call(override, "keyword") ? { keyword: override.keyword } : {}),
-        ...(Object.prototype.hasOwnProperty.call(override, "city") ? { city: override.city } : {}),
-        ...(Object.prototype.hasOwnProperty.call(override, "minSalary") ? { minSalary: override.minSalary } : {}),
-        ...(Object.prototype.hasOwnProperty.call(override, "maxSalary") ? { maxSalary: override.maxSalary } : {}),
-        ...(Object.prototype.hasOwnProperty.call(override, "type") ? { type: override.type } : {}),
-      });
-    };
+  // khi đổi category → reset filter & về trang 1
+  useEffect(() => {
+    setKeyword("");
+    setCity("");
+    setType("");
+    setMinSalary();
+    setMaxSalary();
+    setPage(1);
+    setResetTrigger((x) => x + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category]);
+
+  const onSearch = (override = {}) => {
+    // chặn khi truyền event từ input
+    if (override && (override.nativeEvent || typeof override.preventDefault === "function")) {
+      override = {};
+    }
+    fetchJobs({
+      page: 1,
+      ...(Object.prototype.hasOwnProperty.call(override, "keyword") ? { keyword: override.keyword } : {}),
+      ...(Object.prototype.hasOwnProperty.call(override, "city") ? { city: override.city } : {}),
+      ...(Object.prototype.hasOwnProperty.call(override, "minSalary") ? { minSalary: override.minSalary } : {}),
+      ...(Object.prototype.hasOwnProperty.call(override, "maxSalary") ? { maxSalary: override.maxSalary } : {}),
+      ...(Object.prototype.hasOwnProperty.call(override, "type") ? { type: override.type } : {}),
+    });
+    setPage(1);
+  };
 
   const onReset = () => {
     setKeyword("");
@@ -306,17 +302,19 @@ export default function Jobs() {
     setType("");
     setMinSalary();
     setMaxSalary();
-    setCurrentPage(1);
+    setPage(1);
+    setResetTrigger((v) => v + 1);
     fetchJobs({ page: 1, keyword: "", city: "", minSalary: null, maxSalary: null, type: "" });
   };
-
 
   return (
     <div className="jobs-wrap">
       <div className="container">
         {/* Title + SearchBar (pill) */}
         <div className="jobs-top">
-          <h1 className="page-title">Tìm kiếm công việc</h1>
+          <h1 className="page-title">
+            Việc làm theo ngành: <span className="highlight">{category}</span>
+          </h1>
 
           <div className="searchbar-pill" role="search">
             <div className="pill">
@@ -339,27 +337,34 @@ export default function Jobs() {
                 size="large"
                 bordered={false}
                 placeholder="Thành phố, khu vực..."
-                value={city} 
-                onChange={(e) => setCity(e.target.value)} 
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
                 onPressEnter={() => onSearch()}
                 prefix={<EnvironmentOutlined className="pill-icon" />}
                 aria-label="Địa điểm"
               />
             </div>
+
             <Button size="large" className="pill-btn" onClick={onSearch}>
               Tìm kiếm
             </Button>
           </div>
+          <p className="jobs-subtitle">
+            Danh sách các công việc thuộc lĩnh vực <b>{category}</b>
+          </p>
         </div>
 
         <div className="jobs-flex">
-        <Button
-          className="filter-toggle-btn"
-          onClick={() => setOpenDrawer(true)}
-          icon={<AppstoreOutlined />}
-        >
-          Bộ lọc
-        </Button>
+          {/* toggle filters (mobile) */}
+          <Button
+            className="filter-toggle-btn"
+            onClick={() => setOpenDrawer(true)}
+            icon={<AppstoreOutlined />}
+          >
+            Bộ lọc
+          </Button>
+
+          {/* Filters desktop */}
           <aside className="filters-desktop">
             <div className="filters-sticky">
               <div className="filters-head">
@@ -367,31 +372,25 @@ export default function Jobs() {
                 <Button
                   type="text"
                   size="small"
-                  onClick={() => {
-                    setType("");
-                    setCity("");
-                    setMinSalary(null);
-                    setMaxSalary(null);
-                    setResetTrigger(prev => prev + 1);
-                    fetchJobs({ page: 1, keyword: "", city: "", type: "", minSalary: null, maxSalary: null });
-                  }}
+                  onClick={onReset}
                 >
                   Xóa tất cả
                 </Button>
               </div>
-            <JobFilters
-              type={type} setType={setType}
-              city={city} setCity={setCity}
-              minSalary={minSalary} setMinSalary={setMinSalary}
-              maxSalary={maxSalary} setMaxSalary={setMaxSalary}
-              onSearch={onSearch}
-              onReset={onReset}
-              resetTrigger={resetTrigger}
-            />
-          </div>
-        </aside>
 
-          {/* Job Listings */}
+              <JobFilters
+                type={type} setType={setType}
+                city={city} setCity={setCity}
+                minSalary={minSalary} setMinSalary={setMinSalary}
+                maxSalary={maxSalary} setMaxSalary={setMaxSalary}
+                onSearch={onSearch}
+                onReset={onReset}
+                resetTrigger={resetTrigger}
+              />
+            </div>
+          </aside>
+
+          {/* Job list */}
           <div className="jobs-content">
             <div className="jobs-count">
               <span className="muted">Hiển thị </span>
@@ -402,29 +401,31 @@ export default function Jobs() {
             {loading ? (
               <div className="center-pad"><Spin size="large" /></div>
             ) : jobs.length === 0 ? (
-              <Empty description="Không có công việc phù hợp" />
+              <Empty description="Không có công việc nào trong ngành này" />
             ) : (
               <div className="card-stack">
                 {jobs.map((job) => (
-                  <JobCardItem 
+                  <JobCardItem
                     key={job.id}
                     job={job}
-                    onClick={() => navigate(`/jobs/${job.id}`)} />
-                  ))}
+                    onClick={() => navigate(`/jobs/${job.id}`)}
+                  />
+                ))}
               </div>
             )}
 
             <Pagination
-              current={currentPage}
-              pageSize={PAGE_SIZE}
+              current={page}
               total={total}
-              onChange={setCurrentPage}
+              pageSize={PAGE_SIZE}
+              onChange={setPage}
               className="pagination"
             />
           </div>
         </div>
       </div>
 
+      {/* Drawer mobile */}
       <Drawer
         title={<div className="drawer-title">Lọc kết quả</div>}
         placement="left"
@@ -439,7 +440,7 @@ export default function Jobs() {
           maxSalary={maxSalary} setMaxSalary={setMaxSalary}
           onSearch={onSearch}
           resetTrigger={resetTrigger}
-          onAfterSelect={() => setOpenDrawer(false)} // ← đóng drawer khi chọn xong
+          onAfterSelect={() => setOpenDrawer(false)} // đóng sau khi chọn
         />
       </Drawer>
     </div>

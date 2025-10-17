@@ -1,171 +1,143 @@
+// src/pages/ManagementJob/JobManagement.jsx
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setLayoutData } from "../../redux/layoutSlice";
 import {
   Table,
-  Tag,
-  Space,
-  Button,
   Input,
-  message,
+  Tag,
+  Button,
   Tabs,
+  Space,
+  Image,
+  message,
   Modal,
   Descriptions,
-  Image,
   Tooltip,
-  Popover,
 } from "antd";
 import {
   SearchOutlined,
   CheckOutlined,
   CloseOutlined,
   EyeOutlined,
-  CheckCircleOutlined,
-  StopOutlined,
 } from "@ant-design/icons";
 import { PiShoppingBagOpenBold } from "react-icons/pi";
-import { getAllJobsAdminAPI, updateJobAPI } from "../../apis";
 
-export default function AdminJobManagement() {
+import { getAllJobsAdminAPI, updateJobAPI /* , getJobByIdAPI */ } from "../../apis";
+
+const JobManagement = () => {
   const dispatch = useDispatch();
-  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState("ALL"); // ALL | OPEN | CLOSED
   const [searchValue, setSearchValue] = useState("");
+  const [data, setData] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(false);
-  const [openPopoverId, setOpenPopoverId] = useState(null);
 
-  const [jobs, setJobs] = useState([]);
-  const [pagination, setPagination] = useState({
-      current: 1,
-      pageSize: 10,
-      total: 0,
-    });
+  // Set layout + fetch list (1 lần) — y chang template xác thực SV
+  useEffect(() => {
+    dispatch(setLayoutData({ title: "Quản lý việc làm", icon: <PiShoppingBagOpenBold /> }));
+    fetchJobs();
+  }, [dispatch]);
 
-    useEffect(() => {
-      dispatch(setLayoutData({ 
-        title: "Quản lý danh sách việc làm",
-        icon: <PiShoppingBagOpenBold/>,
-      }));
-      loadJobs();
-    }, [dispatch]);
-
-    const loadJobs = async (options = {}) => {
-        const {
-          isInitial = false,
-          page = pagination.current,
-          pageSize = pagination.pageSize,
-          search = searchText,
-        } = options;
-
-        try {
-          isInitial ? setInitialLoading(true) : setLoading(true);
-
-          const response = await getAllJobsAdminAPI({
-            page,
-            size: pageSize,
-            search,
-          });
-
-          console.log("API Response:", response);
-
-          if (response.code === 1000) {
-            const {
-              data,
-              currentPage,
-              pageSize: returnedPageSize,
-              totalElements,
-            } = response.result;
-
-            const transformed = data.map((job) => ({
-              id: job.id,
-              title: job.title || "Chưa có tiêu đề",
-              companyName: job.companyName || "N/A",
-              companyLogoUrl: job.companyLogoUrl || null,
-              city: job.city || "N/A",
-              currency: job.currency || "N/A",
-              category: job.category || "N/A",
-              type: job.type || "N/A",
-              mode: job.mode || "N/A",
-              minSalary: job.minSalary ?? null,   
-               maxSalary: job.maxSalary ?? null,
-              description: job.description || "",
-              status: job.status || "N/A",
-              requiredSkills: Array.isArray(job.requiredSkills) ? job.requiredSkills : [],
-              postedAt: job.postedAt
-                ? new Date(job.postedAt).toLocaleDateString("vi-VN")
-                : "-",
-              updatedAt: job.updatedAt
-                ? new Date(job.updatedAt).toLocaleDateString("vi-VN")
-                : "-",
-            }));
-            setJobs(transformed);
-            setSelectedRecord(transformed);
-            setPagination((prev) => ({
-              ...prev,
-              current: currentPage,
-              pageSize: returnedPageSize,
-              total: totalElements,
-            }));
-          } else {
-            throw new Error("API response error");
-          }
-        } catch (error) {
-          console.error("Error loading jobs:", error);
-          message.error("Không thể tải danh sách việc làm");
-        } finally {
-          isInitial ? setInitialLoading(false) : setLoading(false);
-        }
-      };
-
-    const handleUpdateStatus = async (id, newStatus) => {
-      try {
-        await updateJobAPI(id, { status: newStatus });
-
-        // Cập nhật trực tiếp state danh sách job (không cần reload lại toàn bộ nếu bạn đã có state jobs)
-        setJobs((prev) =>
-          prev.map((job) =>
-            job.id === id ? { ...job, status: newStatus } : job
-          )
-        );
-
-        message.success(
-          `Đã ${newStatus === "OPEN" ? "duyệt" : "đóng"} công việc`
-        );
-        setOpenPopoverId(null);
-      } catch (error) {
-        console.error("Error updating job status:", error);
-        message.error("Cập nhật trạng thái thất bại");
+  const fetchJobs = async () => {
+    try {
+      setLoading(true);
+      // Template kia gọi API không phân trang; ở đây mình nhất quán: lấy tất cả và lọc client
+      // Nếu BE của bạn phân trang, có thể gọi size lớn (vd: 1000) hoặc đổi sang server-side sau.
+      const res = await getAllJobsAdminAPI({ page: 1, size: 1000 });
+      if (res.code === 1000 && Array.isArray(res.result?.data)) {
+        const list = res.result.data.map((job) => ({
+          id: job.id,
+          title: job.title || "Chưa có tiêu đề",
+          companyName: job.companyName || "N/A",
+          companyLogoUrl: job.companyLogoUrl || null,
+          city: job.city || "N/A",
+          currency: job.currency || "VND",
+          category: job.category || "N/A",
+          type: job.type || "N/A",
+          mode: job.mode || "N/A",
+          minSalary: job.minSalary ?? null,
+          maxSalary: job.maxSalary ?? null,
+          description: job.description || "",
+          status: (job.status || "OPEN").toUpperCase(), // chuẩn hóa
+          requiredSkills: Array.isArray(job.requiredSkills) ? job.requiredSkills : [],
+          postedAt: job.postedAt ? new Date(job.postedAt).toLocaleDateString("vi-VN") : "-",
+          updatedAt: job.updatedAt ? new Date(job.updatedAt).toLocaleDateString("vi-VN") : "-",
+        }));
+        setData(list);
+      } else {
+        setData([]);
+        message.warning("Không có dữ liệu việc làm.");
       }
-    };
+    } catch (error) {
+      console.error("Lỗi khi gọi API:", error);
+      message.error("Không thể tải danh sách việc làm");
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const showDetails = (record) => {
-      setSelectedRecord(record);
-      setIsModalVisible(true);
-    };
-
-
-    const handleDelete = (key) => {
-      setJobs(jobs.filter((job) => job.key !== key));
-      message.success("Đã xoá bài đăng!");
-    };
-
-    const handleApprove = (key) => {
-      setJobs(
-        jobs.map((job) =>
-          job.key === key ? { ...job, status: "Active" } : job
-        )
+  const handleUpdateStatus = async (id, newStatus) => {
+    try {
+      await updateJobAPI(id, { status: newStatus });
+      // Giữ đúng tinh thần “y chang”: update local state ngay (không refetch)
+      setData((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, status: newStatus } : item))
       );
-      message.success("Đã duyệt bài đăng!");
-    };
+      message.success(
+        `Đã ${newStatus === "OPEN" ? "mở lại" : "đóng"} công việc ID ${id}`
+      );
+    } catch (error) {
+      console.error(error);
+      message.error("Cập nhật trạng thái thất bại");
+    }
+  };
+
+  const showDetails = async (record) => {
+    // Nếu bạn cần detail sâu hơn từ BE thì bật getJobByIdAPI ở đây
+    // try {
+    //   const res = await getJobByIdAPI(record.id);
+    //   if (res.code === 1000) {
+    //     setSelectedRecord(transformJob(res.result));
+    //   } else {
+    //     message.error("Không thể lấy chi tiết công việc");
+    //     return;
+    //   }
+    // } catch (e) {
+    //   message.error("Không thể tải chi tiết công việc");
+    //   return;
+    // }
+    setSelectedRecord(record);
+    setIsModalVisible(true);
+  };
+
+  // Lọc client y như file mẫu
+  const filteredData = data.filter((item) => {
+    const matchStatus = statusFilter === "ALL" || item.status === statusFilter;
+    const q = searchValue.trim().toLowerCase();
+    const matchSearch =
+      !q ||
+      item.title?.toLowerCase().includes(q) ||
+      item.companyName?.toLowerCase().includes(q) ||
+      item.city?.toLowerCase().includes(q) ||
+      item.category?.toLowerCase().includes(q);
+    return matchStatus && matchSearch;
+  });
+
+  const statusColorText = (status) => {
+    const s = (status || "").toUpperCase();
+    if (s === "OPEN") return { color: "green", text: "Đang mở" };
+    if (s === "CLOSED") return { color: "gold", text: "Đã đóng" };
+    return { color: "default", text: s || "N/A" };
+  };
 
   const columns = [
     {
       title: "Logo",
       dataIndex: "companyLogoUrl",
-      key: "companyLogoUrl",
+      width: 80,
       render: (logoUrl) => (
         <Image
           src={logoUrl || "https://via.placeholder.com/50"}
@@ -173,137 +145,47 @@ export default function AdminJobManagement() {
           height={50}
           alt="Logo"
           style={{ objectFit: "contain" }}
+          fallback="https://via.placeholder.com/50"
+          preview={false}
         />
       ),
     },
     {
       title: "Tiêu đề",
       dataIndex: "title",
-      key: "title",
-      sorter: (a, b) => a.title.localeCompare(b.title),
+      width: 260,
+      ellipsis: true,
     },
     {
       title: "Công ty",
       dataIndex: "companyName",
-      key: "companyName",
-      sorter: (a, b) => a.companyName.localeCompare(b.companyName),
+      width: 220,
+      ellipsis: true,
+    },
+    {
+      title: "Thành phố",
+      dataIndex: "city",
+      width: 140,
     },
     {
       title: "Ngày đăng",
       dataIndex: "postedAt",
-      key: "postedAt",
-      sorter: (a, b) => a.postedAt.localeCompare(b.postedAt),
-    },
-    {
-      title: "Ứng tuyển",
-      dataIndex: "applicants",
-      key: "applicants",
-      sorter: (a, b) => a.applicants - b.applicants,
+      width: 120,
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
-      key: "status",
-      width: 300,
-      align: "center",
-      render: (_, record) => {
-      const status = record.status?.toUpperCase();
-      const colorMap = {
-        OPEN: "green",
-        CLOSED: "yellow",
-      };
-      const iconMap = {
-        OPEN: <CheckCircleOutlined />,
-        CLOSED: <StopOutlined />,
-      };
-
-      // Menu trong Popover
-      const actionOptions = (
-        <div style={{ minWidth: 140 }}>
-          {status === "OPEN" ? (
-            <div
-              style={{
-                padding: "8px 12px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                borderRadius: "6px",
-                transition: "background 0.2s",
-              }}
-              onClick={() => handleUpdateStatus(record.id, "CLOSED")}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "#f0f0f0")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "transparent")
-              }
-            >
-              <CloseOutlined style={{ color: "#ff4d4f" }} />
-              <span>Đóng công việc</span>
-            </div>
-          ) : (
-            <div
-              style={{
-                padding: "8px 12px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                borderRadius: "6px",
-                transition: "background 0.2s",
-              }}
-              onClick={() => handleUpdateStatus(record.id, "OPEN")}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "#f0f0f0")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "transparent")
-              }
-            >
-              <CheckOutlined style={{ color: "#52c41a" }} />
-              <span>Mở lại công việc</span>
-            </div>
-          )}
-        </div>
-      );
-
-      return (
-        <Space>
-          <Popover
-            content={actionOptions}
-            trigger="click"
-            placement="bottom"
-            overlayStyle={{ padding: 0 }}
-            open={openPopoverId === record.id}
-            onOpenChange={(visible) =>
-              setOpenPopoverId(visible ? record.id : null)
-            }
-          >
-            <Tag
-              color={colorMap[status]}
-              style={{
-                cursor: "pointer",
-                margin: 0,
-                padding: "4px 8px",
-                borderRadius: "6px",
-                fontWeight: 500,
-                userSelect: "none",
-              }}
-              icon={iconMap[status]}
-            >
-              {status === "OPEN" ? "Đang mở" : "Đã đóng"}
-            </Tag>
-          </Popover>
-        </Space>
-      );
+      width: 120,
+      render: (status) => {
+        const { color, text } = statusColorText(status);
+        return <Tag color={color}>{text}</Tag>;
       },
-  },
-  {
-    title: "Hành động",
-    key: "action",
-    render: (_, record) => (
-      
+    },
+    {
+      title: "Hành động",
+      width: 220,
+      fixed: "right",
+      render: (_, record) => (
         <Space>
           <Tooltip title="Xem chi tiết">
             <Button
@@ -312,18 +194,28 @@ export default function AdminJobManagement() {
               onClick={() => showDetails(record)}
             />
           </Tooltip>
+          {record.status === "OPEN" ? (
+            <Button
+              icon={<CloseOutlined />}
+              danger
+              onClick={() => handleUpdateStatus(record.id, "CLOSED")}
+            >
+              Đóng
+            </Button>
+          ) : (
+            <Button
+              icon={<CheckOutlined />}
+              type="primary"
+              onClick={() => handleUpdateStatus(record.id, "OPEN")}
+            >
+              Mở lại
+            </Button>
+          )}
         </Space>
       ),
-},
-
+    },
   ];
-  const filteredData = jobs.filter((item) => {
-  const matchStatus = statusFilter === "ALL" || item.status === statusFilter;
-  const matchSearch =
-    item.title.toLowerCase().includes(searchValue.toLowerCase()) ||
-    item.companyName.toLowerCase().includes(searchValue.toLowerCase());
-  return matchStatus && matchSearch;
-});
+
   return (
     <div>
       <Tabs
@@ -336,48 +228,43 @@ export default function AdminJobManagement() {
         ]}
         style={{ marginBottom: 16 }}
       />
+
       <Input
-        placeholder="Tìm kiếm theo trường"
+        placeholder="Tìm theo tiêu đề / công ty / thành phố / danh mục"
         prefix={<SearchOutlined />}
-        style={{ width: 300, marginBottom: 16 }}
+        style={{ width: 360, marginBottom: 16 }}
         value={searchValue}
         onChange={(e) => setSearchValue(e.target.value)}
+        allowClear
       />
+
       <Table
         rowKey="id"
         dataSource={filteredData}
         columns={columns}
-        pagination={{ pageSize: 5 }}
+        loading={loading}
+        pagination={{ pageSize: 10, showSizeChanger: true }}
+        scroll={{ x: 1000 }}
       />
 
       <Modal
-        title="Chi tiết Việc làm"
+        title="Chi tiết công việc"
         open={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         footer={null}
-        width={800}
+        width={900}
       >
         {selectedRecord && (
           <Descriptions bordered column={2} size="middle" labelStyle={{ fontWeight: 600 }}>
-            
-            {/* Logo công ty */}
             <Descriptions.Item label="Logo công ty" span={2}>
-              <img
+              <Image
                 src={selectedRecord.companyLogoUrl || "https://via.placeholder.com/150"}
-                alt="Company Logo"
-                style={{
-                  width: 120,
-                  height: 120,
-                  objectFit: "contain",
-                  border: "1px solid #eee",
-                  borderRadius: 8,
-                  background: "#fff",
-                  padding: 4,
-                }}
+                width={120}
+                height={120}
+                style={{ objectFit: "contain" }}
               />
             </Descriptions.Item>
 
-            {/* Tiêu đề & Tên công ty */}
             <Descriptions.Item label="Tiêu đề">
               {selectedRecord.title}
             </Descriptions.Item>
@@ -385,7 +272,6 @@ export default function AdminJobManagement() {
               {selectedRecord.companyName}
             </Descriptions.Item>
 
-            {/* Loại công việc & Hình thức */}
             <Descriptions.Item label="Loại hình">
               {selectedRecord.type}
             </Descriptions.Item>
@@ -393,7 +279,6 @@ export default function AdminJobManagement() {
               {selectedRecord.mode}
             </Descriptions.Item>
 
-            {/* Danh mục & Thành phố */}
             <Descriptions.Item label="Danh mục">
               {selectedRecord.category}
             </Descriptions.Item>
@@ -401,42 +286,31 @@ export default function AdminJobManagement() {
               {selectedRecord.city}
             </Descriptions.Item>
 
-            {/* Lương */}
             <Descriptions.Item label="Mức lương tối thiểu">
-              {selectedRecord.minSalary !== "N/A"
+              {selectedRecord.minSalary != null
                 ? `${Number(selectedRecord.minSalary).toLocaleString("vi-VN")} ${selectedRecord.currency}`
                 : "N/A"}
             </Descriptions.Item>
             <Descriptions.Item label="Mức lương tối đa">
-              {selectedRecord.maxSalary !== "N/A"
+              {selectedRecord.maxSalary != null
                 ? `${Number(selectedRecord.maxSalary).toLocaleString("vi-VN")} ${selectedRecord.currency}`
                 : "N/A"}
             </Descriptions.Item>
 
-            {/* Ngày đăng & trạng thái */}
             <Descriptions.Item label="Ngày đăng">
               {selectedRecord.postedAt}
             </Descriptions.Item>
             <Descriptions.Item label="Trạng thái">
-              <Tag
-                color={
-                  selectedRecord.status === "OPEN"
-                    ? "green"
-                    : selectedRecord.status === "CLOSED"
-                    ? "gold"
-                    : "red"
-                }
-              >
-                {selectedRecord.status}
+              <Tag color={statusColorText(selectedRecord.status).color}>
+                {statusColorText(selectedRecord.status).text}
               </Tag>
             </Descriptions.Item>
 
-            {/* Kỹ năng yêu cầu */}
             <Descriptions.Item label="Kỹ năng yêu cầu" span={2}>
-              {selectedRecord.requiredSkills && selectedRecord.requiredSkills.length > 0 ? (
-                selectedRecord.requiredSkills.map((skill, index) => (
-                  <Tag key={index} color="blue" style={{ marginBottom: 4 }}>
-                    {skill.skillName || skill.name || "Kỹ năng"}
+              {selectedRecord.requiredSkills?.length ? (
+                selectedRecord.requiredSkills.map((s, i) => (
+                  <Tag key={i} color="blue" style={{ marginBottom: 4 }}>
+                    {s.skillName || s.name || "Kỹ năng"}
                   </Tag>
                 ))
               ) : (
@@ -444,21 +318,16 @@ export default function AdminJobManagement() {
               )}
             </Descriptions.Item>
 
-            {/* Mô tả công việc */}
             <Descriptions.Item label="Mô tả" span={2}>
-              <div
-                style={{
-                  whiteSpace: "pre-wrap",
-                  lineHeight: 1.5,
-                }}
-              >
+              <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.55 }}>
                 {selectedRecord.description || "Không có mô tả"}
               </div>
             </Descriptions.Item>
-
           </Descriptions>
         )}
       </Modal>
     </div>
   );
-}
+};
+
+export default JobManagement;
