@@ -323,13 +323,17 @@ const HomePage = () => {
         </div>
       </section>
 
-            {/* ================= Category (theo ngành) ================ */}
+       {/* ================= Category (theo ngành) ================ */}
       <section className="section container">
         <Title level={3} className="section__title">📂 Việc làm theo ngành</Title>
         <Row gutter={[16, 16]}>
           {categories.map((cat, i) => (
             <Col xs={12} sm={8} md={6} lg={6} key={i}>
-              <Card hoverable className="category-card">
+              <Card
+                hoverable
+                className="category-card"
+                onClick={() => navigate(`/jobs/category/${encodeURIComponent(cat.category)}`)}
+              >
                 <div className="category-card__icon">
                   <RiseOutlined />
                 </div>
@@ -341,6 +345,8 @@ const HomePage = () => {
           ))}
         </Row>
       </section>
+
+
 
       {/* ================= Featured (Tuyển gấp) ================ */}
       <section className="section container">
