@@ -5,6 +5,7 @@ import { getMyInfoAPI } from '../apis';
 // Async action to fetch user profile data
 export const getMyInfo = createAsyncThunk('users/myInfo', async () => {
   const response = await getMyInfoAPI();
+  console.log("getMyInfoAPI response:", response);
   return response;
 });
 

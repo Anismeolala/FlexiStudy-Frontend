@@ -164,7 +164,7 @@ return (
     </Link>
 
     <Link
-      to="/career-guide"
+      to="/news"
       style={{
         color: "#333",
         textDecoration: "none",

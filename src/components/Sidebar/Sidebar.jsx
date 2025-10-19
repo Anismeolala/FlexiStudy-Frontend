@@ -16,6 +16,7 @@ import { MdCorporateFare } from "react-icons/md";
 import { MdOutlineAnalytics } from "react-icons/md";
 import { PiShoppingBagOpenBold } from "react-icons/pi";
 import { message, Tooltip } from "antd";
+import { BiSolidNews } from "react-icons/bi";
 import "./Sidebar.css";
 
 const Sidebar = ({ collapsed, toggled, handleToggleSidebar }) => {
@@ -81,6 +82,13 @@ const Sidebar = ({ collapsed, toggled, handleToggleSidebar }) => {
               <MenuItem icon={<PiShoppingBagOpenBold />} className="pro-menu-item">
                 Việc làm
                 <Link to={"/admin/manage-jobs"} />
+              </MenuItem>
+            </Tooltip>
+
+             <Tooltip placement="right" title={collapsed ? "Tin tức" : ""}>
+              <MenuItem icon={<BiSolidNews />} className="pro-menu-item">
+                Tin tức
+                <Link to={"/admin/manage-career-guide"} />
               </MenuItem>
             </Tooltip>
         

@@ -61,7 +61,10 @@ const Login = () => {
               navigate("/");
               message.success("Đăng nhập thành công!");
             }
-          } 
+          } else if (scope.includes("ROLE_RECRUITER")) {
+            navigate("/recruiter");
+            message.success("Đăng nhập thành công (Nhà tuyển dụng)!");
+          }  
           else {
             message.error("Vai trò người dùng không xác định");
           }

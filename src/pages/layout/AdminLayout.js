@@ -4,7 +4,6 @@ import { Avatar, Layout } from 'antd'
 import { UserOutlined } from "@ant-design/icons";
 import { Outlet } from 'react-router-dom'
 import { useSelector } from "react-redux";
-import PerfectScrollbar from "react-perfect-scrollbar";
 import ProfilePopup from '../../components/ProfilePopup/ProfilePopup';
 import Sidebar from '../../components/Sidebar/Sidebar';
 
@@ -57,11 +56,9 @@ const AdminLayout = (children) => {
             </div>
           </div>
         </div>
-        <PerfectScrollbar>
           <div className="admin-main-scrollable">
             <Outlet />
           </div>
-        </PerfectScrollbar>
       </div>
 
       <ProfilePopup visible={showProfilePopup} onClose={handleClosePopup} />

@@ -6,7 +6,7 @@ let api = axios.create({
   timeout: 1000 * 30,
 });
 
-// 📝 Thêm access token vào header cho mọi request
+//  Thêm access token vào header cho mọi request
 api.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("accessToken");
@@ -32,7 +32,7 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-// 📝 Xử lý token hết hạn
+//  Xử lý token hết hạn
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -60,19 +60,19 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem("refreshToken");
         if (!refreshToken) {
-          console.warn("🚨 Không có refreshToken trong localStorage");
+          console.warn(" Không có refreshToken trong localStorage");
           throw new Error("No refresh token");
         }
 
         const res = await axios.post(`${API_ROOT}auth/refresh`, {
-          token: refreshToken,  // 👈 gửi chính access token lên
+          token: refreshToken,  //  gửi chính access token lên
         });
 
         const newAccessToken = res.data.result.token;
 
         // Cập nhật token mới vào localStorage
         localStorage.setItem("accessToken", newAccessToken);
-        localStorage.setItem("refreshToken", newAccessToken); // 👈 giữ sync
+        localStorage.setItem("refreshToken", newAccessToken); //  giữ sync
 
         // Gọi lại tất cả request đang chờ
         processQueue(null, newAccessToken);
@@ -81,7 +81,7 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(originalRequest);
       } catch (err) {
-        console.error("❌ Refresh thất bại:", err.response?.data || err);
+        console.error(" Refresh thất bại:", err.response?.data || err);
         processQueue(err, null);
         localStorage.clear();
         window.location.href = "/login";

@@ -1,4 +1,4 @@
-import api from "../services/api";   
+    import api from "../services/api";   
 
  //  - Auth API -
       export const loginAPI = async (username, password) => {
@@ -10,6 +10,12 @@ import api from "../services/api";
         const res = await api.post("users/register", { username, password });
         return res.data;
       };
+
+      export const registerRecruiterAPI = async (payload) => {
+        const res = await api.post("hr/register", payload);
+        return res.data;
+      };
+
 
       export const createPasswordAPI = async (password) => {
         const res = await api.post("users/create-password", { password });
@@ -89,7 +95,6 @@ import api from "../services/api";
         return res.data;
       };
 
-
       export const getCompanyByIdAPI = async (companyId) => {
         const res = await api.get(`companies/${companyId}`);
         return res.data;
@@ -115,11 +120,10 @@ import api from "../services/api";
       };
 
     //  - Job API -
-
      export const getAllJobsAPI = async (params) => {
         const res = await api.get('jobs', { params });
         return res.data;
-      };
+    };
 
       export const getAllJobsAdminAPI = async (params) => {
           const res = await api.get(`jobs/admin`, { params });
@@ -216,7 +220,6 @@ import api from "../services/api";
         const res = await api.get("saved-job");
 
         let data = res.data;
-        // Nếu là string -> parse lại thành object
         if (typeof data === "string") {
           data = JSON.parse(data);
         }
@@ -235,6 +238,42 @@ import api from "../services/api";
         return res.data;
       };
 
+      //  - News API -
+
+    // Tạo bài viết mới
+    export const createNewsAPI = async (payload) => {
+      const res = await api.post(`news`, payload);
+      return res.data;
+    };
+
+    // Cập nhật bài viết
+    export const updateNewsAPI = async (newsId, payload) => {
+      const res = await api.put(`news/${newsId}`, payload);
+      return res.data;
+    };
+
+    // Xóa bài viết
+    export const deleteNewsAPI = async (newsId) => {
+      const res = await api.delete(`news/${newsId}`);
+      return res.data;
+    };
+
+    // Lấy bài viết theo ID
+    export const getNewsByIdAPI = async (newsId) => {
+      const res = await api.get(`news/${newsId}`);
+      return res.data;
+    };
+
+    // Lấy danh sách tất cả bài viết (có tìm kiếm + lọc trạng thái)
+    export const getAllNewsAPI = async (params) => {
+        const res = await api.get('news', { params });
+        return res.data;
+    };
+
+    // Upload hình ảnh cho bài viết
+    export const uploadNewsImageAPI = (newsId, formData) => {
+        return api.post(`news/upload-image/${newsId}`, formData);
+    };
 
 
 

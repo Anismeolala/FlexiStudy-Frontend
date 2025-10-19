@@ -46,15 +46,15 @@ export default function Authenticate() {
           const userData = userInfoAction;
 
           // 3. Sau khi đã xác minh email, kiểm tra nếu chưa có password
-          //  Giữ code như này là ổn, không cần useEffect navigate nữa
           if (userData.payload?.result?.noPassword === true) {
             message.info("Hãy đặt mật khẩu mới cho tài khoản Google của bạn.");
             navigate("/set-password");
             return;
           }
           if (userData.payload?.result?.profileCompleted === false) {
-            navigate("/onboard");
+
             message.info("Chào mừng! Hãy hoàn thiện hồ sơ của bạn để bắt đầu.");
+            navigate("/onboard");
           }
 
           message.success("Đăng nhập thành công!");

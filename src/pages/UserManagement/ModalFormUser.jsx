@@ -49,6 +49,10 @@ const ModalFormUser = ({
   };
 
   const handleAvatarUpload = async (file) => {
+     if (!editingUser?.id) {
+        message.warning("Vui lòng tạo người dùng trước, sau đó mới tải ảnh đại diện!");
+        return false; 
+      }
   setUploadingAvatar(true);
   try {
     const formData = new FormData();
@@ -238,7 +242,13 @@ const ModalFormUser = ({
                   ghost
                 >
                   {uploadingAvatar ? "Đang upload..." : "Chọn ảnh"}
+                 
                 </ButtonPrimary>
+                 {!editingUser?.id && (
+                <p style={{ color: "#999", fontSize: 13 }}>
+                  * Bạn cần lưu người dùng trước khi tải ảnh đại diện
+                </p>
+              )}
               </Upload>
               {avatarUrl && (
                 <DangerButton onClick={() => setAvatarUrl("")} variant="outline">

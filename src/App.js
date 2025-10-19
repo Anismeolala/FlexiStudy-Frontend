@@ -7,8 +7,7 @@ import AppliedJobs from "./pages/Job/AppliedJobs";
 import { getMyInfo } from './redux/userSlice';
 import CVGuide from "./pages/CV/CVGuide";
 import CVTemplates from "./pages/CV/CVTemplates";
-
-import CareerGuide from "./pages/Career/CareerGuide";
+import CareerGuide from "./pages/NewsPage/NewsPage";
 import Schedule from "./pages/Schedules/Schedule";
 import AdminLayout from "./pages/layout/AdminLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -34,6 +33,12 @@ import ResetPasswordPage from "./pages/ForgotPasswordPage/ResetPasswordPage";
 import SetPasswordPage from "./pages/Authenticate/SetPasswordPage";
 import { resetUser } from "./redux/userSlice";
 import JobByCategory from "./pages/JobByCategory/JobByCategory";
+import NewsManagement from "./pages/NewsManagement/NewsManagement";
+import CareerGuideDetail from "./pages/NewsPage/DetailPage/NewsDetailPage";
+import NewsPage from "./pages/NewsPage/NewsPage";
+import NewsDetailPage from "./pages/NewsPage/DetailPage/NewsDetailPage";
+import RecruiterLayout from "./pages/layout/RecruiterLayout";
+import ManageAppli from "./pages/Recruiter/ManageAppli";
 
 const route = createBrowserRouter([
   {
@@ -50,12 +55,23 @@ const route = createBrowserRouter([
         { path: "cv/guide", element: <CVGuide /> },
         { path: "cv/templates", element: <CVTemplates /> },
         { path: "cv/upload", element: <MyCV /> },
-        { path: "career-guide", element: <CareerGuide /> },
         { path: "schedule", element: <Schedule /> },
         { path: "/profile", element: <EditProfile /> },
         { path: "/onboard", element: <FormOnboard /> },
         { path: "/jobs/:jobId", element: <JobDetailPage /> },
         { path: "/jobs/category/:category", element: <JobByCategory /> },
+        { path: "/news", element: <NewsPage /> },
+        { path: "/news/:id", element: <NewsDetailPage /> },
+      ], 
+  },
+  {
+    path: "/recruiter",
+    element: (<RoleRoute allowedRoles={[ ROLE.RECRUITER, ROLE.ADMIN]}>
+              <RecruiterLayout />
+            </RoleRoute>),
+    children: 
+      [
+        { index: true, element: <ManageAppli /> },
       ], 
   },
   { path: "/login", element: <Login /> },
@@ -77,13 +93,15 @@ const route = createBrowserRouter([
         { path: "manage-users", element: <UserManagement /> },
         { path: "manage-companies", element: <CompanyManagement /> },
         { path: "manage-jobs", element: <JobMangement /> },
+        { path: "manage-jobs", element: <JobMangement /> },
+        { path: "manage-career-guide", element: <NewsManagement /> },
       ], 
   },
 ]);
 
 const App = () => {
   const dispatch = useDispatch();
-  const [appReady, setAppReady] = useState(false); // Trạng thái khởi tạo App
+  const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
   const initApp = async () => {
@@ -93,7 +111,6 @@ const App = () => {
         await dispatch(getMyInfo()).unwrap();
       } catch (err) {
         console.warn("❌ Failed to load user info:", err);
-        // Nếu token hết hạn hoặc user không tồn tại → xóa token luôn
         localStorage.removeItem("accessToken");
         dispatch(resetUser());
       }

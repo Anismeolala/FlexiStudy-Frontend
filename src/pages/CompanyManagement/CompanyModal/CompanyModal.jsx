@@ -50,8 +50,13 @@ const CompanyModal = ({
     }
   }, [visible, editingCompany, form]);
 
-  // 📸 Upload logo công ty
+  // Upload logo công ty
   const handleLogoUpload = async (file) => {
+    if (!editingCompany?.id) {
+    message.warning("Vui lòng tạo công ty trước, sau đó mới tải logo!");
+    return false; 
+  }
+
     setUploadingLogo(true);
     try {
       const formData = new FormData();
@@ -195,6 +200,12 @@ const CompanyModal = ({
                   {uploadingLogo ? "Đang upload..." : "Chọn logo"}
                 </ButtonPrimary>
               </Upload>
+
+              {!editingCompany?.id && (
+                <p style={{ color: "#999", fontSize: 13 }}>
+                  * Bạn cần lưu công ty trước khi tải logo
+                </p>
+              )}
               {logoUrl && (
                 <Button onClick={() => setLogoUrl("")} danger type="text">
                   Xóa logo
