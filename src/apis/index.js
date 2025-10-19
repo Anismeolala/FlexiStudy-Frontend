@@ -11,6 +11,12 @@
         return res.data;
       };
 
+      export const registerRecruiterAPI = async (payload) => {
+        const res = await api.post("hr/register", payload);
+        return res.data;
+      };
+
+
       export const createPasswordAPI = async (password) => {
         const res = await api.post("users/create-password", { password });
         return res.data;

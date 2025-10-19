@@ -37,6 +37,8 @@ import NewsManagement from "./pages/NewsManagement/NewsManagement";
 import CareerGuideDetail from "./pages/NewsPage/DetailPage/NewsDetailPage";
 import NewsPage from "./pages/NewsPage/NewsPage";
 import NewsDetailPage from "./pages/NewsPage/DetailPage/NewsDetailPage";
+import RecruiterLayout from "./pages/layout/RecruiterLayout";
+import ManageAppli from "./pages/Recruiter/ManageAppli";
 
 const route = createBrowserRouter([
   {
@@ -60,6 +62,16 @@ const route = createBrowserRouter([
         { path: "/jobs/category/:category", element: <JobByCategory /> },
         { path: "/news", element: <NewsPage /> },
         { path: "/news/:id", element: <NewsDetailPage /> },
+      ], 
+  },
+  {
+    path: "/recruiter",
+    element: (<RoleRoute allowedRoles={[ ROLE.RECRUITER, ROLE.ADMIN]}>
+              <RecruiterLayout />
+            </RoleRoute>),
+    children: 
+      [
+        { index: true, element: <ManageAppli /> },
       ], 
   },
   { path: "/login", element: <Login /> },
