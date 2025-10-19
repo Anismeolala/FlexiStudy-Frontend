@@ -189,7 +189,7 @@ console.log("🔥 Avatar URL nhận được từ BE:", res.result?.avatarUrl);
           avatarUrl: updatedProfile.avatarUrl || imageUrl,
         }));
 
-        navigate("/"); // hoặc navigate(-1)
+        navigate(-1)
       }
       else {
         message.error(res?.message || "Cập nhật thất bại!");

@@ -7,8 +7,7 @@ import AppliedJobs from "./pages/Job/AppliedJobs";
 import { getMyInfo } from './redux/userSlice';
 import CVGuide from "./pages/CV/CVGuide";
 import CVTemplates from "./pages/CV/CVTemplates";
-
-import CareerGuide from "./pages/Career/CareerGuide";
+import CareerGuide from "./pages/NewsPage/CareerGuide";
 import Schedule from "./pages/Schedules/Schedule";
 import AdminLayout from "./pages/layout/AdminLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -34,6 +33,7 @@ import ResetPasswordPage from "./pages/ForgotPasswordPage/ResetPasswordPage";
 import SetPasswordPage from "./pages/Authenticate/SetPasswordPage";
 import { resetUser } from "./redux/userSlice";
 import JobByCategory from "./pages/JobByCategory/JobByCategory";
+import NewsManagement from "./pages/NewsManagement/NewsManagement";
 
 const route = createBrowserRouter([
   {
@@ -56,6 +56,7 @@ const route = createBrowserRouter([
         { path: "/onboard", element: <FormOnboard /> },
         { path: "/jobs/:jobId", element: <JobDetailPage /> },
         { path: "/jobs/category/:category", element: <JobByCategory /> },
+        { path: "/career-guide", element: <CareerGuide /> },
       ], 
   },
   { path: "/login", element: <Login /> },
@@ -77,13 +78,15 @@ const route = createBrowserRouter([
         { path: "manage-users", element: <UserManagement /> },
         { path: "manage-companies", element: <CompanyManagement /> },
         { path: "manage-jobs", element: <JobMangement /> },
+        { path: "manage-jobs", element: <JobMangement /> },
+        { path: "manage-career-guide", element: <NewsManagement /> },
       ], 
   },
 ]);
 
 const App = () => {
   const dispatch = useDispatch();
-  const [appReady, setAppReady] = useState(false); // Trạng thái khởi tạo App
+  const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
   const initApp = async () => {
@@ -93,7 +96,6 @@ const App = () => {
         await dispatch(getMyInfo()).unwrap();
       } catch (err) {
         console.warn("❌ Failed to load user info:", err);
-        // Nếu token hết hạn hoặc user không tồn tại → xóa token luôn
         localStorage.removeItem("accessToken");
         dispatch(resetUser());
       }
