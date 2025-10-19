@@ -6,8 +6,6 @@ import Jobs from "./pages/Job/Jobs";
 import AppliedJobs from "./pages/Job/AppliedJobs";
 import { getMyInfo } from './redux/userSlice';
 import CVGuide from "./pages/CV/CVGuide";
-import CVTemplates from "./pages/CV/CVTemplates";
-import CareerGuide from "./pages/NewsPage/NewsPage";
 import Schedule from "./pages/Schedules/Schedule";
 import AdminLayout from "./pages/layout/AdminLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -53,7 +51,6 @@ const route = createBrowserRouter([
         { path: "jobs/saved", element: <SavedJobPage /> },
         { path: "jobs/applied", element: <AppliedJobs /> },
         { path: "cv/guide", element: <CVGuide /> },
-        { path: "cv/templates", element: <CVTemplates /> },
         { path: "cv/upload", element: <MyCV /> },
         { path: "schedule", element: <Schedule /> },
         { path: "/profile", element: <EditProfile /> },

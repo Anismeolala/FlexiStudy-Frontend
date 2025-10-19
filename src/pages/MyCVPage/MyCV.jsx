@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Layout, Tabs, Card, Typography, Button, Upload, message } from "antd";
+import React, { useEffect, useState } from "react";
+import { Tabs, Card, Button, Upload, message, Typography, Tag, Spin } from "antd";
 import {
   UploadOutlined,
   FileTextOutlined,
@@ -7,18 +7,72 @@ import {
   DownloadOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
+import {
+  uploadforMyCVAPI,
+  getUserCvsAPI,
+  deleteCvAPI,
+} from "../../apis";
 import "./MyCV.css";
 
-const { Content } = Layout;
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
-const MyCV = () => {
-  const [uploadedCVs, setUploadedCVs] = useState([
-    { id: "1", name: "CV_NguyenVanA_2024.pdf", uploadDate: "2024-01-15", size: "245 KB" },
-  ]);
+const cvTemplates = [
+  {
+    id: "1",
+    name: "CV Chuyên nghiệp",
+    description: "Mẫu CV đơn giản, chuyên nghiệp phù hợp cho mọi ngành nghề",
+    category: "Chuyên nghiệp",
+    thumbnail:
+      "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=500&q=80",
+  },
+  {
+    id: "2",
+    name: "CV Sáng tạo",
+    description: "Thiết kế độc đáo cho các vị trí creative và design",
+    category: "Sáng tạo",
+    thumbnail:
+      "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=500&q=80",
+  },
+  {
+    id: "3",
+    name: "CV IT Developer",
+    description: "Mẫu CV tối ưu cho lập trình viên và kỹ sư phần mềm",
+    category: "Công nghệ",
+    thumbnail:
+      "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=500&q=80",
+  },
+];
 
-  const beforeUpload = (file) => {
+const MyCV = () => {
+  const [uploadedCVs, setUploadedCVs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  
+
+  const fetchUserCvs = async () => {
+    try {
+      setLoading(true);
+      const res = await getUserCvsAPI();
+      if (res.code === 1000 && Array.isArray(res.result)) {
+        setUploadedCVs(res.result);
+      } else {
+        message.warning("Không có dữ liệu CV.");
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("Lỗi khi tải danh sách CV!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserCvs();
+  }, []);
+
+  const beforeUpload = async (file) => {
     const isAllowed =
       file.type === "application/pdf" ||
       file.type === "application/msword" ||
@@ -32,41 +86,98 @@ const MyCV = () => {
       message.error("File không được vượt quá 5MB!");
       return Upload.LIST_IGNORE;
     }
-    const newCV = {
-      id: Date.now().toString(),
-      name: file.name,
-      uploadDate: new Date().toISOString().split("T")[0],
-      size: `${(file.size / 1024).toFixed(0)} KB`,
-    };
-    setUploadedCVs((prev) => [...prev, newCV]);
-    message.success("CV đã được tải lên!");
+
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      setLoading(true);
+      const res = await uploadforMyCVAPI(formData);
+      if (res.code === 1000) {
+        message.success(res.message || "Tải CV lên thành công!");
+        fetchUserCvs();
+      } else {
+        message.error(res.message || "Không thể tải lên CV!");
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("Lỗi khi tải lên CV!");
+    } finally {
+      setLoading(false);
+    }
+
     return Upload.LIST_IGNORE;
   };
 
-  const handleDeleteCV = (id) => {
-    setUploadedCVs((prev) => prev.filter((cv) => cv.id !== id));
-    message.success("Đã xóa CV!");
+  const handleDelete = async (id) => {
+    try {
+      setLoading(true);
+      const res = await deleteCvAPI(id);
+      if (res.code === 1000) {
+        message.success(res.message || "Đã xóa CV!");
+        fetchUserCvs();
+      } else {
+        message.error(res.message || "Xóa CV thất bại!");
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("Lỗi khi xóa CV!");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const handleView = (url) => {
+    window.open(url, "_blank");
+  };
+
+  const handleDownload = (url, fileName) => {
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName); // tên file khi tải về
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Xem trước mẫu CV (ảnh hoặc PDF preview)
+const handleViewTemplate = (template) => {
+  setSelectedTemplate(template);
+  setPreviewVisible(true);
+};
+
+// Tải mẫu CV về (file thật hoặc link static)
+const handleDownloadTemplate = (template) => {
+  const link = document.createElement("a");
+  // nếu backend có fileUrl thì dùng thật
+  const fileUrl = template.fileUrl || `/cv-templates/${template.id}.pdf`;
+  link.href = fileUrl;
+  link.setAttribute("download", `${template.name}.pdf`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+};
+
+
   return (
-    <Layout className="cv-layout">
-      <Content className="cv-content">
+    <div className="cv-page">
+      <div className="cv-container">
         <div className="cv-header">
-          <Title level={2} className="cv-title">CV của tôi</Title>
-          <Text type="secondary" className="cv-subtitle">
+          <Title className="title" level={2}>
+            CV của tôi
+          </Title>
+          <Text className="subtitle" type="secondary">
             Quản lý CV và tải mẫu CV chuyên nghiệp
           </Text>
         </div>
 
         <Tabs defaultActiveKey="upload" centered className="cv-tabs">
-          {/* ============ TAB 1: UPLOAD CV ============ */}
-          <TabPane tab={`Tải CV lên`} key="upload">
+          {/* UPLOAD */}
+          <TabPane tab="Tải CV lên" key="upload">
             <Card className="cv-card">
-              <Title level={4} className="cv-card-title">Tải CV lên</Title>
+              <Title level={4}>Tải CV lên</Title>
               <Text type="secondary">
-                Tải lên CV của bạn để sẵn sàng ứng tuyển ngay. Hỗ trợ định dạng PDF, DOC, DOCX (tối đa 5MB)
+                Tải lên CV của bạn để sẵn sàng ứng tuyển ngay. Hỗ trợ PDF, DOC, DOCX (tối đa 5MB)
               </Text>
-
               <Upload.Dragger
                 multiple={false}
                 showUploadList={false}
@@ -87,38 +198,55 @@ const MyCV = () => {
             </Card>
           </TabPane>
 
-          {/* ============ TAB 2: MY CVS ============ */}
+          {/* MY CVS */}
           <TabPane tab={`CV của tôi (${uploadedCVs.length})`} key="my-cvs">
-            {uploadedCVs.length === 0 ? (
+            {loading ? (
+              <div style={{ textAlign: "center", padding: "40px 0" }}>
+                <Spin size="large" />
+              </div>
+            ) : uploadedCVs.length === 0 ? (
               <Card className="cv-empty">
-                <div className="cv-empty-inner">
-                  <FileTextOutlined className="cv-empty-icon" />
-                  <Text type="secondary">Chưa có CV nào được tải lên</Text>
-                </div>
+                <FileTextOutlined className="cv-empty-icon" />
+                <Text type="secondary">Chưa có CV nào được tải lên</Text>
               </Card>
             ) : (
               uploadedCVs.map((cv) => (
                 <Card key={cv.id} className="cv-item">
-                  <div className="cv-item-left">
+                  <div className="cv-left">
                     <div className="cv-icon-wrap">
                       <FileTextOutlined className="cv-icon" />
                     </div>
                     <div>
-                      <div className="cv-name">{cv.name}</div>
+                      <div className="cv-name">{cv.fileName}</div>
                       <div className="cv-meta">
-                        Tải lên: {new Date(cv.uploadDate).toLocaleDateString("vi-VN")} • {cv.size}
+                        Tải lên:{" "}
+                        {new Date(cv.uploadedAt).toLocaleDateString("vi-VN")} •{" "}
+                        {(cv.fileSize / 1024).toFixed(1)} KB
                       </div>
                     </div>
                   </div>
-                  <div className="cv-item-right">
-                    <Button size="small" icon={<EyeOutlined />}>Xem</Button>
-                    <Button size="small" icon={<DownloadOutlined />}>Tải về</Button>
+
+                  <div className="cv-actions">
+                    <Button
+                      size="small"
+                      icon={<EyeOutlined />}
+                      onClick={() => handleView(cv.fileUrl)}
+                    >
+                      Xem
+                    </Button>
+                    <Button
+                      size="small"
+                      icon={<DownloadOutlined />}
+                      onClick={() => handleDownload(cv.fileUrl, cv.fileName)}
+                    >
+                      Tải về
+                    </Button>
                     <Button
                       size="small"
                       type="text"
-                      icon={<DeleteOutlined />}
                       danger
-                      onClick={() => handleDeleteCV(cv.id)}
+                      icon={<DeleteOutlined />}
+                      onClick={() => handleDelete(cv.id)}
                     />
                   </div>
                 </Card>
@@ -126,15 +254,57 @@ const MyCV = () => {
             )}
           </TabPane>
 
-          {/* ============ TAB 3: TEMPLATES (DẪN RIÊNG) ============ */}
-          <TabPane tab={`Mẫu CV (6)`} key="templates">
-            <div style={{ textAlign: "center", padding: "40px 0" }}>
-              <Text type="secondary">Trang Mẫu CV đang được phát triển...</Text>
+          {/* TEMPLATES */}
+          <TabPane tab={`Mẫu CV (${cvTemplates.length})`} key="templates">
+            <div className="cv-template-grid">
+            {cvTemplates.map((t) => (
+              <Card key={t.id} className="cv-template-card">
+                <div className="cv-template-thumb">
+                  <img src={t.thumbnail} alt={t.name} />
+                  <Tag className="cv-tag">{t.category}</Tag>
+                </div>
+                <div className="cv-template-body">
+                  <Title level={5}>{t.name}</Title>
+                  <Text type="secondary">{t.description}</Text>
+                  <div className="cv-template-actions">
+                    <Button
+                      icon={<DownloadOutlined />}
+                      onClick={() => handleDownloadTemplate(t)}
+                    >
+                      Tải về
+                    </Button>
+                    <Button
+                      icon={<EyeOutlined />}
+                      onClick={() => handleViewTemplate(t)}
+                    />
+                  </div>
+                </div>
+              </Card>
+            ))}
             </div>
+            {/* Modal xem trước */}
+            {previewVisible && (
+              <div className="cv-preview-overlay" onClick={() => setPreviewVisible(false)}>
+                <div className="cv-preview-modal" onClick={(e) => e.stopPropagation()}>
+                  <img src={selectedTemplate?.thumbnail} alt={selectedTemplate?.name} />
+                  <div className="cv-preview-footer">
+                    <Button
+                      icon={<DownloadOutlined />}
+                      onClick={() => handleDownloadTemplate(selectedTemplate)}
+                    >
+                      Tải mẫu này
+                    </Button>
+                    <Button type="text" onClick={() => setPreviewVisible(false)}>
+                      Đóng
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </TabPane>
         </Tabs>
-      </Content>
-    </Layout>
+      </div>
+    </div>
   );
 };
 
