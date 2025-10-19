@@ -26,9 +26,8 @@ const jobsMenu = {
 
 const cvMenu = {
   items: [
-    { key: "1", label: <Link to="/cv/templates">Mẫu CV</Link> },
-    { key: "2", label: <Link to="/cv/upload">Tải CV lên</Link> },
-    { key: "3", label: <Link to="/cv/guide">Hướng dẫn viết CV</Link> },
+    { key: "1", label: <Link to="/cv/upload">Tải CV lên</Link> },
+    { key: "2", label: <Link to="/cv/guide">Hướng dẫn viết CV</Link> },
   ],
 };
 

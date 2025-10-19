@@ -275,6 +275,30 @@
         return api.post(`news/upload-image/${newsId}`, formData);
     };
 
+    // - CV API -
+    export const uploadforMyCVAPI = async (formData) => {
+      const res = await api.post("cv/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return res.data;
+    };
+
+    export const getUserCvsAPI = async () => {
+      const res = await api.get("cv");
+      return res.data;
+    };
+
+    export const deleteCvAPI = async (cvId) => {
+      const res = await api.delete(`cv/${cvId}`);
+      return res.data;
+    };
+
+    export const setPrimaryCvAPI = async (cvId) => {
+      const res = await api.put(`cv/${cvId}/primary`);
+      return res.data;
+    };
 
 
 
