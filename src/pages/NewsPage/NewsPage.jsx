@@ -1,19 +1,22 @@
 import React, { useEffect, useState, useMemo } from "react";
-import "./CareerGuide.css";
+import "./NewsPage.css";
 import { Spin, Empty, message } from "antd";
 import { getAllNewsAPI } from "../../apis";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 import { Select } from "antd";
 
 const { Option } = Select;
 
-export default function CareerGuide() {
+export default function NewsPage() {
   const [allArticles, setAllArticles] = useState([]); // lưu toàn bộ tin publish
   const [filteredArticles, setFilteredArticles] = useState([]); // dữ liệu hiển thị
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const navigate = useNavigate();
+
 
   const normalizeCategory = (raw) => {
   if (!raw) return "OTHER";
@@ -138,7 +141,12 @@ export default function CareerGuide() {
         <>
           {/* Featured */}
           {featured && selectedCategory === "all" && !searchTerm && (
-            <div className="cg-featured">
+            <div className="cg-featured"
+              onClick={() => navigate(`/news/${featured.id}`)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && navigate(`/news/${featured.id}`)}
+            >
               <img
                 src={featured.imageUrl}
                 alt={featured.title}
@@ -158,7 +166,7 @@ export default function CareerGuide() {
                 </div>
                 <button
                   className="cg-link"
-                  onClick={() => (window.location.href = `/news/${featured.id}`)}
+                
                 >
                   Đọc thêm →
                 </button>
@@ -169,7 +177,14 @@ export default function CareerGuide() {
           {/* Grid Articles */}
           <div className="cg-grid">
             {regular.map((a) => (
-              <div key={a.id} className="cg-card">
+              <div
+                key={a.id}
+                className="cg-card"
+                onClick={() => navigate(`/news/${a.id}`)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && navigate(`/news/${a.id}`)}
+              >
                 <img
                   src={a.imageUrl}
                   alt={a.title}
@@ -189,7 +204,6 @@ export default function CareerGuide() {
                   </div>
                   <button
                     className="cg-link"
-                    onClick={() => (window.location.href = `/news/${a.id}`)}
                   >
                     Đọc thêm →
                   </button>

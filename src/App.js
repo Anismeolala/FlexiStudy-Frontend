@@ -7,7 +7,7 @@ import AppliedJobs from "./pages/Job/AppliedJobs";
 import { getMyInfo } from './redux/userSlice';
 import CVGuide from "./pages/CV/CVGuide";
 import CVTemplates from "./pages/CV/CVTemplates";
-import CareerGuide from "./pages/NewsPage/CareerGuide";
+import CareerGuide from "./pages/NewsPage/NewsPage";
 import Schedule from "./pages/Schedules/Schedule";
 import AdminLayout from "./pages/layout/AdminLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -34,6 +34,9 @@ import SetPasswordPage from "./pages/Authenticate/SetPasswordPage";
 import { resetUser } from "./redux/userSlice";
 import JobByCategory from "./pages/JobByCategory/JobByCategory";
 import NewsManagement from "./pages/NewsManagement/NewsManagement";
+import CareerGuideDetail from "./pages/NewsPage/DetailPage/NewsDetailPage";
+import NewsPage from "./pages/NewsPage/NewsPage";
+import NewsDetailPage from "./pages/NewsPage/DetailPage/NewsDetailPage";
 
 const route = createBrowserRouter([
   {
@@ -50,13 +53,13 @@ const route = createBrowserRouter([
         { path: "cv/guide", element: <CVGuide /> },
         { path: "cv/templates", element: <CVTemplates /> },
         { path: "cv/upload", element: <MyCV /> },
-        { path: "career-guide", element: <CareerGuide /> },
         { path: "schedule", element: <Schedule /> },
         { path: "/profile", element: <EditProfile /> },
         { path: "/onboard", element: <FormOnboard /> },
         { path: "/jobs/:jobId", element: <JobDetailPage /> },
         { path: "/jobs/category/:category", element: <JobByCategory /> },
-        { path: "/career-guide", element: <CareerGuide /> },
+        { path: "/news", element: <NewsPage /> },
+        { path: "/news/:id", element: <NewsDetailPage /> },
       ], 
   },
   { path: "/login", element: <Login /> },

@@ -125,6 +125,8 @@
   overflow: hidden;
   margin-bottom: 2rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .cg-featured img {
@@ -338,4 +340,27 @@
 
 .ant-select-focused .ant-select-selector {
   border-color: #ae76e2 !important;
+}
+.cg-card {
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.cg-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.cg-card-content h3,
+.cg-card-content p {
+  pointer-events: none; /* để không chặn click parent */
+}
+
+.cg-link {
+  margin-top: 0.5rem;
+  color: #5b21b6;
+  font-weight: 500;
+  border: none;
+  background: none;
+  pointer-events: none; /* để toàn card bắt sự kiện click */
 }
