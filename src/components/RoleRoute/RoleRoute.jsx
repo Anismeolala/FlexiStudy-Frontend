@@ -1,11 +1,11 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
 const RoleRoute = ({ allowedRoles, children }) => {
   const { isAuthorized, role, loading } = useSelector((state) => state.user);
 
-  // ⏳ Khi user đang load từ API, chưa xác định quyền → đợi
+  // Khi user đang load từ API, chưa xác định quyền → đợi
   if (loading) {
     return (
       <div
@@ -30,7 +30,7 @@ const RoleRoute = ({ allowedRoles, children }) => {
     return <Navigate to="/" replace />;
   }
 
-  return children;
+  return <Outlet />;
 };
 
 export default RoleRoute;

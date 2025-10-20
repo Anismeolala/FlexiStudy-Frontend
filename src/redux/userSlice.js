@@ -65,6 +65,7 @@ const userSlice = createSlice({
             state.avatarUrl = userData.avatarUrl;
             state.address = userData.address;
             state.profile_completed = userData.profile_completed;
+             state.companyName = userData.companyName;
             state.isAuthorized = true;
             state.role = userData.roles?.[0]?.name || null;
              state.profile_completed = userData.profileCompleted;

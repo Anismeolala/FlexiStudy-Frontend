@@ -1,17 +1,19 @@
-import React from 'react'
-import ScrollToTop from '../../components/ScrollToTop/ScrollToTop';
-import { Content } from 'antd/es/layout/layout';
+import React from "react";
+import ScrollToTop from "../../components/ScrollToTop/ScrollToTop";
+import { Content } from "antd/es/layout/layout";
 import { Outlet } from "react-router-dom";
+import HeaderRecruiter from "../../components/HeaderRecruiter/HeaderRecruiter";
 
 const RecruiterLayout = () => {
- return (
+  return (
     <>
-    <ScrollToTop />
+      <ScrollToTop />
+      <HeaderRecruiter />
       <Content className="layout-content">
-        <Outlet />
+        <Outlet /> 
       </Content>
     </>
   );
-}
+};
 
-export default RecruiterLayout
+export default RecruiterLayout;

@@ -7,11 +7,8 @@ import {
   SettingOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { ROLE } from "../../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { fetchLogoutAPI } from "../../apis";
-import { resetUser, setIsAuthorized } from "../../redux/userSlice";
 import ProfilePopup from "../ProfilePopup/ProfilePopup";
 
 const { Header: AntHeader } = Layout;
@@ -86,18 +83,17 @@ const HeaderBar = () => {
   }, [userData]);
 
 return (
-    <AntHeader
-  style={{
-    background: "#fff",
-    padding: "0 40px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
-    height: 64,
-  }}
->
-  {/* Logo */}
+  <AntHeader
+    style={{
+      background: "#fff",
+      padding: "0 40px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+      height: 64,
+    }}
+  >
   <div style={{ display: "flex", alignItems: "center" }}>
     <Link to="/">
       <img
@@ -112,7 +108,6 @@ return (
     </Link>
   </div>
 
-  {/* Menu */}
   <Space size="large" style={{ fontSize: 15, fontWeight: 500 }}>
     <Dropdown menu={jobsMenu} trigger={["hover"]}>
       <span
@@ -200,11 +195,8 @@ return (
       Login
     </Button>
   )}
-</div>
-
-
-</AntHeader>
-
+  </div>
+  </AntHeader>
   );
 };
 
