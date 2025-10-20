@@ -1,0 +1,113 @@
+.job-page {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 20px 80px;
+  font-family: "Inter", sans-serif;
+}
+
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.job-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.job-header p {
+  margin: 4px 0 0;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Search */
+.job-search {
+  margin-bottom: 24px;
+}
+
+/* Job Cards */
+.job-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.job-card {
+  border-radius: 10px;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.job-card:hover {
+  border-color: #1677ff;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+}
+
+.job-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.job-card-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.job-meta {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.salary {
+  font-weight: 600;
+  color: #111;
+}
+
+/* Skills */
+.job-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.skill-badge .ant-badge-count {
+  background: #f5f5f5;
+  color: #111;
+  font-weight: 500;
+  padding: 0 10px;
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+/* Status */
+.status-badge .ant-badge-status-text {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Footer */
+.job-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.job-info {
+  display: flex;
+  gap: 16px;
+  color: #666;
+  font-size: 14px;
+}
+
+.job-actions {
+  display: flex;
+  gap: 8px;
+}

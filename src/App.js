@@ -32,44 +32,60 @@ import SetPasswordPage from "./pages/Authenticate/SetPasswordPage";
 import { resetUser } from "./redux/userSlice";
 import JobByCategory from "./pages/JobByCategory/JobByCategory";
 import NewsManagement from "./pages/NewsManagement/NewsManagement";
-import CareerGuideDetail from "./pages/NewsPage/DetailPage/NewsDetailPage";
 import NewsPage from "./pages/NewsPage/NewsPage";
 import NewsDetailPage from "./pages/NewsPage/DetailPage/NewsDetailPage";
 import RecruiterLayout from "./pages/layout/RecruiterLayout";
-import ManageAppli from "./pages/Recruiter/ManageAppli";
+import RecruiterDashboard from "./pages/DashboardRe/RecruiterDashboard";
+import JobRecruiter from "./pages/JobRecruiter/JobRecruiter";
+import NewJobRecruiter from "./pages/NewJobRecruiter.jsx/NewJobRecruiter";
+import JobApplicantRecruiter from "./pages/JobApplicantRecruiter/CandidateManage";
+import CandidateManage from "./pages/JobApplicantRecruiter/CandidateManage";
+import CompanyRecruiter from "./pages/ManageCompanyRecruiter/CompanyRecruiter";
 
 const route = createBrowserRouter([
-  {
-    path: "/",
-    element: (<RoleRoute allowedRoles={[ROLE.USER, ROLE.ADMIN]}>
-              <UserLayout />
-            </RoleRoute>),
-    children: 
-      [
-        { index: true, element: <HomePage /> },
-        { path: "jobs", element: <Jobs /> },
-        { path: "jobs/saved", element: <SavedJobPage /> },
-        { path: "jobs/applied", element: <AppliedJobs /> },
-        { path: "cv/guide", element: <CVGuide /> },
-        { path: "cv/upload", element: <MyCV /> },
-        { path: "schedule", element: <Schedule /> },
-        { path: "/profile", element: <EditProfile /> },
-        { path: "/onboard", element: <FormOnboard /> },
-        { path: "/jobs/:jobId", element: <JobDetailPage /> },
-        { path: "/jobs/category/:category", element: <JobByCategory /> },
-        { path: "/news", element: <NewsPage /> },
-        { path: "/news/:id", element: <NewsDetailPage /> },
-      ], 
-  },
-  {
+      {
+      path: "/",
+      element: (
+        <RoleRoute allowedRoles={[ROLE.USER, ROLE.ADMIN]} />
+      ),
+      children: [
+        {
+          element: <UserLayout />, 
+          children: [
+            { index: true, element: <HomePage /> },
+            { path: "jobs", element: <Jobs /> },
+            { path: "jobs/saved", element: <SavedJobPage /> },
+            { path: "jobs/applied", element: <AppliedJobs /> },
+            { path: "cv/guide", element: <CVGuide /> },
+            { path: "cv/upload", element: <MyCV /> },
+            { path: "schedule", element: <Schedule /> },
+            { path: "profile", element: <EditProfile /> },
+            { path: "onboard", element: <FormOnboard /> },
+            { path: "jobs/:jobId", element: <JobDetailPage /> },
+            { path: "jobs/category/:category", element: <JobByCategory /> },
+            { path: "news", element: <NewsPage /> },
+            { path: "news/:id", element: <NewsDetailPage /> },
+          ],
+        },
+      ],
+    },
+    {
     path: "/recruiter",
-    element: (<RoleRoute allowedRoles={[ ROLE.RECRUITER, ROLE.ADMIN]}>
-              <RecruiterLayout />
-            </RoleRoute>),
-    children: 
-      [
-        { index: true, element: <ManageAppli /> },
-      ], 
+    element: (
+      <RoleRoute allowedRoles={[ROLE.RECRUITER, ROLE.ADMIN]} />
+    ),
+    children: [
+      {
+        element: <RecruiterLayout />,
+        children: [
+          { index: true, element: <RecruiterDashboard /> },           
+          { path: "jobs-recruiter", element: <JobRecruiter /> },    
+          { path: "jobs/new", element: <NewJobRecruiter /> },      
+          { path: "candidates", element: <CandidateManage /> },
+          { path: "company", element: <CompanyRecruiter /> },
+        ],
+      },
+    ],
   },
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
@@ -81,19 +97,22 @@ const route = createBrowserRouter([
   { path: "/set-password", element: <SetPasswordPage /> },
   {
     path: "/admin",
-    element: (<RoleRoute allowedRoles={[ ROLE.ADMIN]}>
-              <AdminLayout />
-            </RoleRoute>),
-    children: 
-      [
-        { index: true, element: <Dashboard /> },
-        { path: "manage-users", element: <UserManagement /> },
-        { path: "manage-companies", element: <CompanyManagement /> },
-        { path: "manage-jobs", element: <JobMangement /> },
-        { path: "manage-jobs", element: <JobMangement /> },
-        { path: "manage-career-guide", element: <NewsManagement /> },
-      ], 
-  },
+    element: (
+      <RoleRoute allowedRoles={[ROLE.ADMIN]} />
+    ),
+    children: [
+      {
+        element: <AdminLayout />, 
+        children: [
+          { index: true, element: <Dashboard /> },
+          { path: "manage-users", element: <UserManagement /> },
+          { path: "manage-companies", element: <CompanyManagement /> },
+          { path: "manage-jobs", element: <JobMangement /> },
+          { path: "manage-career-guide", element: <NewsManagement /> },
+        ],
+      },
+    ],
+  }
 ]);
 
 const App = () => {

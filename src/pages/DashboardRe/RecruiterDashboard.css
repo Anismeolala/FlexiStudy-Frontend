@@ -1,0 +1,88 @@
+.dashboard-container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 20px 80px; /* thêm padding đáy để không sát */
+  font-family: "Inter", sans-serif;
+}
+
+/* Stats */
+.stat-card {
+  border-radius: 10px;
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 14px;
+}
+
+.stat-icon {
+  color: #999;
+  font-size: 16px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  margin-top: 8px;
+  color: #111;
+}
+
+.stat-trend {
+  font-size: 13px;
+  color: #16a34a;
+  margin-top: 2px;
+}
+
+/* Jobs Section */
+.jobs-section {
+  margin-top: 40px;
+}
+
+.jobs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.job-card {
+  margin-bottom: 16px;
+  border-radius: 10px;
+}
+
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.job-header h3 {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.job-meta {
+  color: #666;
+  font-size: 14px;
+}
+
+.job-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  color: #666;
+  font-size: 14px;
+}
+
+.job-details {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
