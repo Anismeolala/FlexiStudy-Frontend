@@ -1,0 +1,46 @@
+/* src/components/ThanksModal/ThanksModal.css */
+.thanks-modal .ant-modal-content{
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* nền gradient + text giữa */
+.tm-wrap{
+  min-height: 220px;
+  padding: 28px 32px 36px;
+  background: radial-gradient(120% 160% at 10% 0%, #1fb2ff 0%, #0a66ff 40%, #0b57d0 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.tm-title{
+  margin: 0 0 8px 0;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.tm-sub{
+  margin: 0 0 22px 0;
+  opacity: .95;
+  font-size: 18px;
+}
+
+/* nút style giống ảnh: trắng, chữ xanh, bo tròn */
+.tm-cta{
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 10px;
+  background: #fff;
+  color: #0a66ff;
+  border: none;
+  font-weight: 600;
+}
+.tm-cta:hover{
+  background: #f7faff;
+  color: #0a66ff;
+}

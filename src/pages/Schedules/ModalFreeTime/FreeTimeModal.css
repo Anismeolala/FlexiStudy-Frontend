@@ -1,0 +1,55 @@
+/* src/components/FreeTimeModal/FreeTimeModal.css */
+.freetime-modal .ant-modal-content {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ftm-body{
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  min-height: 230px;
+}
+
+/* Panel trái */
+.ftm-left{
+  background: radial-gradient(120% 120% at 0% 0%, #27a3ff 0%, #0560ff 40%, #1e3fd7 100%);
+  color:#fff;
+  padding: 28px 24px;
+}
+.ftm-left h2{
+  margin:0 0 8px 0;
+  font-size:28px;
+  font-weight:800;
+}
+.ftm-left p{
+  margin:0;
+  line-height:1.5;
+  opacity:.95;
+}
+
+/* Panel phải */
+.ftm-right{
+  background:#fff;
+  padding: 24px 24px 16px;
+  display:flex;
+  flex-direction:column;
+}
+.ftm-date{
+  font-weight:600;
+  margin-bottom:12px;
+}
+.ftm-options{
+  margin-top:4px;
+}
+.ftm-range{
+  margin-top:12px;
+}
+.ftm-range.hide{ display:none; }
+
+.ftm-actions{
+  display:flex;
+  gap:12px;
+  justify-content:flex-end;
+  margin-top:auto;   /* đẩy nút xuống cuối */
+  padding-top:16px;
+}
