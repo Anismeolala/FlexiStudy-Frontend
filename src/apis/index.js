@@ -239,7 +239,6 @@
       };
 
       //  - News API -
-
     // Tạo bài viết mới
     export const createNewsAPI = async (payload) => {
       const res = await api.post(`news`, payload);
@@ -332,3 +331,56 @@
       const res = await api.delete(`availability-windows/${id}`);
       return res.data;
     };
+      //  - Upgrade Plan API -
+export const getAllUpgradePlansAPI = async () => {
+  const res = await api.get("upgrade");
+  return res.data;
+};
+
+export const getUpgradePlanByIdAPI = async (id) => {
+  const res = await api.get(`upgrade/${id}`);
+  return res.data;
+};
+
+export const createUpgradePlanAPI = async (payload) => {
+  const res = await api.post("upgrade", payload);
+  return res.data;
+};
+
+export const updateUpgradePlanAPI = async (id, payload) => {
+  const res = await api.put(`upgrade/${id}`, payload);
+  return res.data;
+};
+
+export const deleteUpgradePlanAPI = async (id) => {
+  const res = await api.delete(`upgrade/${id}`);
+  return res.data;
+};
+
+export const upgradeUserPlanAPI = async (planId) => {
+  const res = await api.post(`upgrade/activate/${planId}`);
+  return res.data;
+};
+
+// - Payment API -
+export const createPayOSPaymentAPI = async (payload) => {
+  const res = await api.post("payments/create", {
+    orderCode: payload.orderId,
+    amount: payload.amount, 
+    description: payload.description,
+    cancelUrl: "http://localhost:3000/payment/cancel",
+    returnUrl: "http://localhost:3000/payment/success"
+  });
+  return res;
+};
+// - Payment Callback API -
+export const handlePaymentCallbackAPI = async (payload) => {
+  const res = await api.post("payments/callback", payload);
+  return res.data;
+};
+
+export const rollbackPaymentAPI = async (payload) => {
+  // payload = { orderCode, status: "failed" } hoặc { orderCode, status: "success" }
+  const res = await api.post("payments/callback", payload);
+  return res.data;
+};

@@ -33,7 +33,7 @@ const JobFilters = ({
     setMaxSalary(null);
   }, [resetTrigger]);
 
-  // 🟢 Toggle logic cho từng filter
+  // Toggle logic cho từng filter
   const toggleType = (value) => {
     const newType = type === value ? "" : value;
     setType(newType);

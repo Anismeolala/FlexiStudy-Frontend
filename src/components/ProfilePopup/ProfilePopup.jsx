@@ -1,10 +1,15 @@
 import React from "react";
-import { Card, Avatar, Typography, Button, Divider } from "antd";
-import { UserOutlined, SettingOutlined, LogoutOutlined, EditOutlined } from "@ant-design/icons";
+import { Card, Avatar, Typography, Button, Divider, message } from "antd";
+import {
+  UserOutlined,
+  SettingOutlined,
+  LogoutOutlined,
+  EditOutlined,
+  ArrowUpOutlined,
+} from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setIsAuthorized, resetUser } from "../../redux/userSlice";
-import { message } from "antd";
 import "./ProfilePopup.css";
 
 const { Text, Title } = Typography;
@@ -29,8 +34,13 @@ const ProfilePopup = ({ visible, onClose }) => {
   };
 
   const handleSettings = () => {
-    // Navigate to settings page
     message.info("Chức năng cài đặt đang được phát triển");
+    onClose();
+  };
+
+  const handleUpgradeAccount = () => {
+    navigate("/upgrade");
+    message.info("Đi đến trang nâng cấp tài khoản");
     onClose();
   };
 
@@ -41,9 +51,9 @@ const ProfilePopup = ({ visible, onClose }) => {
       <div className="profile-popup-overlay" onClick={onClose} />
       <Card className="profile-popup-card">
         <div className="profile-popup-header">
-          <Avatar 
-            size={64} 
-            src={user.avatarUrl} 
+          <Avatar
+            size={64}
+            src={user.avatarUrl}
             icon={<UserOutlined />}
             className="profile-popup-avatar"
           />
@@ -63,19 +73,29 @@ const ProfilePopup = ({ visible, onClose }) => {
         <Divider className="profile-popup-divider" />
 
         <div className="profile-popup-actions">
-          <Button 
-            type="text" 
-            icon={<EditOutlined />} 
+          <Button
+            type="text"
+            icon={<EditOutlined />}
             className="profile-popup-action-btn"
             onClick={handleEditProfile}
             block
           >
             Chỉnh sửa hồ sơ
           </Button>
-          
-          <Button 
-            type="text" 
-            icon={<SettingOutlined />} 
+
+          <Button
+            type="text"
+            icon={<ArrowUpOutlined />}
+            className="profile-popup-action-btn"
+            onClick={handleUpgradeAccount}
+            block
+          >
+            Nâng cấp tài khoản
+          </Button>
+
+          <Button
+            type="text"
+            icon={<SettingOutlined />}
             className="profile-popup-action-btn"
             onClick={handleSettings}
             block
@@ -85,9 +105,9 @@ const ProfilePopup = ({ visible, onClose }) => {
 
           <Divider className="profile-popup-divider" />
 
-          <Button 
-            type="text" 
-            icon={<LogoutOutlined />} 
+          <Button
+            type="text"
+            icon={<LogoutOutlined />}
             className="profile-popup-logout-btn"
             onClick={handleLogout}
             block
