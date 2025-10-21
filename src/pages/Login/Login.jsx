@@ -42,7 +42,6 @@ const Login = () => {
           //  Gọi API lấy thông tin user
           const resultAction = await dispatch(getMyInfo());
           const userData = resultAction.payload;
-          console.log("User data after login:", userData);
 
           //  Kiểm tra role + profile_completed để điều hướng
           const decoded = jwtDecode(res.result.token);

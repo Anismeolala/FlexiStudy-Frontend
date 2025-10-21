@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Menu, Dropdown, Avatar, Space, message, Button } from "antd";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Layout, Dropdown, Avatar, Space, Button } from "antd";
+import { Link, useNavigate } from "react-router-dom";
 import {
   DownOutlined,
   LogoutOutlined,
-  SettingOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
