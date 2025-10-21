@@ -1,0 +1,72 @@
+/* Nền gradient nhẹ */
+.verify-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f5f9ff, #e9eefc, #f9fcff);
+  padding: 24px;
+}
+
+/* Card trung tâm */
+.verify-card-wrapper {
+  width: 100%;
+  max-width: 420px;
+}
+
+.verify-card {
+  border-radius: 16px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  padding: 28px;
+  text-align: center;
+}
+
+/* Header */
+.verify-header {
+  margin-bottom: 24px;
+}
+
+.verify-title {
+  margin-bottom: 8px !important;
+  color: #0b2347 !important;
+  font-weight: 700 !important;
+}
+
+.verify-description {
+  color: #555;
+  font-size: 14px;
+}
+
+/* Form */
+.verify-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.otp-input {
+  text-align: center;
+  letter-spacing: 6px;
+  font-size: 20px;
+  font-weight: 600;
+  border-radius: 8px !important;
+}
+
+/* Nút chính */
+.ant-btn-primary {
+  border-radius: 8px !important;
+  font-weight: 600;
+  background-color: #164b85 !important;
+}
+
+/* Nút resend */
+.ant-btn-default {
+  border-radius: 8px !important;
+  font-weight: 500;
+}
+
+/* Nút quay lại */
+.back-btn {
+  color: #164b85 !important;
+  font-weight: 500;
+}

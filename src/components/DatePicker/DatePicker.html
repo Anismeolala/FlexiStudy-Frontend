@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Calendar</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/global.css">
+  <link rel="stylesheet" href="../../css/datepicker.css">
+  
+
+</head>
+<body>
+
+  <div class="container my-5">
+    <div class="calendar-container">
+      <!-- Header với nút điều hướng tháng -->
+      <div class="calendar-header">
+        <button>
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-arrow-left-square-fill previous-month-btn" viewBox="0 0 16 16">
+                <path d="M16 14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2zm-4.5-6.5H5.707l2.147-2.146a.5.5 0 1 0-.708-.708l-3 3a.5.5 0 0 0 0 .708l3 3a.5.5 0 0 0 .708-.708L5.707 8.5H11.5a.5.5 0 0 0 0-1"/>
+              </svg>
+        </button>
+        <h2>Tháng 09, 2024</h2>
+        <button>
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-arrow-right-square-fill next-month-btn" viewBox="0 0 16 16">
+                <path d="M0 14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2zm4.5-6.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5a.5.5 0 0 1 0-1"/>
+              </svg>
+        </button>
+      </div>
+
+      <!-- Lưới các ngày trong tháng -->
+      <div class="days-grid">
+        <!-- Giả lập dữ liệu ngày của tháng -->
+        <div class="day">1</div>
+        <div class="day disabled">2</div> <!-- Không có slot trống -->
+        <div class="day">3</div>
+        <div class="day">4</div>
+        <div class="day">5</div>
+        <div class="day disabled">6</div> <!-- Không có slot trống -->
+        <div class="day">7</div>
+
+        <div class="day">8</div>
+        <div class="day">9</div>
+        <div class="day">10</div>
+        <div class="day">11</div>
+        <div class="day">12</div>
+        <div class="day">13</div>
+        <div class="day">14</div>
+
+        <div class="day disabled">15</div> <!-- Không có slot trống -->
+        <div class="day">16</div>
+        <div class="day">17</div>
+        <div class="day">18</div>
+        <div class="day">19</div>
+        <div class="day">20</div>
+        <div class="day">21</div>
+
+        <div class="day">22</div>
+        <div class="day">23</div>
+        <div class="day">24</div>
+        <div class="day">25</div>
+        <div class="day">26</div>
+        <div class="day">27</div>
+        <div class="day disabled">28</div> <!-- Không có slot trống -->
+
+        <div class="day">29</div>
+        <div class="day">30</div>
+      </div>
+      <hr/>
+      <div class="slots text-start">
+        <h3>Danh sách bác sĩ:</h3>
+        <div class="slot">Anh Tú</div>
+        <div class="slot">Phú Khang</div>
+        <div class="slot">Trịnh Nhân</div>
+        <div class="slot">Huy Vũ</div>
+        <div class="slot">Chí Hào</div>
+       
+      
+        <p>Chọn khung giờ để tiếp tục đặt lịch khám bệnh</p>
+      </div>
+      <hr/>
+      <!-- Slot giả lập cho ngày 3 -->
+      <div class="slots text-start">
+        <h3>Khung giờ có sẵn cho ngày 03:</h3>
+        <div class="slot">08:00- 9:30</div>
+        <div class="slot">09:30-10:00</div>
+        <div class="slot">09:30-10:00</div>
+        <p>Chọn khung giờ để tiếp tục đặt lịch khám bệnh</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

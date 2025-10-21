@@ -1,0 +1,30 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+.layout-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.layout-header {
+  flex-shrink: 0;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.layout-content {
+  flex: 1 0 auto;
+  padding: 0 !important;
+}
+
+.layout-footer {
+  flex-shrink: 0;
+  background: #0b2347;
+  color: #fff;
+  position: relative;
+  z-index: 2;
+  padding: 0;
+}

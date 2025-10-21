@@ -1,0 +1,86 @@
+.cvg-layout {
+  min-height: 100vh;
+  background: #f6f7fb; /* nhẹ như bg-muted */
+}
+
+.cvg-content {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 32px 16px 48px;
+}
+
+.cvg-hero { margin-bottom: 16px; }
+.cvg-title { margin-bottom: 4px !important; font-weight: 800 !important; }
+.cvg-subtitle { display: block; }
+
+.cvg-stack { width: 100%; }
+
+.cvg-card { border-radius: 12px; }
+
+.cvg-card-head {
+  display: flex; align-items: center; gap: 12px;
+  padding-top: 6px;
+}
+
+.cvg-card-title { margin: 0 !important; }
+
+.cvg-divider { margin: 8px 0 12px 0 !important; }
+
+.cvg-icon-box {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: rgba(22, 119, 255, 0.12);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.cvg-icon-primary {
+  font-size: 18px; color: #1677ff;
+}
+.cvg-icon-primary.small { font-size: 16px; }
+
+.cvg-list-item {
+  display: flex; align-items: flex-start; gap: 8px;
+}
+
+.cvg-li-icon {
+  font-size: 18px;
+  margin-top: 2px;
+}
+
+.cvg-li-text { font-size: 14px; }
+
+.cvg-mt { margin-top: 16px; }
+
+.cvg-tip {
+  border-left: 4px solid #1677ff;
+  padding-left: 12px;
+}
+
+.cvg-badge {
+  font-weight: 600;
+  border-radius: 999px;
+}
+
+.cvg-muted { display: block; margin: 6px 0 10px 0; }
+
+.cvg-example {
+  background: #f8fafc;
+  border: 1px solid #edf2f7;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.cvg-example-head {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+}
+
+.cvg-example-text {
+  margin: 0;
+  white-space: pre-line;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 13.5px;
+  color: rgba(0,0,0,0.85);
+}
+
+.cvg-accordion .ant-collapse-item .ant-collapse-header {
+  font-weight: 600;
+}

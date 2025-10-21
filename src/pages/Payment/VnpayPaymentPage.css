@@ -1,0 +1,110 @@
+.vnpay-container {
+  max-width: 720px;
+  margin: 48px auto;
+  padding: 32px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  font-family: "Inter", "Segoe UI", sans-serif;
+  transition: all 0.3s ease;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s ease;
+}
+
+.back-btn:hover {
+  color: #1d4ed8;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 28px;
+  color: #111827;
+}
+
+.vnpay-box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  background: #f3f4f6;
+  border-radius: 16px;
+  padding: 28px;
+  gap: 24px;
+}
+
+.vnpay-qr {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  flex: 1 1 240px;
+  text-align: center;
+}
+
+.vnpay-instructions {
+  max-width: 320px;
+  flex: 1 1 280px;
+  color: #374151;
+}
+
+.vnpay-instructions h4 {
+  margin-bottom: 14px;
+  font-weight: 600;
+  font-size: 17px;
+  color: #111827;
+}
+
+.vnpay-instructions ol {
+  padding-left: 20px;
+  margin-bottom: 16px;
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+.expire-text {
+  color: #000; 
+  font-size: 15px;
+  margin-bottom: 16px;
+}
+
+.expire-text .time-left {
+  color: #d93025; 
+  font-weight: 700; 
+}
+
+.cancel-btn {
+  background: #e5e7eb; 
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  cursor: pointer;
+  color: #374151;
+  font-weight: 500;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background: #d1d5db;
+  transform: translateY(-1px);
+}
+
+
+/* căn giữa nút */
+.center-btn {
+  display: block;
+  margin: 0 auto;
+}

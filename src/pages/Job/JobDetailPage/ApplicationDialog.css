@@ -1,0 +1,52 @@
+/* Overlay + modal */
+.apply-modal__overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 16px;
+}
+.apply-modal__content {
+  width: 100%; max-width: 520px; max-height: 90vh; overflow: auto;
+  background: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.2);
+  padding: 20px 20px 16px; position: relative;
+}
+.apply-modal__close {
+  position: absolute; top: 8px; right: 12px;
+  background: transparent; border: 0; font-size: 22px; cursor: pointer; line-height: 1;
+}
+
+.apply-modal__header { margin-bottom: 8px; }
+.apply-modal__title { font-weight: 700; font-size: 18px; }
+.apply-modal__subtitle { color: #6b7280; margin-top: 2px; }
+
+/* Form */
+.apply-form__item { margin-top: 12px; }
+.apply-form__item label { display: block; margin-bottom: 6px; font-weight: 500; }
+.apply-form__item input,
+.apply-form__item textarea {
+  width: 100%; border: 1px solid #e5e7eb; border-radius: 8px;
+  padding: 10px 12px; outline: none; font-size: 14px;
+}
+.apply-form__item input:focus,
+.apply-form__item textarea:focus { border-color: #1677ff; }
+
+.apply-form__error { color: #f04438; font-size: 12px; margin-top: 6px; }
+
+/* Upload */
+.apply-upload { display: inline-block; }
+.apply-upload__btn {
+  display: inline-block; border: 1px dashed #cbd5e1; border-radius: 8px;
+  padding: 10px 12px; cursor: pointer; color: #334155;
+}
+.apply-upload__btn:hover { background: #f8fafc; }
+.apply-upload__filename { margin-top: 6px; color: #64748b; font-size: 13px; }
+
+/* Actions */
+.apply-actions { display: flex; gap: 10px; margin-top: 16px; }
+.btn { width: 100%; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.btn--outline { background: #fff; border: 1px solid #e5e7eb; }
+.btn--outline:hover { background: #f8fafc; }
+.btn--primary {
+  background: linear-gradient(90deg, #1677ff, #7c3aed); border: none; color: #fff;
+}
+.btn--primary:hover { opacity: .92; }
+.required { color: #f04438; }
