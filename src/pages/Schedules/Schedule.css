@@ -1,0 +1,178 @@
+.schedule-page {
+  max-width: 1150px;
+  margin: 40px auto;
+  padding: 0 20px 80px;
+  font-family: "Inter", sans-serif;
+}
+
+.schedule-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.schedule-header p {
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.schedule-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.card-desc {
+  color: #888;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.calendar-card,
+.slot-card {
+  border-radius: 10px;
+  height: fit-content;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 60px 0;
+  color: #999;
+}
+
+.empty-icon {
+  font-size: 40px;
+  opacity: 0.4;
+  margin-bottom: 8px;
+}
+
+/* Slots */
+.slot-item {
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.slot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.slot-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.slot-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.custom-slot-btn {
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  color: #333;
+  border-radius: 8px;
+  margin: 4px;
+  min-width: 95px;
+  padding: 6px 0;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Hover khi chưa chọn */
+.custom-slot-btn:hover:not(.selected) {
+  background-color: rgba(173, 92, 214, 1); /* tím nhạt */
+  color: #fff;
+  border-color: rgba(173, 92, 214, 1);
+  transform: scale(1.05);
+}
+
+/* Khi được chọn */
+.custom-slot-btn.selected {
+  background-color: #1677ff;
+  border-color: #1677ff;
+  color: #fff;
+  transform: scale(1.03);
+  animation: pulseSelect 0.2s ease;
+}
+
+/* Hover khi chọn */
+.custom-slot-btn.selected:hover {
+  background-color: #4096ff;
+  border-color: #4096ff;
+}
+
+/* Animation nhẹ khi chọn */
+@keyframes pulseSelect {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1.03); }
+}
+
+.slot-btn.selected {
+  animation: pulseSelect 0.2s ease;
+}
+
+
+/* Summary */
+.summary-card {
+  margin-top: 24px;
+  border-radius: 10px;
+}
+
+.summary-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.summary-content p {
+  color: #666;
+  font-size: 14px;
+}
+
+button.ant-btn.slot-btn.selected {
+  background-color: #1677ff !important;
+  border-color: #1677ff !important;
+  color: #fff !important;
+}
+.shift-card {
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+
+.ant-select-selector {
+  border-radius: 8px !important;
+  border: 1px solid #d9d9d9 !important;
+  height: 44px !important;
+  display: flex;
+  align-items: center;
+  transition: all 0.25s ease;
+}
+
+.ant-select-focused .ant-select-selector {
+  border-color: #4096ff !important;
+  box-shadow: 0 0 0 2px rgba(64, 150, 255, 0.2) !important;
+}
+.custom-slot-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

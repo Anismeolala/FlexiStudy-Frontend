@@ -301,4 +301,34 @@
     };
 
 
+  // - AVAILABILITY WINDOW API -
 
+    // Tạo mới availability window
+    export const createAvailabilityWindowAPI = async (payload) => {
+      const res = await api.post("availability-windows", payload);
+      return res.data;
+    };
+
+    // Cập nhật availability window theo id
+    export const updateAvailabilityWindowAPI = async (id, payload) => {
+      const res = await api.patch(`availability-windows/${id}`, payload);
+      return res.data;
+    };
+
+    // Lấy thông tin chi tiết theo id
+    export const getAvailabilityWindowByIdAPI = async (id) => {
+      const res = await api.get(`availability-windows/${id}`);
+      return res.data;
+    };
+
+    // Lấy tất cả availability windows theo userId
+    export const getAvailabilityWindowsByUserAPI = async (userId) => {
+      const res = await api.get(`availability-windows/user/${userId}`);
+      return res.data;
+    };
+
+    // Xóa availability window theo id
+    export const deleteAvailabilityWindowAPI = async (id) => {
+      const res = await api.delete(`availability-windows/${id}`);
+      return res.data;
+    };

@@ -31,7 +31,7 @@ const HeaderRecruiter = () => {
               Hồ sơ cá nhân
             </span>
           ),
-          onClick: () => navigate("/profile"),
+          onClick: () => {message.info("Chức năng Profile đang được phát triển!")},
         },
         {
           type: "divider",

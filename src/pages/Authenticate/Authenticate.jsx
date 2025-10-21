@@ -26,8 +26,6 @@ export default function Authenticate() {
       .then(async (data) => {
         if (data.code === 1000) {
           const result = data.result;
-          console.log("Authentication successful:", result);
-          console.log("dakljfad;l", data)
 
           // 1. Kiểm tra trước: nếu cần verify email thì không gọi getMyInfo
           if (result.emailVerificationRequired) {
