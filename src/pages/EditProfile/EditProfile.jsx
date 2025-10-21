@@ -51,58 +51,50 @@ const EditProfile = () => {
 
 
   useEffect(() => {
-  const loadProfile = async () => {
-    try {
-      setLoadingUser(true);
-      const res = await getMyProfileAPI();
-      console.log("🔥 Profile API result:", res.result);
-console.log("🔥 Avatar URL nhận được từ BE:", res.result?.avatarUrl);
-
-      if (res?.code === 1000) {
-        const p = res.result || {};
-
-        form.setFieldsValue({
-          firstName: p.firstName || "",
-          lastName: p.lastName || "",
-          email: p.email || "",
-          phone: p.phone || "",
-          address: p.address || "",
-          dob: p.dob ? dayjs(p.dob) : null,
-          educations: p.educations?.length ? p.educations : [{}],
-          experiences: (p.experiences || []).map(e => ({
+    const loadProfile = async () => {
+      try {
+        setLoadingUser(true);
+        const res = await getMyProfileAPI();
+        console.log("Profile response:", res.result);
+        if (res?.code === 1000) {
+          const p = res.result || {};
+          // Map ngày → dayjs cho DatePicker
+          const experiences = (p.experiences || []).map((e) => ({
             ...e,
             startDate: e.startDate ? dayjs(e.startDate) : null,
             endDate: e.endDate ? dayjs(e.endDate) : null,
-          })),
-        });
+          }));
 
-        //  Format URL nếu cần
-        const formattedAvatar = p.avatarUrl?.startsWith("http")
-          ? p.avatarUrl
-          : p.avatarUrl
-          ? `http://localhost:8080${p.avatarUrl}`
-          : "";
+          // Đổ form
+          form.setFieldsValue({
+            firstName: p.firstName || "",
+            lastName: p.lastName || "",
+            email: p.email || "",
+            phone: p.phone || "",
+            address: p.address || "",
+            dob: p.dob ? dayjs(p.dob) : null,
+            educations: p.educations && p.educations.length ? p.educations : [{}],
+            experiences: experiences.length ? experiences : [{}],
+          });
 
-        setImageUrl(formattedAvatar);
-        setImageKey(Date.now());
+          setImageUrl(p.avatarUrl || "");
+          console.log("✅ Image URL set to:", p.avatarUrl);
+          setImageKey(Date.now());
 
-        // Đồng bộ Redux để toàn bộ app có avatar
-        dispatch(setUser({
-          ...user,
-          ...p,
-          fullName: `${p.firstName || ""} ${p.lastName || ""}`.trim(),
-          avatarUrl: formattedAvatar,
-        }));
+          // (tuỳ) đồng bộ Redux user “cơ bản”
+          // dispatch(setUser({ ...user, ...p, fullName: `${p.firstName || ""} ${p.lastName || ""}`.trim() }));
+        } else {
+          message.error(res?.message || "Không lấy được hồ sơ");
+        }
+      } catch (err) {
+        console.error(err);
+        message.error("Không lấy được hồ sơ");
+      } finally {
+        setLoadingUser(false);
       }
-    } catch (e) {
-      message.error("Không lấy được hồ sơ");
-    } finally {
-      setLoadingUser(false);
-    }
-  };
-  loadProfile();
-}, []);
-
+    };
+    loadProfile();
+  }, []);
 
 
   useEffect(() => {
@@ -145,6 +137,7 @@ console.log("🔥 Avatar URL nhận được từ BE:", res.result?.avatarUrl);
     }
     return false;
 };
+
 
    const handleSubmit = async (values) => {
     setLoading(true);
@@ -189,7 +182,7 @@ console.log("🔥 Avatar URL nhận được từ BE:", res.result?.avatarUrl);
           avatarUrl: updatedProfile.avatarUrl || imageUrl,
         }));
 
-        navigate(-1)
+        navigate("/"); // hoặc navigate(-1)
       }
       else {
         message.error(res?.message || "Cập nhật thất bại!");
@@ -354,7 +347,7 @@ return (
                                     {...rest}
                                     name={[name, "school"]}
                                     label="Trường học"
-                                    rules={[{  message: "Nhập tên trường" }]}
+                                    rules={[{ required: true, message: "Nhập tên trường" }]}
                                   >
                                     <Input />
                                   </Form.Item>
@@ -414,7 +407,7 @@ return (
                                     {...rest}
                                     name={[name, "company"]}
                                     label="Công ty / Doanh nghiệp"
-                                    rules={[{ message: "Nhập tên công ty" }]}
+                                    rules={[{ required: true, message: "Nhập tên công ty" }]}
                                   >
                                     <Input />
                                   </Form.Item>

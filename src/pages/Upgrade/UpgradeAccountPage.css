@@ -1,0 +1,236 @@
+/* src/pages/Upgrade/UpgradeAccountPage.css */
+
+.upgrade-account-container {
+  max-width: 1100px;
+  margin: 10px auto;
+  text-align: center;
+  padding: 20px;
+  font-family: "Inter", sans-serif;
+}
+
+.upgrade-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0b2447;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, #005bea, #00c6fb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  /* thêm dòng chuẩn */
+  -webkit-text-fill-color: transparent;
+}
+
+.upgrade-description {
+  color: #555;
+  font-size: 17px;
+  margin-bottom: 50px;
+  font-weight: 400;
+}
+
+/* Vùng chứa 2 gói */
+.upgrade-options {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+/* Thẻ gói nâng cấp */
+.upgrade-card {
+  flex: 1 1 320px;
+  border-radius: 20px;
+  padding: 40px 30px;
+  background: #fff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  text-align: left;
+  border: 1px solid #eaeaea;
+}
+
+.upgrade-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Loại gói */
+.upgrade-card h3 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #0a53be;
+  margin-bottom: 8px;
+}
+
+.upgrade-card p {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e1e1e;
+  margin-bottom: 20px;
+}
+
+/* Danh sách quyền lợi */
+.upgrade-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 30px;
+}
+
+.upgrade-card ul li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.upgrade-card ul li::before {
+  content: "✔";
+  color: #00b894;
+  font-weight: bold;
+}
+
+/* Nút nâng cấp */
+.upgrade-btn {
+  display: block;
+  width: 100%;
+  background: linear-gradient(90deg, #007bff, #00c6ff);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.upgrade-btn:hover {
+  background: linear-gradient(90deg, #005bea, #00a8e8);
+  transform: translateY(-2px);
+}
+
+/* Card đặc biệt (Premium) */
+.upgrade-card.premium {
+  background: linear-gradient(180deg, #e9f2ff, #fff);
+  border: 1px solid #c6e0ff;
+}
+
+/* Card cao cấp nhất (Pro) */
+.upgrade-card.pro {
+  background: linear-gradient(180deg, #005bea, #00c6fb);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.upgrade-card.pro::after {
+  content: "Best Value";
+  position: absolute;
+  top: 15px;
+  right: -35px;
+  transform: rotate(45deg);
+  background: #fff;
+  color: #005bea;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.upgrade-card.pro h3,
+.upgrade-card.pro p,
+.upgrade-card.pro ul li {
+  color: #fff;
+}
+
+.upgrade-card.pro ul li::before {
+  color: #fff;
+}
+
+.upgrade-card.pro .upgrade-btn {
+  background: #fff;
+  color: #005bea;
+}
+
+.upgrade-card.pro .upgrade-btn:hover {
+  background: #f1f1f1;
+  color: #0044aa;
+}
+
+/* Header box cho phần nâng cấp tài khoản */
+.upgrade-header-box {
+  max-width: 800px;
+  margin: 0 auto 60px auto;
+  padding: 40px 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ffffff 0%, #e0f0ff 50%, #b3d8ff 100%);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+/* Tiêu đề chính */
+.upgrade-header-box .upgrade-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0a0a0a;
+  margin-bottom: 10px;
+}
+
+/* Mô tả phụ */
+.upgrade-header-box .upgrade-description {
+  font-size: 38px;
+  font-weight: 700;
+  color: #007bff;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Hiệu ứng hover nhẹ */
+.upgrade-header-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Override riêng cho phần header */
+.upgrade-header-box .upgrade-title {
+  background: none !important;
+  -webkit-text-fill-color: #000 !important;
+  color: #000 !important;
+}
+
+/* Nút Đang sử dụng (disabled) */
+.upgrade-card button[disabled] {
+  width: 100%;
+  background-color: #e9ecef;
+  color: #6c757d;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: not-allowed;
+  transition: all 0.3s ease;
+}
+
+/* Khi hover vẫn giữ nguyên, không đổi màu */
+.upgrade-card button[disabled]:hover {
+  background-color: #e9ecef;
+  transform: none;
+}
+
+/* Làm nhạt nút của gói Free */
+.upgrade-card.free .upgrade-btn {
+
+  background: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.upgrade-card.free .upgrade-btn:hover {
+  color: #6c757d;
+
+  transform: none;
+  background: #e9ecef;
+}

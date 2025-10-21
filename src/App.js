@@ -41,6 +41,11 @@ import NewJobRecruiter from "./pages/NewJobRecruiter.jsx/NewJobRecruiter";
 import JobApplicantRecruiter from "./pages/JobApplicantRecruiter/CandidateManage";
 import CandidateManage from "./pages/JobApplicantRecruiter/CandidateManage";
 import CompanyRecruiter from "./pages/ManageCompanyRecruiter/CompanyRecruiter";
+import UpgradeAccountPage from "./pages/Upgrade/UpgradeAccountPage";
+import PaymentPage from "./pages/Payment/PaymentPage";
+import VnpayPaymentPage from "./pages/Payment/VnpayPaymentPage";
+import PaymentSuccessPage from "./pages/Payment/PaymentSuccessPage";
+import PaymentATMPage from "./pages/Payment/PaymentATMPage";
 
 const route = createBrowserRouter([
       {
@@ -65,6 +70,12 @@ const route = createBrowserRouter([
             { path: "jobs/category/:category", element: <JobByCategory /> },
             { path: "news", element: <NewsPage /> },
             { path: "news/:id", element: <NewsDetailPage /> },
+            { path: "upgrade", element: <UpgradeAccountPage /> },
+            { path: "/payment", element: <PaymentPage /> }, 
+            { path: "/payment/vnpay", element: <VnpayPaymentPage /> }, 
+            { path: "/payment/success", element: <PaymentSuccessPage /> },         
+            { path: "/payment/cancel", element: <PaymentPage /> },         
+            { path: "/payment/atm", element: <PaymentATMPage /> }, 
           ],
         },
       ],

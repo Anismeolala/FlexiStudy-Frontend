@@ -1,0 +1,85 @@
+.payment-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
+  padding: 30px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Trạng thái loading */
+.payment-status.loading {
+  color: #007bff;
+  font-size: 1.1rem;
+}
+
+/* Spinner */
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Thanh toán thành công */
+.payment-status.success {
+  background: linear-gradient(135deg, #e0f7fa, #ffffff);
+}
+
+.success-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.payment-status.success h2 {
+  color: #007bff;
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.payment-status.success p {
+  color: #333;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+/* Nút "Trải nghiệm ngay" */
+.experience-btn {
+  background: linear-gradient(90deg, #007bff, #00c6ff);
+  color: #fff;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.experience-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+}
+
+/* Trạng thái lỗi */
+.payment-status.error {
+  background: #fff5f5;
+  color: #dc3545;
+}
+
+.payment-status.error h2 {
+  margin-bottom: 10px;
+}
