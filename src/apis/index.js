@@ -371,35 +371,35 @@
       return res.data;
     };
       //  - Upgrade Plan API -
-export const getAllUpgradePlansAPI = async () => {
-  const res = await api.get("upgrade");
-  return res.data;
-};
+    export const getAllUpgradePlansAPI = async () => {
+      const res = await api.get("upgrade");
+      return res.data;
+    };
 
-export const getUpgradePlanByIdAPI = async (id) => {
-  const res = await api.get(`upgrade/${id}`);
-  return res.data;
-};
+    export const getUpgradePlanByIdAPI = async (id) => {
+      const res = await api.get(`upgrade/${id}`);
+      return res.data;
+    };
 
-export const createUpgradePlanAPI = async (payload) => {
-  const res = await api.post("upgrade", payload);
-  return res.data;
-};
+    export const createUpgradePlanAPI = async (payload) => {
+      const res = await api.post("upgrade", payload);
+      return res.data;
+    };
 
-export const updateUpgradePlanAPI = async (id, payload) => {
-  const res = await api.put(`upgrade/${id}`, payload);
-  return res.data;
-};
+    export const updateUpgradePlanAPI = async (id, payload) => {
+      const res = await api.put(`upgrade/${id}`, payload);
+      return res.data;
+    };
 
-export const deleteUpgradePlanAPI = async (id) => {
-  const res = await api.delete(`upgrade/${id}`);
-  return res.data;
-};
+    export const deleteUpgradePlanAPI = async (id) => {
+      const res = await api.delete(`upgrade/${id}`);
+      return res.data;
+    };
 
-export const upgradeUserPlanAPI = async (planId) => {
-  const res = await api.post(`upgrade/activate/${planId}`);
-  return res.data;
-};
+    export const upgradeUserPlanAPI = async (planId) => {
+      const res = await api.post(`upgrade/activate/${planId}`);
+      return res.data;
+    };
 
 // - Payment API -
 export const createPayOSPaymentAPI = async (payload) => {
