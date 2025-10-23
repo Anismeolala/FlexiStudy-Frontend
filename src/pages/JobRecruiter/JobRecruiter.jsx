@@ -10,7 +10,7 @@ import {
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import "./JobRecruiter.css";
-import { getJobsByCompanyAPI } from "../../apis"; 
+import { getJobsByCompanyAPI } from "../../apis";
 import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 
@@ -28,7 +28,7 @@ const JobRecruiter = () => {
       try {
         setLoading(true);
         const res = await getJobsByCompanyAPI(companyId);
-
+        
         // Chuẩn hóa dữ liệu job để khớp UI sẵn có
         const jobsData = (res?.result || []).map((job) => ({
           id: job.id,
@@ -41,8 +41,8 @@ const JobRecruiter = () => {
               ? `${job.minSalary.toLocaleString()} - ${job.maxSalary.toLocaleString()} ${job.currency || "VND"}`
               : "Negotiable",
           applicants: job.applicantCount || 0,
-          status: job.status?.toLowerCase() || "active",
-          posted: job.createdAt ? dayjs(job.createdAt).fromNow() : "N/A",
+          status: job.status || "Inactive",  // fallback to "Inactive"
+          posted: job.postedAt ? dayjs(job.postedAt).fromNow() : "N/A",
           skills: job.requiredSkills?.map((s) => s.name) || [],
         }));
 
@@ -113,8 +113,8 @@ const JobRecruiter = () => {
                 </div>
               </div>
               <Badge
-                status={job.status === "active" ? "success" : "warning"}
-                text={job.status === "active" ? "Active" : "Paused"}
+                status={job.status === "OPEN" ? "success" : job.status === "CLOSED" ? "warning" : "default"}
+                text={job.status === "OPEN" ? "Open" : job.status === "CLOSED" ? "Closed" : "Inactive"}
                 className="status-badge"
               />
             </div>
