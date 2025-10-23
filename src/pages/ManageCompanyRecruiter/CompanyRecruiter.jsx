@@ -12,8 +12,8 @@ import {
   getCompanyByIdAPI,
   updateCompanyAPI,
   uploadCompanyLogoAPI,
-  getMyInfoAPI, // 👈 thêm dòng này
-} from "../../apis"; // kiểm tra lại path nếu cần
+  getMyInfoAPI, 
+} from "../../apis"; 
 import "./CompanyRecruiter.css";
 
 const CompanyRecruiter = () => {
@@ -23,7 +23,7 @@ const CompanyRecruiter = () => {
   const [saving, setSaving] = useState(false);
   const [logoLoading, setLogoLoading] = useState(false);
 
-  // 🔹 Hàm helper: luôn trả về companyId hợp lệ
+
   const getCompanyId = async () => {
     let companyId = localStorage.getItem("companyId");
     if (!companyId) {
@@ -43,7 +43,7 @@ const CompanyRecruiter = () => {
     return companyId;
   };
 
-  // 🔹 Chuẩn hóa dữ liệu trả về từ API
+
   const normalizeCompanyResponse = (res) => {
     if (!res) return null;
     if (res.result) return res.result;
@@ -52,7 +52,7 @@ const CompanyRecruiter = () => {
     return res;
   };
 
-  // 🔹 Lấy dữ liệu công ty
+
   const fetchCompany = async () => {
     try {
       setLoading(true);
@@ -120,7 +120,7 @@ const CompanyRecruiter = () => {
     }
   };
 
-  // 🔹 Lưu thay đổi
+
   const handleSave = async () => {
     const companyId = localStorage.getItem("companyId");
     if (!companyId) {
@@ -149,7 +149,7 @@ const CompanyRecruiter = () => {
     }
   };
 
-  // 🔹 Hủy thay đổi
+
   const handleCancel = () => {
     if (company) {
       form.setFieldsValue({

@@ -110,7 +110,7 @@
         return res.data;
       };
 
-      export const  getJobsByCompanyAPI = async (companyId) => {
+      export const getJobsByCompanyAPI = async (companyId) => {
         const res = await api.get(`companies/jobs/${companyId}`);
         return res.data;
       };
@@ -177,7 +177,8 @@
         return res.data;
       };
 
-      // - Application API -
+     // - Application API -
+
       export const uploadCvAPI = async (file) => {
         const formData = new FormData();
         formData.append("file", file);
@@ -191,11 +192,49 @@
           const res = await api.get(`applications/user/${userId}`);
           return res.data.result;
         };
+
+      // Lấy tất cả application của recruiter (company)
+      export const getApplicationsForMyCompanyAPI = async () => {
+        const res = await api.get("applications/my-company");
+        return res.data.result;
+      };
+
+      // Lấy application theo companyId (public cho admin hoặc recruiter khác)
+      export const getApplicationsByCompanyAPI = async (companyId) => {
+        const res = await api.get(`applications/company/${companyId}`);
+        return res.data.result;
+      };
+
+      export const getApplicationsByJobAPI = async (jobId) => {
+        const res = await api.get(`applications/job/${jobId}`);
+        return res.data.result;
+      };
+
+      // Lấy chi tiết 1 application
+      export const getApplicationByIdAPI = async (id) => {
+        const res = await api.get(`applications/${id}`);
+        return res.data.result;
+      };
+
+      // Cập nhật status (REVIEWING → ACCEPTED / REJECTED)
+      export const updateApplicationStatusAPI = async (id, payload) => {
+        const res = await api.patch(`applications/${id}`, payload);
+        return res.data.result;
+      };
+
+      // Xóa application (admin hoặc user hủy)
+      export const deleteApplicationAPI = async (id) => {
+        const res = await api.delete(`applications/${id}`);
+        return res.data;
+      };
+
       // Tạo Application (nộp hồ sơ)
       export const createApplicationAPI = async (payload) => {
         const res = await api.post("applications", payload);
         return res.data; // { result: ApplicationResponse }
       };
+
+
 
       // - Saved Job API -
       export const checkSavedJobAPI = async (jobId) => {
@@ -239,7 +278,6 @@
       };
 
       //  - News API -
-
     // Tạo bài viết mới
     export const createNewsAPI = async (payload) => {
       const res = await api.post(`news`, payload);
@@ -332,13 +370,66 @@
       const res = await api.delete(`availability-windows/${id}`);
       return res.data;
     };
-   export const getApplicantsByJobAPI = async (jobId) => {
-  const res = await api.get(`jobs/${jobId}/applicants`);
-  return res.data.result; // trả về danh sách ứng viên
-};
-// Lấy tất cả application của recruiter (company)
-      export const getApplicationsForMyCompanyAPI = async () => {
-        const res = await api.get("applications/my-company");
-        return res.data.result;
-      };
+      //  - Upgrade Plan API -
+    export const getAllUpgradePlansAPI = async () => {
+      const res = await api.get("upgrade");
+      return res.data;
+    };
 
+    export const getUpgradePlanByIdAPI = async (id) => {
+      const res = await api.get(`upgrade/${id}`);
+      return res.data;
+    };
+
+    export const createUpgradePlanAPI = async (payload) => {
+      const res = await api.post("upgrade", payload);
+      return res.data;
+    };
+
+    export const updateUpgradePlanAPI = async (id, payload) => {
+      const res = await api.put(`upgrade/${id}`, payload);
+      return res.data;
+    };
+
+    export const deleteUpgradePlanAPI = async (id) => {
+      const res = await api.delete(`upgrade/${id}`);
+      return res.data;
+    };
+
+    export const upgradeUserPlanAPI = async (planId) => {
+      const res = await api.post(`upgrade/activate/${planId}`);
+      return res.data;
+    };
+
+// - Payment API -
+export const createPayOSPaymentAPI = async (payload) => {
+  const res = await api.post("payments/create", {
+    orderCode: payload.orderId,
+    amount: payload.amount, 
+    description: payload.description,
+    cancelUrl: "http://localhost:3000/payment/cancel",
+    returnUrl: "http://localhost:3000/payment/success"
+  });
+  return res;
+};
+// - Payment Callback API -
+export const handlePaymentCallbackAPI = async (payload) => {
+  const res = await api.post("payments/callback", payload);
+  return res.data;
+};
+
+export const rollbackPaymentAPI = async (payload) => {
+  // payload = { orderCode, status: "failed" } hoặc { orderCode, status: "success" }
+  const res = await api.post("payments/callback", payload);
+  return res.data;
+};
+
+// - Job Matching -
+
+export const matchJobsAPI = async () => {
+  const token = localStorage.getItem("accessToken"); 
+  const res = await api.get("/jobs/match/me", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data; 
+};
