@@ -1,5 +1,5 @@
-import React from "react";
-import { Card, Input, Button, Badge } from "antd";
+import React, { useEffect, useState } from "react";
+import { Card, Input, Button, Badge, Spin, message } from "antd";
 import {
   PlusOutlined,
   SearchOutlined,
@@ -10,58 +10,64 @@ import {
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import "./JobRecruiter.css";
+import { getJobsByCompanyAPI } from "../../apis"; 
+import { useSelector } from "react-redux";
+import dayjs from "dayjs";
 
 const JobRecruiter = () => {
-  const jobs = [
-    {
-      id: 1,
-      title: "Senior Frontend Developer",
-      department: "Engineering",
-      location: "Ho Chi Minh City",
-      type: "Full-time",
-      salary: "$2000-3000",
-      applicants: 24,
-      status: "active",
-      posted: "2 days ago",
-      skills: ["React", "TypeScript", "Tailwind CSS"],
-    },
-    {
-      id: 2,
-      title: "Product Designer",
-      department: "Design",
-      location: "Hanoi",
-      type: "Full-time",
-      salary: "$1800-2500",
-      applicants: 18,
-      status: "active",
-      posted: "1 week ago",
-      skills: ["Figma", "UI/UX", "Design Systems"],
-    },
-    {
-      id: 3,
-      title: "Marketing Manager",
-      department: "Marketing",
-      location: "Remote",
-      type: "Full-time",
-      salary: "$2500-3500",
-      applicants: 32,
-      status: "active",
-      posted: "3 days ago",
-      skills: ["SEO", "Content Strategy", "Analytics"],
-    },
-    {
-      id: 4,
-      title: "Backend Engineer",
-      department: "Engineering",
-      location: "Da Nang",
-      type: "Full-time",
-      salary: "$2200-3200",
-      applicants: 15,
-      status: "paused",
-      posted: "2 weeks ago",
-      skills: ["Node.js", "PostgreSQL", "API Design"],
-    },
-  ];
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const companyId = useSelector((state) => state.user?.companyId);
+
+  useEffect(() => {
+    if (!companyId) return;
+
+    const fetchJobs = async () => {
+      try {
+        setLoading(true);
+        const res = await getJobsByCompanyAPI(companyId);
+
+        // Chuẩn hóa dữ liệu job để khớp UI sẵn có
+        const jobsData = (res?.result || []).map((job) => ({
+          id: job.id,
+          title: job.title || "Untitled",
+          department: job.category || "N/A",
+          location: job.city || job.address || "N/A",
+          type: job.type || "Full-time",
+          salary:
+            job.minSalary && job.maxSalary
+              ? `${job.minSalary.toLocaleString()} - ${job.maxSalary.toLocaleString()} ${job.currency || "VND"}`
+              : "Negotiable",
+          applicants: job.applicantCount || 0,
+          status: job.status?.toLowerCase() || "active",
+          posted: job.createdAt ? dayjs(job.createdAt).fromNow() : "N/A",
+          skills: job.requiredSkills?.map((s) => s.name) || [],
+        }));
+
+        setJobs(jobsData);
+      } catch (err) {
+        console.error(err);
+        message.error("Failed to load job list");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, [companyId]);
+
+  // Lọc theo từ khóa tìm kiếm
+  const filteredJobs = jobs.filter(
+    (job) =>
+      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (loading)
+    return <Spin size="large" style={{ display: "block", margin: "40px auto" }} />;
 
   return (
     <div className="job-page">
@@ -84,12 +90,14 @@ const JobRecruiter = () => {
           size="large"
           prefix={<SearchOutlined />}
           placeholder="Search jobs by title, department, or location..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
       {/* Job List */}
       <div className="job-list">
-        {jobs.map((job) => (
+        {filteredJobs.map((job) => (
           <Card key={job.id} className="job-card" hoverable>
             <div className="job-card-header">
               <div>
