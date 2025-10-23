@@ -11,9 +11,12 @@ import {
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { getApplicationsForMyCompanyAPI, getJobsByCompanyAPI } from "../../apis";
 import { useSelector } from "react-redux";
+import { FiUsers } from "react-icons/fi";
 import "./RecruiterDashboard.css";
+dayjs.extend(relativeTime); 
 
 const RecruiterDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -34,6 +37,7 @@ const RecruiterDashboard = () => {
         ]);
 
         const jobsData = jobsRes?.result || [];
+        console.log("Job nè cưng: ", jobsData)
 
         // --- Stats ---
         const totalApplicants = apps?.length || 0;
@@ -63,8 +67,8 @@ const RecruiterDashboard = () => {
             currency: job.currency || "VND",
             skills: safeSkills,
             applicants: apps?.filter((a) => a.jobId === job.id)?.length || 0,
-            posted: job.createdAt ? dayjs(job.createdAt).fromNow() : "N/A",
-            status: job.status || "ACTIVE",
+            posted: job.postedAt ? dayjs(job.postedAt).fromNow() : "N/A",
+            status: job.status === "OPEN" ? "Open" : job.status === "CLOSED" ? "Closed" : "Inactive",
           };
         });
 
@@ -125,8 +129,8 @@ const RecruiterDashboard = () => {
                 </p>
               </div>
               <Badge
-                color={job.status === "ACTIVE" ? "green" : "gray"}
-                text={job.status === "ACTIVE" ? "Active" : "Closed"}
+                color={job.status === "OPEN" ? "blue" : job.status === "CLOSED" ? "gray" : "green"}
+                text={job.status === "OPEN" ? "Open" : job.status === "CLOSED" ? "Closed" : job.status || "Inactive"}
               />
             </div>
 
@@ -155,7 +159,7 @@ const RecruiterDashboard = () => {
                 className="job-details"
                 style={{ display: "flex", gap: "16px", color: "#555" }}
               >
-                <span>👥 {job.applicants} applicants</span>
+                <span><FiUsers /> {job.applicants} applicants</span>
                 <span>
                   <ClockCircleOutlined /> Posted {job.posted}
                 </span>
