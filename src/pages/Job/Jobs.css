@@ -428,3 +428,18 @@
     display: none;
   }
 }
+.filter-profile-btn {
+  margin-top: 12px;
+  background: #2f80ed;
+  font-weight: 600;
+  border: none;
+  transition: all 0.2s ease;
+  margin-bottom: 20px;
+}
+
+.filter-profile-btn:hover {
+  background: #2563eb !important;
+  transform: translateY(-1px);
+  color: #000000 !important;
+}
+
