@@ -10,7 +10,7 @@ import {
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import "./JobRecruiter.css";
-import { getJobsByCompanyAPI } from "../../apis"; // 🧩 dùng API thật
+import { getJobsByCompanyAPI } from "../../apis"; 
 import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 
