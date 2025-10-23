@@ -120,7 +120,7 @@ const JobRecruiter = () => {
             </div>
 
             <div className="job-card-footer">
-              <div className="job-info">
+              <div className="job-info-recruiter">
                 <span>
                   <UserOutlined /> {job.applicants} applicants
                 </span>

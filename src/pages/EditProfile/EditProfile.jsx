@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { 
   Form, 
   Input, 
@@ -14,7 +14,8 @@ import {
   Spin,
   Tabs,
   DatePicker,
-  Space
+  Space,
+  Select
 } from "antd";
 import dayjs from "dayjs";
 import { 
@@ -26,10 +27,10 @@ import {
 } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { uploadAvatarAPI, updateUserAPI, getMyProfileAPI, updateMyProfileAPI } from "../../apis";
+import { uploadAvatarAPI, getMyProfileAPI, updateMyProfileAPI, suggestSkillAPI } from "../../apis";
+import debounce from "lodash.debounce";
 import { setUser } from "../../redux/userSlice";
 import { setLayoutData } from "../../redux/layoutSlice";
-import { getMyInfo } from '../../redux/userSlice';
 import "./EditProfile.css";
 import TabPane from "antd/es/tabs/TabPane";
 
@@ -39,25 +40,41 @@ const EditProfile = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const user = useSelector((state) => state.user);
-
   const [loading, setLoading] = useState(false);
   const [loadingUser, setLoadingUser] = useState(false);
-
   const [imageUrl, setImageUrl] = useState(user.avatarUrl || "");
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [imageKey, setImageKey] = useState(Date.now()); // Force re-render
+  const [imageKey, setImageKey] = useState(Date.now());
+  const [skillOptions, setSkillOptions] = useState([]);
+  const [selectedSkillIds, setSelectedSkillIds] = useState([]);
 
+  const fetchSkillSuggestions = useMemo(
+  () =>
+    debounce(async (keyword) => {
+      if (!keyword || keyword.trim().length < 2) return;
+      try {
+        const res = await suggestSkillAPI(keyword);
+        setSkillOptions(res.result || []);
+      } catch (err) {
+        console.error("Skill suggest error:", err);
+      }
+    }, 300),
+  []
+);
+
+  useEffect(() => {
+    form.setFieldsValue({ skills: selectedSkillIds });
+  }, [selectedSkillIds]);
 
   useEffect(() => {
     const loadProfile = async () => {
       try {
         setLoadingUser(true);
         const res = await getMyProfileAPI();
-        console.log("Profile response:", res.result);
         if (res?.code === 1000) {
           const p = res.result || {};
+          console.log("data nè b ơi: ", p)
           // Map ngày → dayjs cho DatePicker
           const experiences = (p.experiences || []).map((e) => ({
             ...e,
@@ -76,9 +93,14 @@ const EditProfile = () => {
             educations: p.educations && p.educations.length ? p.educations : [{}],
             experiences: experiences.length ? experiences : [{}],
           });
+          setSelectedSkillIds((p.skills || []).map((s) => s.id));
+          setSkillOptions(p.skills || []); 
+
+          form.setFieldsValue({
+          skills: (p.skills || []).map((s) => s.id),
+        });
 
           setImageUrl(p.avatarUrl || "");
-          console.log("✅ Image URL set to:", p.avatarUrl);
           setImageKey(Date.now());
 
           // (tuỳ) đồng bộ Redux user “cơ bản”
@@ -121,7 +143,6 @@ const EditProfile = () => {
       const formData = new FormData();
       formData.append("file", file);
       const response = await uploadAvatarAPI(user?.id, formData);
-      console.log("Upload avatar response:", response);
       if (response.data.code === 1000) {
         const newAvatarUrl = response.data.result;
         setImageUrl(newAvatarUrl);
@@ -162,6 +183,7 @@ const EditProfile = () => {
         address: values.address || "",
         dob: values.dob ? dayjs(values.dob).format("YYYY-MM-DD") : null,
         avatarUrl: imageUrl,
+        skillIds: selectedSkillIds,
         educations,
         experiences,
       };
@@ -170,8 +192,6 @@ const EditProfile = () => {
 
       if (res?.code === 1000) {
         message.success("Cập nhật thông tin thành công!");
-
-        // Gọi API lấy lại thông tin user hoặc dùng result trả về
         const updatedProfile = res.result || {};
 
         // Cập nhật Redux user ngay
@@ -182,7 +202,7 @@ const EditProfile = () => {
           avatarUrl: updatedProfile.avatarUrl || imageUrl,
         }));
 
-        navigate("/"); // hoặc navigate(-1)
+        navigate(-1)
       }
       else {
         message.error(res?.message || "Cập nhật thất bại!");
@@ -314,6 +334,18 @@ return (
                         </Form.Item>
                       </Col>
                     </Row>
+                    <Form.Item label="Kỹ năng" name="skills">
+                    <Select
+                      mode="multiple"
+                      showSearch
+                      placeholder="Nhập để tìm kỹ năng..."
+                      size="large"
+                      options={skillOptions.map((s) => ({ label: s.name, value: s.id }))} // ✅ dùng options
+                      onSearch={fetchSkillSuggestions}
+                      onChange={(ids) => setSelectedSkillIds(ids)}
+                      filterOption={false}
+                    />
+                  </Form.Item>
                   </TabPane>
 
                   <TabPane tab="Học vấn" key="2">
@@ -448,6 +480,7 @@ return (
                       )}
                     </Form.List>
                   </TabPane>
+
                 </Tabs>
                 <Form.Item className="form-buttons" style={{ marginTop: 24 }}>
                   <Button onClick={() => navigate("/change-password")} size="large" style={{ marginRight: 16 }}>

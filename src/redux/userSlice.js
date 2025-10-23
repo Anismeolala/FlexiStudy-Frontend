@@ -5,7 +5,6 @@ import { getMyInfoAPI } from '../apis';
 // Async action to fetch user profile data
 export const getMyInfo = createAsyncThunk('users/myInfo', async () => {
   const response = await getMyInfoAPI();
-  console.log("getMyInfoAPI response:", response);
   return response;
 });
 
@@ -25,7 +24,7 @@ export const getMyInfo = createAsyncThunk('users/myInfo', async () => {
     role: '',
     profile_completed: false,
     permissions: [],
-    isLoading: false,  // ✅ chỉ giữ cái này thôi
+    isLoading: false,  
     isError: false,
     };
 
@@ -65,12 +64,12 @@ const userSlice = createSlice({
             state.avatarUrl = userData.avatarUrl;
             state.address = userData.address;
             state.profile_completed = userData.profile_completed;
-             state.companyName = userData.companyName;
+            state.companyName = userData.companyName;
+            state.companyId = userData.companyId;
             state.isAuthorized = true;
             state.role = userData.roles?.[0]?.name || null;
-             state.profile_completed = userData.profileCompleted;
+            state.profile_completed = userData.profileCompleted;
             state.permissions = userData.roles?.flatMap(r => r.permissions?.map(p => p.name)) || [];
-
             state.isLoading = false;
             state.isError = false;
             });

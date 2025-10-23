@@ -135,7 +135,7 @@ const Schedule = () => {
       return;
     }
 
-    // ✅ Nếu chọn/huỷ các shift bình thường
+    // Nếu chọn/huỷ các shift bình thường
     const hasFlexible = slots.some(
       (s) => (s.label || s.note || "").includes("Flexible")
     );
