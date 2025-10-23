@@ -1,7 +1,6 @@
-import React from "react";
-import { Card, Input, Button, Badge, Form } from "antd";
+import React, { useEffect, useState } from "react";
+import { Card, Input, Button, Badge, Form, Upload, message, Spin } from "antd";
 import {
-  EnvironmentOutlined,
   GlobalOutlined,
   TeamOutlined,
   CheckCircleOutlined,
@@ -9,9 +8,170 @@ import {
   BankOutlined,
 } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
+import {
+  getCompanyByIdAPI,
+  updateCompanyAPI,
+  uploadCompanyLogoAPI,
+  getMyInfoAPI, // 👈 thêm dòng này
+} from "../../apis"; // kiểm tra lại path nếu cần
 import "./CompanyRecruiter.css";
 
 const CompanyRecruiter = () => {
+  const [form] = Form.useForm();
+  const [company, setCompany] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [logoLoading, setLogoLoading] = useState(false);
+
+  // 🔹 Hàm helper: luôn trả về companyId hợp lệ
+  const getCompanyId = async () => {
+    let companyId = localStorage.getItem("companyId");
+    if (!companyId) {
+      try {
+        const res = await getMyInfoAPI(); 
+        const result = res?.result || res?.data?.result;
+        if (result?.companyId) {
+          companyId = result.companyId;
+          localStorage.setItem("companyId", companyId);
+        } else {
+          console.warn("Tài khoản chưa thuộc công ty nào.");
+        }
+      } catch (error) {
+        console.error("Không thể lấy companyId từ getMyInfoAPI:", error);
+      }
+    }
+    return companyId;
+  };
+
+  // 🔹 Chuẩn hóa dữ liệu trả về từ API
+  const normalizeCompanyResponse = (res) => {
+    if (!res) return null;
+    if (res.result) return res.result;
+    if (res.data && res.data.result) return res.data.result;
+    if (res.data && typeof res.data === "object" && !res.data.result) return res.data;
+    return res;
+  };
+
+  // 🔹 Lấy dữ liệu công ty
+  const fetchCompany = async () => {
+    try {
+      setLoading(true);
+      const id = await getCompanyId();
+
+      if (!id) {
+        message.warning("Tài khoản này chưa thuộc công ty nào.");
+        setLoading(false);
+        return;
+      }
+
+      const res = await getCompanyByIdAPI(id);
+      const data = normalizeCompanyResponse(res);
+
+      if (!data) {
+        console.error("GET /companies/{companyId} trả về unexpected:", res);
+        message.error("Không nhận được dữ liệu công ty hợp lệ từ server.");
+        setCompany(null);
+        return;
+      }
+
+      setCompany(data);
+      form.setFieldsValue({
+        name: data.name,
+        website: data.website,
+        description: data.description,
+        memberNumber: data.memberNumber,
+      });
+    } catch (err) {
+      console.error("fetchCompany error:", err);
+      message.error("Không thể tải thông tin công ty");
+      setCompany(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCompany();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 🔹 Upload logo
+  const handleUpload = async (file) => {
+    const companyId = localStorage.getItem("companyId");
+    if (!companyId) {
+      message.error("companyId không tồn tại.");
+      return false;
+    }
+
+    try {
+      setLogoLoading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+      await uploadCompanyLogoAPI(companyId, formData);
+      await fetchCompany();
+      message.success("Tải logo thành công!");
+      return false;
+    } catch (err) {
+      console.error("handleUpload error:", err);
+      message.error("Lỗi khi tải logo");
+      return false;
+    } finally {
+      setLogoLoading(false);
+    }
+  };
+
+  // 🔹 Lưu thay đổi
+  const handleSave = async () => {
+    const companyId = localStorage.getItem("companyId");
+    if (!companyId) {
+      message.error("companyId không tồn tại.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const values = await form.validateFields();
+      const payload = {
+        name: values.name,
+        website: values.website,
+        description: values.description,
+        memberNumber: values.memberNumber,
+      };
+
+      await updateCompanyAPI(companyId, payload);
+      await fetchCompany();
+      message.success("Cập nhật thông tin công ty thành công!");
+    } catch (err) {
+      console.error("handleSave error:", err);
+      message.error("Cập nhật thất bại!");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // 🔹 Hủy thay đổi
+  const handleCancel = () => {
+    if (company) {
+      form.setFieldsValue({
+        name: company.name,
+        website: company.website,
+        description: company.description,
+        memberNumber: company.memberNumber,
+      });
+    } else {
+      form.resetFields();
+    }
+    message.info("Đã hủy thay đổi");
+  };
+
+  if (loading) {
+    return (
+      <div className="company-page" style={{ textAlign: "center", marginTop: 100 }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
     <div className="company-page">
       {/* Header */}
@@ -27,14 +187,29 @@ const CompanyRecruiter = () => {
         <Card className="company-overview" title="Company Overview">
           <div className="overview-content">
             <div className="company-logo">
-              <BankOutlined style={{ fontSize: 40, color: "#1677ff" }} />
+              {company?.logoUrl ? (
+                <img
+                  src={company.logoUrl}
+                  alt="logo"
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <BankOutlined style={{ fontSize: 40, color: "#1677ff" }} />
+              )}
             </div>
-            <h3>Tech Solutions Inc.</h3>
+            <h3>{company?.name || "Unnamed Company"}</h3>
+
             <Badge
-              color="green"
+              color={company?.isVerified ? "green" : "green"}
               text={
                 <span className="verified-text">
-                  <CheckCircleOutlined /> Verified
+                  <CheckCircleOutlined />{" "}
+                  {company?.isVerified ? "Verified" : " Verified"}
                 </span>
               }
             />
@@ -42,16 +217,17 @@ const CompanyRecruiter = () => {
 
           <div className="overview-info">
             <p>
-              <EnvironmentOutlined /> Ho Chi Minh City, Vietnam
-            </p>
-            <p>
-              <TeamOutlined /> 200-500 employees
-            </p>
-            <p>
               <GlobalOutlined />{" "}
-              <a href="https://techsolutions.com" target="_blank" rel="noreferrer">
-                techsolutions.com
-              </a>
+              {company?.website ? (
+                <a href={company.website} target="_blank" rel="noreferrer">
+                  {company.website}
+                </a>
+              ) : (
+                "No website"
+              )}
+            </p>
+            <p>
+              <TeamOutlined /> Members: {company?.memberNumber ?? "N/A"}
             </p>
           </div>
         </Card>
@@ -59,26 +235,30 @@ const CompanyRecruiter = () => {
         {/* Edit Form */}
         <div className="company-form">
           <Card title="Basic Information">
-            <Form layout="vertical">
-              <Form.Item label="Company Name">
-                <Input defaultValue="Tech Solutions Inc." />
+            <Form layout="vertical" form={form}>
+              <Form.Item
+                label="Company Name"
+                name="name"
+                rules={[{ required: true, message: "Please enter company name" }]}
+              >
+                <Input />
               </Form.Item>
 
-              <Form.Item label="Website">
-                <Input type="url" defaultValue="https://techsolutions.com" />
+              <Form.Item label="Website" name="website">
+                <Input type="url" />
               </Form.Item>
 
-              <Form.Item label="Location">
-                <Input defaultValue="Ho Chi Minh City, Vietnam" />
-              </Form.Item>
-
-              <Form.Item label="Company Size">
-                <Input defaultValue="200-500 employees" />
+              <Form.Item label="Number of Members" name="memberNumber">
+                <Input type="number" />
               </Form.Item>
 
               <Form.Item label="Company Logo">
                 <div className="upload-area">
-                  <Button icon={<UploadOutlined />}>Upload Logo</Button>
+                  <Upload customRequest={({ file }) => handleUpload(file)} showUploadList={false}>
+                    <Button icon={<UploadOutlined />} loading={logoLoading}>
+                      Upload Logo
+                    </Button>
+                  </Upload>
                   <span className="upload-hint">PNG, JPG up to 5MB</span>
                 </div>
               </Form.Item>
@@ -86,38 +266,39 @@ const CompanyRecruiter = () => {
           </Card>
 
           <Card title="Company Description">
-            <Form layout="vertical">
-              <Form.Item label="About the Company">
-                <TextArea
-                  rows={6}
-                  defaultValue="Tech Solutions Inc. is a leading technology company specializing in innovative software solutions. We're passionate about creating products that make a difference and building a diverse, inclusive workplace where everyone can thrive."
-                />
-              </Form.Item>
-
-              <Form.Item label="Company Culture">
-                <TextArea
-                  rows={4}
-                  defaultValue="We believe in work-life balance, continuous learning, and collaborative innovation. Our team enjoys flexible working arrangements, professional development opportunities, and a supportive environment."
-                />
+            <Form layout="vertical" form={form}>
+              <Form.Item label="About the Company" name="description">
+                <TextArea rows={6} />
               </Form.Item>
             </Form>
           </Card>
 
           <Card title="Verification Status">
             <div className="verify-box">
-              <CheckCircleOutlined className="verify-icon" />
+              <CheckCircleOutlined
+                className="verify-icon"
+                style={{
+                  color: company?.isVerified ? "green" : "green",
+                }}
+              />
               <div>
-                <p className="verify-title">Company Verified</p>
+                <p className="verify-title">
+                  {company?.isVerified ? "Company Verified" : "Company Verified"}
+                </p>
                 <p className="verify-desc">
-                  Your company has been verified by our team. This badge helps build trust with candidates.
+                  {company?.isVerified
+                    ? "Your company has been verified by our team. This badge helps build trust with candidates."
+                    : "Your company has been verified by our team. This badge helps build trust with candidates."}
                 </p>
               </div>
             </div>
           </Card>
 
           <div className="form-actions">
-            <Button>Cancel</Button>
-            <Button type="primary">Save Changes</Button>
+            <Button onClick={handleCancel}>Cancel</Button>
+            <Button type="primary" loading={saving} onClick={handleSave}>
+              Save Changes
+            </Button>
           </div>
         </div>
       </div>
