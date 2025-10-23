@@ -11,12 +11,12 @@ import {
   StarFilled,
   DollarOutlined,
 } from "@ant-design/icons";
-import { getAllJobsAPI } from "../../apis";
+import { getAllJobsAPI, matchJobsAPI } from "../../apis";
 import "./Jobs.css";
 import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 10;
 
 const JobFilters = ({
   type, setType,
@@ -277,6 +277,44 @@ export default function Jobs() {
   }
 };
 
+const handleFilterByProfile = async () => {
+  try {
+    setLoading(true);
+
+    const res = await matchJobsAPI();
+    console.log("Matched jobs:", res);
+
+    const mapped = (res?.result ?? []).map(r => {
+      const job = r.job;
+      const company = job.company || {};
+      return {
+        ...job,
+        companyLogoUrl: company.logoUrl || "/default-company.png",
+        companyName: company.name || job.companyName || "Công ty",
+      };
+    });
+
+    message.loading({ content: "Đang phân tích hồ sơ...", key: "match" });
+
+    setTimeout(() => {
+      setJobs(mapped);
+      setTotal(mapped.length);
+
+      if (mapped.length > 0) {
+        message.success("Đã lọc theo hồ sơ của bạn!");
+      } else {
+        message.info("Không tìm thấy việc phù hợp với hồ sơ của bạn");
+      }
+
+      setLoading(false);
+    }, 3000);
+
+  } catch (err) {
+    console.error(err);
+    message.error("Không thể lọc theo hồ sơ của bạn!");
+    setLoading(false);
+  }
+};
 
 
   // chỉ đổi trang -> fetch lại với page mới
@@ -379,6 +417,16 @@ export default function Jobs() {
                   Xóa tất cả
                 </Button>
               </div>
+              <Button
+                block
+                size="large"
+                className="filter-profile-btn"
+                onClick={handleFilterByProfile}
+                icon={<span style={{ filter: "brightness(2)" }}>✨</span>}
+              >
+                Lọc theo hồ sơ của tôi
+              </Button>
+
             <JobFilters
               type={type} setType={setType}
               city={city} setCity={setCity}

@@ -122,24 +122,35 @@ const HomePage = () => {
   // Category
   const [categories, setCategories] = useState([]);
 
-  // Fetch tuyển gấp
-  const fetchUrgentJobs = async () => {
-    try {
-      setLoadingUrgent(true);
-      const res = await getAllJobsAPI({
-        page: pageUrgent,
-        size: pageSize,
-        city: cityUrgent,
-        urgent: true,
-      });
-      setUrgentJobs(res?.result?.data || []);
-      setTotalUrgent(res?.result?.totalElements || 0);
-    } catch (e) {
-      console.error("❌ Lỗi tải việc làm tuyển gấp:", e);
-    } finally {
-      setLoadingUrgent(false);
-    }
-  };
+//  Fetch tuyển gấp 
+const fetchUrgentJobs = async () => {
+  try {
+    setLoadingUrgent(true);
+    const res = await getAllJobsAPI({
+      page: pageUrgent,
+      size: pageSize,
+      city: cityUrgent,
+    });
+
+    const now = dayjs();
+    const allJobs = res?.result?.data || [];
+
+    // sắp hết hạn (≤ 3 ngày)
+    const filtered = allJobs.filter((job) => {
+      const daysLeft = job.expiryDate ? dayjs(job.expiryDate).diff(now, "day") : null;
+      const isExpiringSoon = daysLeft !== null && daysLeft <= 3 && daysLeft >= 0;
+      return job.urgent === true || isExpiringSoon;
+    });
+
+    setUrgentJobs(filtered);
+    setTotalUrgent(filtered.length); // tính lại total theo filter FE
+  } catch (e) {
+    console.error("❌ Lỗi tải việc làm tuyển gấp:", e);
+  } finally {
+    setLoadingUrgent(false);
+  }
+};
+
 
   // Fetch mới nhất
   const fetchNewestJobs = async () => {

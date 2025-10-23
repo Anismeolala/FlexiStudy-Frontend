@@ -162,7 +162,7 @@ const handleDownloadTemplate = (template) => {
     <div className="cv-page">
       <div className="cv-container">
         <div className="cv-header">
-          <Title className="title" level={2}>
+          <Title className="title-cv" style={{textAlign: "left"}} level={2}>
             CV của tôi
           </Title>
           <Text className="subtitle" type="secondary">
