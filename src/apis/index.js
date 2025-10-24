@@ -433,3 +433,18 @@ export const matchJobsAPI = async () => {
   });
   return res.data; 
 };
+export const approveCompanyAPI = async (id) => {
+  const res = await api.post(
+    `/companies/admin/${id}/verify/approve`,
+    { verificationNote: "Approved by admin" }
+  );
+  return res.data;
+};
+
+export const rejectCompanyAPI = async (id) => {
+  const res = await api.post(
+    `/companies/admin/${id}/verify/reject`,
+    { verificationNote: "Rejected by admin" }
+  );
+  return res.data;
+};

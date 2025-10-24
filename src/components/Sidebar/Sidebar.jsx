@@ -102,6 +102,12 @@ const Sidebar = ({ collapsed, toggled, handleToggleSidebar }) => {
               Quản lý role & permission
             </MenuItem>
           </Tooltip>
+           <Tooltip placement="right" title={collapsed ? "Verify Company" : ""}>
+              <MenuItem icon={<FaUser />} className="pro-menu-item">
+                Verify Company
+                <Link to={"/admin/Verify-info-company"} />
+              </MenuItem>
+            </Tooltip>
         </Menu>
       </SidebarContent>
     </ProSidebar>

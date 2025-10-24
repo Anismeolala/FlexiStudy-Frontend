@@ -1,4 +1,4 @@
-export const API_ROOT = "http://localhost:8080/api/v1/";
+export const API_ROOT = "https://flexistudy-api-1.onrender.com/api/v1/";
 
 export const OAuthConfig = {
   clientId: "87012092113-95t28ojtick2u8rff9cijv8r87i9sp46.apps.googleusercontent.com",

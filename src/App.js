@@ -46,6 +46,7 @@ import PaymentPage from "./pages/Payment/PaymentPage";
 import VnpayPaymentPage from "./pages/Payment/VnpayPaymentPage";
 import PaymentSuccessPage from "./pages/Payment/PaymentSuccessPage";
 import PaymentATMPage from "./pages/Payment/PaymentATMPage";
+import VerifyCompany from "./pages/VerifyCompany/VerifyCompany";
 
 const route = createBrowserRouter([
       {
@@ -120,6 +121,8 @@ const route = createBrowserRouter([
           { path: "manage-companies", element: <CompanyManagement /> },
           { path: "manage-jobs", element: <JobMangement /> },
           { path: "manage-career-guide", element: <NewsManagement /> },
+          { path: "Verify-info-company", element: <VerifyCompany /> },
+
         ],
       },
     ],
