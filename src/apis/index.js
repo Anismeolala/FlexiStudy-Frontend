@@ -257,9 +257,10 @@ export const getApplicationsByCompanyAPI = async (companyId) => {
   return res.data.result;
 };
 
+//  Application API
 export const getApplicationsByJobAPI = async (jobId) => {
-  const res = await api.get(`applications/job/${jobId}`);
-  return res.data.result;
+  const res = await api.get(`/applications/job/${jobId}`);
+  return res.data;
 };
 
 // Lấy chi tiết 1 application
@@ -269,8 +270,16 @@ export const getApplicationByIdAPI = async (id) => {
 };
 
 // Cập nhật status (REVIEWING → ACCEPTED / REJECTED)
-export const updateApplicationStatusAPI = async (id, payload) => {
-  const res = await api.patch(`applications/${id}`, payload);
+export const updateApplicationStatusAPI = async (id, status) => {
+  const res = await api.patch(
+    `applications/${id}`,
+    { status },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return res.data.result;
 };
 

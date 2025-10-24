@@ -9,20 +9,29 @@ import {
   ClockCircleOutlined,
   DollarOutlined,
 } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { getApplicationsForMyCompanyAPI, getJobsByCompanyAPI } from "../../apis";
+import {
+  getApplicationsForMyCompanyAPI,
+  getJobsByCompanyAPI,
+  getJobByIdAPI,
+} from "../../apis";
 import { useSelector } from "react-redux";
 import { FiUsers } from "react-icons/fi";
 import "./RecruiterDashboard.css";
-dayjs.extend(relativeTime); 
+import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
+import JobEditModal from "../../components/JobEditModal/JobEditModal";
+dayjs.extend(relativeTime);
 
 const RecruiterDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState([]);
   const [jobs, setJobs] = useState([]);
   const companyId = useSelector((state) => state.user?.companyId);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!companyId) return;
@@ -37,20 +46,33 @@ const RecruiterDashboard = () => {
         ]);
 
         const jobsData = jobsRes?.result || [];
-        console.log("Job nè cưng: ", jobsData)
+        console.log("Job nè cưng: ", jobsData);
 
-        // --- Stats ---
         const totalApplicants = apps?.length || 0;
-        const interviewCount = apps?.filter((a) => a.status === "INTERVIEW").length || 0;
-        const activeJobs = jobsData?.filter((j) => j.status === "ACTIVE").length || 0;
+        const activeJobs =
+          jobsData?.filter((j) => j.status === "ACTIVE").length || 0;
 
         setStats([
-          { label: "Active Jobs", value: activeJobs, trend: "+2 this week", icon: <ProfileOutlined /> },
-          { label: "Total Applicants", value: totalApplicants, trend: "+34 this week", icon: <UserOutlined /> },
-          { label: "Interviews Scheduled", value: interviewCount, trend: "+6 this week", icon: <RiseOutlined /> },
+          {
+            label: "Active Jobs",
+            value: activeJobs,
+            trend: "+2 this week",
+            icon: <ProfileOutlined />,
+          },
+          {
+            label: "Total Applicants",
+            value: totalApplicants,
+            trend: "+34 this week",
+            icon: <UserOutlined />,
+          },
+          {
+            label: "Interviews Scheduled",
+            value: apps?.filter((a) => a.status === "INTERVIEW").length,
+            trend: "+6 this week",
+            icon: <RiseOutlined />,
+          },
         ]);
 
-        // --- Job cards ---
         const jobsWithApplicants = (jobsData || []).map((job) => {
           const safeSkills = Array.isArray(job.requiredSkills)
             ? job.requiredSkills.map((s) => s.name)
@@ -68,7 +90,12 @@ const RecruiterDashboard = () => {
             skills: safeSkills,
             applicants: apps?.filter((a) => a.jobId === job.id)?.length || 0,
             posted: job.postedAt ? dayjs(job.postedAt).fromNow() : "N/A",
-            status: job.status === "OPEN" ? "Open" : job.status === "CLOSED" ? "Closed" : "Inactive",
+            status:
+              job.status === "OPEN"
+                ? "Open"
+                : job.status === "CLOSED"
+                ? "Closed"
+                : "Inactive",
           };
         });
 
@@ -82,6 +109,31 @@ const RecruiterDashboard = () => {
 
     fetchData();
   }, [companyId]);
+
+  const openEditModal = async (job) => {
+    try {
+      const res = await getJobByIdAPI(job.id);
+      setSelectedJob(res?.result);
+      setEditModalOpen(true);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdated = async () => {
+    setEditModalOpen(false);
+    const jobsRes = await getJobsByCompanyAPI(companyId);
+    const apps = await getApplicationsForMyCompanyAPI();
+
+    const updatedJobs =
+      jobsRes?.result?.map((job) => ({
+        ...job,
+        applicants: apps.filter((a) => a.jobId === job.id).length,
+        posted: dayjs(job.postedAt).fromNow(),
+      })) || [];
+
+    setJobs(updatedJobs);
+  };
 
   if (loading) return <Spin size="large" className="loading-center" />;
 
@@ -97,7 +149,7 @@ const RecruiterDashboard = () => {
                 <span className="stat-icon">{stat.icon}</span>
               </div>
               <h2 className="stat-value">{stat.value}</h2>
-              <p className="stat-trend">{stat.trend}</p>
+              {/* <p className="stat-trend">{stat.trend}</p> */}
             </Card>
           </Col>
         ))}
@@ -107,7 +159,9 @@ const RecruiterDashboard = () => {
       <div className="jobs-section">
         <div className="jobs-header">
           <h2>Active Job Posts</h2>
-          <Button type="default">View All</Button>
+          <Button type="default" onClick={() => navigate("jobs-recruiter")}>
+            View All
+          </Button>
         </div>
 
         {(jobs || []).map((job) => (
@@ -117,25 +171,38 @@ const RecruiterDashboard = () => {
               <div>
                 <h3>{job.title}</h3>
                 <p className="job-meta">
-                  <EnvironmentOutlined /> {job.location} • {job.department} • {job.type}
+                  <EnvironmentOutlined /> {job.location} • {job.department} •{" "}
+                  {job.type}
                   {job.minSalary > 0 && (
                     <>
                       {" • "}
-                      <DollarOutlined />{" "}
-                      {job.minSalary.toLocaleString()} -{" "}
-                      {job.maxSalary ? job.maxSalary.toLocaleString() : "?"} {job.currency}
+                      <DollarOutlined /> {job.minSalary.toLocaleString()} -{" "}
+                      {job.maxSalary ? job.maxSalary.toLocaleString() : "?"}{" "}
+                      {job.currency}
                     </>
                   )}
                 </p>
               </div>
               <Badge
-                color={job.status === "OPEN" ? "blue" : job.status === "CLOSED" ? "gray" : "green"}
-                text={job.status === "OPEN" ? "Open" : job.status === "CLOSED" ? "Closed" : job.status || "Inactive"}
+                color={
+                  job.status === "OPEN"
+                    ? "blue"
+                    : job.status === "CLOSED"
+                    ? "gray"
+                    : "green"
+                }
+                text={
+                  job.status === "OPEN"
+                    ? "Open"
+                    : job.status === "CLOSED"
+                    ? "Closed"
+                    : job.status || "Inactive"
+                }
               />
             </div>
 
             {/* Skills */}
-            {job.skills.length > 0 && (
+            {Array.isArray(job.skills) && job.skills.length > 0 && (
               <div style={{ marginTop: 8 }}>
                 {job.skills.map((skill, index) => (
                   <Tag color="blue" key={index}>
@@ -159,26 +226,39 @@ const RecruiterDashboard = () => {
                 className="job-details"
                 style={{ display: "flex", gap: "16px", color: "#555" }}
               >
-                <span><FiUsers /> {job.applicants} applicants</span>
+                <span>
+                  <FiUsers /> {job.applicants} applicants
+                </span>
                 <span>
                   <ClockCircleOutlined /> Posted {job.posted}
                 </span>
               </div>
               <div style={{ display: "flex", gap: "8px" }}>
                 <Tooltip title="Edit this job">
-                  <Button icon={<EditOutlined />} size="small">
+                  <Button
+                    icon={<EditOutlined />}
+                    size="big"
+                    onClick={() => openEditModal(job)}
+                  >
                     Edit
                   </Button>
                 </Tooltip>
-                <Link to={`/jobs/${job.id}/applicants`}>
-                  <Button size="small" type="primary">
+
+                <Link to={`jobs/${job.id}/applicants`}>
+                  <PrimaryButton size="small" type="primary">
                     View Applicants
-                  </Button>
+                  </PrimaryButton>
                 </Link>
               </div>
             </div>
           </Card>
         ))}
+        <JobEditModal
+          visible={editModalOpen}
+          job={selectedJob}
+          onClose={() => setEditModalOpen(false)}
+          onSaved={handleUpdated}
+        />
       </div>
     </div>
   );
