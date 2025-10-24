@@ -49,10 +49,13 @@ export default function Authenticate() {
             navigate("/set-password");
             return;
           }
+          // Kiểm tra nếu profile chưa hoàn thiện
           if (userData.payload?.result?.profileCompleted === false) {
-
             message.info("Chào mừng! Hãy hoàn thiện hồ sơ của bạn để bắt đầu.");
-            navigate("/onboard");
+            setTimeout(() => {
+              navigate("/onboard");  
+            }, 2000); 
+            return; 
           }
 
           message.success("Đăng nhập thành công!");

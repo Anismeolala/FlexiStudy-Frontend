@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -16,12 +16,34 @@ import { onboardAPI, suggestSkillAPI } from "../../apis/index";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
   import debounce from "lodash.debounce";
+  import { useDispatch, useSelector } from "react-redux";
+import { getMyInfo } from "../../redux/userSlice";
 
 const FormOnboard = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [skillOptions, setSkillOptions] = useState([]);
+  const userData = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+
+
+   useEffect(() => {
+    // Gọi API để lấy thông tin người dùng
+    dispatch(getMyInfo());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (userData) {
+      form.setFieldsValue({
+        fullName: `${userData.firstName} ${userData.lastName}`,
+        email: userData.email,
+        phone: userData.phone || "",
+        dob: userData.dob ? dayjs(userData.dob) : null,
+        address: userData.address || "",
+      });
+    }
+  }, [userData, form]);
 
   // Gọi API gợi ý skill (debounce để tránh spam API)
 const fetchSkillSuggestions = debounce(async (keyword) => {
@@ -108,7 +130,7 @@ const fetchSkillSuggestions = debounce(async (keyword) => {
                   label="Email"
                   rules={[{ type: "email", message: "Email không hợp lệ" }]}
                 >
-                  <Input placeholder="Nhập email" />
+                  <Input placeholder="Nhập email" disabled/>
                 </Form.Item>
               </Col>
               <Col span={12}>

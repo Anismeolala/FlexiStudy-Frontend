@@ -28,6 +28,7 @@ const JobRecruiter = () => {
       try {
         setLoading(true);
         const res = await getJobsByCompanyAPI(companyId);
+        console.log("data nè ku: ", res);
         
         // Chuẩn hóa dữ liệu job để khớp UI sẵn có
         const jobsData = (res?.result || []).map((job) => ({

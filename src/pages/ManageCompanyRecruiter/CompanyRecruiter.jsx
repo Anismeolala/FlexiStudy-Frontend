@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Card, Input, Button, Badge, Form, Upload, message, Spin } from "antd";
+import {
+  Card,
+  Input,
+  Button,
+  Badge,
+  Form,
+  Upload,
+  message,
+  Spin,
+  Modal,
+  Image,
+} from "antd";
 import {
   GlobalOutlined,
   TeamOutlined,
@@ -12,9 +23,11 @@ import {
   getCompanyByIdAPI,
   updateCompanyAPI,
   uploadCompanyLogoAPI,
-  getMyInfoAPI, 
-} from "../../apis"; 
+  getMyInfoAPI,
+  uploadVerificationImageAPI,
+} from "../../apis";
 import "./CompanyRecruiter.css";
+import { useSelector } from "react-redux";
 
 const CompanyRecruiter = () => {
   const [form] = Form.useForm();
@@ -22,57 +35,37 @@ const CompanyRecruiter = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [logoLoading, setLogoLoading] = useState(false);
-
-
-  const getCompanyId = async () => {
-    let companyId = localStorage.getItem("companyId");
-    if (!companyId) {
-      try {
-        const res = await getMyInfoAPI(); 
-        const result = res?.result || res?.data?.result;
-        if (result?.companyId) {
-          companyId = result.companyId;
-          localStorage.setItem("companyId", companyId);
-        } else {
-          console.warn("Tài khoản chưa thuộc công ty nào.");
-        }
-      } catch (error) {
-        console.error("Không thể lấy companyId từ getMyInfoAPI:", error);
-      }
-    }
-    return companyId;
-  };
-
+  const [modalVisible, setModalVisible] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const companyId = useSelector((state) => state.user?.companyId);
 
   const normalizeCompanyResponse = (res) => {
     if (!res) return null;
     if (res.result) return res.result;
     if (res.data && res.data.result) return res.data.result;
-    if (res.data && typeof res.data === "object" && !res.data.result) return res.data;
+    if (res.data && typeof res.data === "object" && !res.data.result)
+      return res.data;
     return res;
   };
-
 
   const fetchCompany = async () => {
     try {
       setLoading(true);
-      const id = await getCompanyId();
+
+      let id = companyId;
+      if (!id) {
+        const res = await getMyInfoAPI();
+        id = res?.result?.companyId;
+      }
 
       if (!id) {
         message.warning("Tài khoản này chưa thuộc công ty nào.");
-        setLoading(false);
+        setCompany(null);
         return;
       }
 
       const res = await getCompanyByIdAPI(id);
       const data = normalizeCompanyResponse(res);
-
-      if (!data) {
-        console.error("GET /companies/{companyId} trả về unexpected:", res);
-        message.error("Không nhận được dữ liệu công ty hợp lệ từ server.");
-        setCompany(null);
-        return;
-      }
 
       setCompany(data);
       form.setFieldsValue({
@@ -95,11 +88,9 @@ const CompanyRecruiter = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 🔹 Upload logo
   const handleUpload = async (file) => {
-    const companyId = localStorage.getItem("companyId");
     if (!companyId) {
-      message.error("companyId không tồn tại.");
+      message.error("companyId không tồn tại trong Redux.");
       return false;
     }
 
@@ -110,19 +101,55 @@ const CompanyRecruiter = () => {
       await uploadCompanyLogoAPI(companyId, formData);
       await fetchCompany();
       message.success("Tải logo thành công!");
-      return false;
     } catch (err) {
       console.error("handleUpload error:", err);
       message.error("Lỗi khi tải logo");
+    } finally {
+      setLogoLoading(false);
+    }
+
+    return false;
+  };
+
+  const handleUploadVerificationDocument = async (file) => {
+    if (!companyId) {
+      message.error("companyId không tồn tại!");
+      return;
+    }
+    if (!companyId) {
+      message.error("companyId không tồn tại.");
+      return false;
+    }
+
+    try {
+      setLogoLoading(true);
+      const res = await uploadVerificationImageAPI(companyId, file);
+      console.log("Response:", res);
+
+      if (res.code === 1000) {
+        setUploadedFile(file); // Lưu file đã upload
+        message.success("Tải tài liệu xác minh thành công!");
+        await fetchCompany(); // Cập nhật lại thông tin công ty
+        setModalVisible(false); // Đóng modal sau khi upload thành công
+      } else {
+        message.error("Lỗi khi tải tài liệu xác minh.");
+      }
+
+      return false;
+    } catch (err) {
+      console.error("Error:", err);
+      message.error("Lỗi khi tải tài liệu xác minh.");
       return false;
     } finally {
       setLogoLoading(false);
     }
   };
 
-
   const handleSave = async () => {
-    const companyId = localStorage.getItem("companyId");
+    if (!companyId) {
+      message.error("companyId không tồn tại!");
+      return;
+    }
     if (!companyId) {
       message.error("companyId không tồn tại.");
       return;
@@ -149,7 +176,6 @@ const CompanyRecruiter = () => {
     }
   };
 
-
   const handleCancel = () => {
     if (company) {
       form.setFieldsValue({
@@ -164,9 +190,25 @@ const CompanyRecruiter = () => {
     message.info("Đã hủy thay đổi");
   };
 
+  const showModal = () => {
+    setModalVisible(true); // Mở modal mà không kiểm tra tài liệu đã upload hay chưa
+  };
+
+  const handleModalCancel = () => {
+    setModalVisible(false);
+  };
+
+  const handleModalOk = async (file) => {
+    await handleUploadVerificationDocument(file);
+    setModalVisible(false);
+  };
+
   if (loading) {
     return (
-      <div className="company-page" style={{ textAlign: "center", marginTop: 100 }}>
+      <div
+        className="company-page"
+        style={{ textAlign: "center", marginTop: 100 }}
+      >
         <Spin size="large" />
       </div>
     );
@@ -205,11 +247,21 @@ const CompanyRecruiter = () => {
             <h3>{company?.name || "Unnamed Company"}</h3>
 
             <Badge
-              color={company?.isVerified ? "green" : "green"}
+              color={
+                company?.verificationStatus === "VERIFIED" ? "green" : "red"
+              }
               text={
                 <span className="verified-text">
                   <CheckCircleOutlined />{" "}
-                  {company?.isVerified ? "Verified" : " Verified"}
+                  {company?.verificationStatus === "VERIFIED"
+                    ? "Verified"
+                    : company?.verificationStatus === "PENDING"
+                    ? "Pending"
+                    : company?.verificationStatus === "REJECTED"
+                    ? "Rejected"
+                    : company?.verificationStatus === "SUSPENDED"
+                    ? "Suspended"
+                    : "Unverified"}
                 </span>
               }
             />
@@ -239,7 +291,9 @@ const CompanyRecruiter = () => {
               <Form.Item
                 label="Company Name"
                 name="name"
-                rules={[{ required: true, message: "Please enter company name" }]}
+                rules={[
+                  { required: true, message: "Please enter company name" },
+                ]}
               >
                 <Input />
               </Form.Item>
@@ -254,7 +308,10 @@ const CompanyRecruiter = () => {
 
               <Form.Item label="Company Logo">
                 <div className="upload-area">
-                  <Upload customRequest={({ file }) => handleUpload(file)} showUploadList={false}>
+                  <Upload
+                    customRequest={({ file }) => handleUpload(file)}
+                    showUploadList={false}
+                  >
                     <Button icon={<UploadOutlined />} loading={logoLoading}>
                       Upload Logo
                     </Button>
@@ -278,21 +335,88 @@ const CompanyRecruiter = () => {
               <CheckCircleOutlined
                 className="verify-icon"
                 style={{
-                  color: company?.isVerified ? "green" : "green",
+                  color:
+                    company?.verificationStatus === "VERIFIED"
+                      ? "green"
+                      : company?.verificationStatus === "PENDING"
+                      ? "orange"
+                      : company?.verificationStatus === "REJECTED"
+                      ? "red"
+                      : company?.verificationStatus === "SUSPENDED"
+                      ? "gray"
+                      : "red",
                 }}
               />
               <div>
                 <p className="verify-title">
-                  {company?.isVerified ? "Company Verified" : "Company Verified"}
+                  {company?.verificationStatus === "VERIFIED"
+                    ? "Company Verified"
+                    : company?.verificationStatus === "PENDING"
+                    ? "Verification Pending"
+                    : company?.verificationStatus === "REJECTED"
+                    ? "Verification Rejected"
+                    : company?.verificationStatus === "SUSPENDED"
+                    ? "Verification Suspended"
+                    : "Company Unverified"}
                 </p>
                 <p className="verify-desc">
-                  {company?.isVerified
+                  {company?.verificationStatus === "VERIFIED"
                     ? "Your company has been verified by our team. This badge helps build trust with candidates."
-                    : "Your company has been verified by our team. This badge helps build trust with candidates."}
+                    : company?.verificationStatus === "PENDING"
+                    ? "Your verification request is pending. Please wait for admin approval."
+                    : company?.verificationStatus === "REJECTED"
+                    ? `Your verification request has been rejected. Reason: ${company?.verificationNote}`
+                    : company?.verificationStatus === "SUSPENDED"
+                    ? "Your verification has been suspended due to suspicious activity."
+                    : "Your company is not verified yet. Please submit verification documents to complete the process."}
                 </p>
+
+                {/* Hiển thị nút View nếu tài liệu đã upload, ngược lại là Upload */}
+                <Button
+                  style={{ backgroundColor: "#1890ff", color: "white" }}
+                  onClick={showModal}
+                  disabled={!!company?.verificationImageUrl} // Disable nút nếu đã có tài liệu xác minh
+                >
+                  {company?.verificationImageUrl
+                    ? "View Uploaded Document"
+                    : "Upload Verification Document"}
+                </Button>
               </div>
             </div>
           </Card>
+          <Modal
+            title="Upload Verification Document"
+            open={modalVisible} // Modal mở hay không
+            onCancel={handleModalCancel}
+            footer={null}
+          >
+            <Upload
+              customRequest={({ file }) => handleModalOk(file)} // Thực hiện upload khi chọn file
+              showUploadList={false}
+              disabled={company?.verificationImageUrl} // Vô hiệu hóa nếu đã có tài liệu xác minh
+            >
+              <Button
+                icon={<UploadOutlined />}
+                disabled={company?.verificationImageUrl} // Vô hiệu hóa nút upload nếu đã có tài liệu xác minh
+              >
+                {company?.verificationImageUrl
+                  ? "File Uploaded"
+                  : "Select File"}
+              </Button>
+            </Upload>
+
+            {/* Nếu tài liệu đã upload, hiển thị ảnh đã upload */}
+            {company?.verificationImageUrl && (
+              <div style={{ marginTop: 20 }}>
+                <h4>Uploaded Image:</h4>
+                <Image
+                  width={200}
+                  src={company.verificationImageUrl} // Hiển thị ảnh đã upload
+                  alt="Verification File"
+                />
+              </div>
+            )}
+          </Modal>
 
           <div className="form-actions">
             <Button onClick={handleCancel}>Cancel</Button>

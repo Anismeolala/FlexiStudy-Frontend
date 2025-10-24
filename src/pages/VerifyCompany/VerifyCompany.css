@@ -1,0 +1,44 @@
+.company-management {
+  padding: 24px;
+  background-color: #f5f6fa;
+  min-height: 100vh;
+}
+
+.main-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  padding: 16px;
+}
+
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.header-actions input {
+  border-radius: 8px;
+}
+
+.ant-table-thead > tr > th {
+  background-color: #fafafa;
+  font-weight: 600;
+  text-align: center;
+}
+
+.ant-table-tbody > tr > td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.ant-btn {
+  border-radius: 6px !important;
+}
+
+.ant-card-body {
+  padding: 0 !important;
+}   

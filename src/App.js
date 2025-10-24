@@ -4,7 +4,7 @@ import HomePage from "./pages/HomePage/HomePage";
 import UserLayout from "./pages/layout/UserLayout";
 import Jobs from "./pages/Job/Jobs";
 import AppliedJobs from "./pages/Job/AppliedJobs";
-import { getMyInfo } from './redux/userSlice';
+import { getMyInfo } from "./redux/userSlice";
 import CVGuide from "./pages/CV/CVGuide";
 import Schedule from "./pages/Schedules/Schedule";
 import AdminLayout from "./pages/layout/AdminLayout";
@@ -46,52 +46,49 @@ import PaymentPage from "./pages/Payment/PaymentPage";
 import VnpayPaymentPage from "./pages/Payment/VnpayPaymentPage";
 import PaymentSuccessPage from "./pages/Payment/PaymentSuccessPage";
 import PaymentATMPage from "./pages/Payment/PaymentATMPage";
+import VerifyCompany from "./pages/VerifyCompany/VerifyCompany";
 
 const route = createBrowserRouter([
+  {
+    path: "/",
+    element: <RoleRoute allowedRoles={[ROLE.USER, ROLE.ADMIN]} />,
+    children: [
       {
-      path: "/",
-      element: (
-        <RoleRoute allowedRoles={[ROLE.USER, ROLE.ADMIN]} />
-      ),
-      children: [
-        {
-          element: <UserLayout />, 
-          children: [
-            { index: true, element: <HomePage /> },
-            { path: "jobs", element: <Jobs /> },
-            { path: "jobs/saved", element: <SavedJobPage /> },
-            { path: "jobs/applied", element: <AppliedJobs /> },
-            { path: "cv/guide", element: <CVGuide /> },
-            { path: "cv/upload", element: <MyCV /> },
-            { path: "schedule", element: <Schedule /> },
-            { path: "profile", element: <EditProfile /> },
-            { path: "onboard", element: <FormOnboard /> },
-            { path: "jobs/:jobId", element: <JobDetailPage /> },
-            { path: "jobs/category/:category", element: <JobByCategory /> },
-            { path: "news", element: <NewsPage /> },
-            { path: "news/:id", element: <NewsDetailPage /> },
-            { path: "upgrade", element: <UpgradeAccountPage /> },
-            { path: "/payment", element: <PaymentPage /> }, 
-            { path: "/payment/vnpay", element: <VnpayPaymentPage /> }, 
-            { path: "/payment/success", element: <PaymentSuccessPage /> },         
-            { path: "/payment/cancel", element: <PaymentPage /> },         
-            { path: "/payment/atm", element: <PaymentATMPage /> }, 
-          ],
-        },
-      ],
-    },
-    {
+        element: <UserLayout />,
+        children: [
+          { index: true, element: <HomePage /> },
+          { path: "jobs", element: <Jobs /> },
+          { path: "jobs/saved", element: <SavedJobPage /> },
+          { path: "jobs/applied", element: <AppliedJobs /> },
+          { path: "cv/guide", element: <CVGuide /> },
+          { path: "cv/upload", element: <MyCV /> },
+          { path: "schedule", element: <Schedule /> },
+          { path: "profile", element: <EditProfile /> },
+          { path: "onboard", element: <FormOnboard /> },
+          { path: "jobs/:jobId", element: <JobDetailPage /> },
+          { path: "jobs/category/:category", element: <JobByCategory /> },
+          { path: "news", element: <NewsPage /> },
+          { path: "news/:id", element: <NewsDetailPage /> },
+          { path: "upgrade", element: <UpgradeAccountPage /> },
+          { path: "/payment", element: <PaymentPage /> },
+          { path: "/payment/vnpay", element: <VnpayPaymentPage /> },
+          { path: "/payment/success", element: <PaymentSuccessPage /> },
+          { path: "/payment/cancel", element: <PaymentPage /> },
+          { path: "/payment/atm", element: <PaymentATMPage /> },
+        ],
+      },
+    ],
+  },
+  {
     path: "/recruiter",
-    element: (
-      <RoleRoute allowedRoles={[ROLE.RECRUITER, ROLE.ADMIN]} />
-    ),
+    element: <RoleRoute allowedRoles={[ROLE.RECRUITER, ROLE.ADMIN]} />,
     children: [
       {
         element: <RecruiterLayout />,
         children: [
-          { index: true, element: <RecruiterDashboard /> },           
-          { path: "jobs-recruiter", element: <JobRecruiter /> },    
-          { path: "jobs/new", element: <NewJobRecruiter /> },      
+          { index: true, element: <RecruiterDashboard /> },
+          { path: "jobs-recruiter", element: <JobRecruiter /> },
+          { path: "jobs/new", element: <NewJobRecruiter /> },
           { path: "candidates", element: <CandidateManage /> },
           { path: "company", element: <CompanyRecruiter /> },
         ],
@@ -108,22 +105,21 @@ const route = createBrowserRouter([
   { path: "/set-password", element: <SetPasswordPage /> },
   {
     path: "/admin",
-    element: (
-      <RoleRoute allowedRoles={[ROLE.ADMIN]} />
-    ),
+    element: <RoleRoute allowedRoles={[ROLE.ADMIN]} />,
     children: [
       {
-        element: <AdminLayout />, 
+        element: <AdminLayout />,
         children: [
           { index: true, element: <Dashboard /> },
           { path: "manage-users", element: <UserManagement /> },
           { path: "manage-companies", element: <CompanyManagement /> },
           { path: "manage-jobs", element: <JobMangement /> },
           { path: "manage-career-guide", element: <NewsManagement /> },
+          { path: "Verify-info-company", element: <VerifyCompany /> },
         ],
       },
     ],
-  }
+  },
 ]);
 
 const App = () => {
@@ -131,22 +127,21 @@ const App = () => {
   const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
-  const initApp = async () => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      try {
-        await dispatch(getMyInfo()).unwrap();
-      } catch (err) {
-        console.warn("❌ Failed to load user info:", err);
-        localStorage.removeItem("accessToken");
-        dispatch(resetUser());
+    const initApp = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        try {
+          await dispatch(getMyInfo()).unwrap();
+        } catch (err) {
+          console.warn("❌ Failed to load user info:", err);
+          localStorage.removeItem("accessToken");
+          dispatch(resetUser());
+        }
       }
-    }
-    setAppReady(true);
-  };
-  initApp();
-}, [dispatch]);
-
+      setAppReady(true);
+    };
+    initApp();
+  }, [dispatch]);
 
   if (!appReady) {
     return (
