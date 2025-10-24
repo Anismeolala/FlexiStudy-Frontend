@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Tabs, Card, Button, Tag, Empty, message, Spin } from "antd";
-import { EnvironmentOutlined, ClockCircleOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
+import {
+  EnvironmentOutlined,
+  ClockCircleOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+} from "@ant-design/icons";
 import { getSavedJobsAPI, unsaveJobAPI } from "../../apis/index";
 import { getApplicationsByUserAPI } from "../../apis/index";
 import { useSelector } from "react-redux";
@@ -15,7 +20,7 @@ export default function SavedJobPage() {
   const [appliedJobs, setAppliedJobs] = useState([]);
   const { id: userId } = useSelector((state) => state.user);
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -28,7 +33,8 @@ export default function SavedJobPage() {
           const applied = await getApplicationsByUserAPI(userId);
           console.log("Ứng tuyển:", applied);
           const normalizedApplied = (applied || []).map((app) => ({
-            id: app.jobId,
+            applicationId: app.id,
+            jobId: app.jobId,
             title: app.jobTitle,
             companyName: app.companyName,
             companyLogoUrl: app.jobLogoUrl,
@@ -36,10 +42,16 @@ export default function SavedJobPage() {
             postedAt: app.postedAt,
             appliedAt: app.appliedAt,
             status: app.status,
-            type: app.type,
+            type:
+              app.type === "PARTTIME"
+                ? "Part-time"
+                : app.type === "FULLTIME"
+                ? "Full-time"
+                : "Intern",
             minSalary: app.minSalary,
-            maxSalary: app.maxSalary
+            maxSalary: app.maxSalary,
           }));
+
           setAppliedJobs(normalizedApplied);
         }
       } catch (err) {
@@ -92,7 +104,9 @@ export default function SavedJobPage() {
             <Tag color="blue">{job.type || "Không rõ"}</Tag>
             <Tag>
               {job.minSalary
-                ? `${job.minSalary.toLocaleString("vi-VN")} - ${job.maxSalary?.toLocaleString("vi-VN") || "?"} ${job.currency || "VND"}`
+                ? `${job.minSalary.toLocaleString("vi-VN")} - ${
+                    job.maxSalary?.toLocaleString("vi-VN") || "?"
+                  } ${job.currency || "VND"}`
                 : "Thoả thuận"}
             </Tag>
             <span className="job-date">
@@ -104,10 +118,25 @@ export default function SavedJobPage() {
           </p>
         </div>
 
+        {job.status && (
+          <Tag
+            color={
+              job.status === "HIRED"
+                ? "green"
+                : job.status === "REJECTED"
+                ? "red"
+                : "processing"
+            }
+            className="status-badge"
+          >
+            {job.status}
+          </Tag>
+        )}
+
         <div className="job-actions">
           <Button
             icon={<EyeOutlined />}
-            onClick={() => navigate(`/jobs/${job.id}`)}
+            onClick={() => navigate(`/jobs/${job.jobId || job.id}`)}
             target="_blank"
           />
           {showUnsave && (
@@ -133,7 +162,9 @@ export default function SavedJobPage() {
         <Tabs defaultActiveKey="1" className="saved-tabs">
           <TabPane tab={`Đã lưu (${savedJobs.length})`} key="1">
             {loading ? (
-              <div className="center"><Spin /></div>
+              <div className="center">
+                <Spin />
+              </div>
             ) : savedJobs.length === 0 ? (
               <Empty description="Chưa có công việc nào" />
             ) : (
@@ -145,14 +176,14 @@ export default function SavedJobPage() {
 
           <TabPane tab={`Đã ứng tuyển (${appliedJobs.length})`} key="2">
             {loading ? (
-              <div className="center"><Spin /></div>
+              <div className="center">
+                <Spin />
+              </div>
             ) : appliedJobs.length === 0 ? (
               <Empty description="Chưa có công việc nào" />
             ) : (
               <div className="job-list">
-                {appliedJobs.map((app) =>
-                  renderJobCard(app.job || app, false)
-                )}
+                {appliedJobs.map((app) => renderJobCard(app.job || app, false))}
               </div>
             )}
           </TabPane>

@@ -15,8 +15,8 @@ import dayjs from "dayjs";
 import { onboardAPI, suggestSkillAPI } from "../../apis/index";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-  import debounce from "lodash.debounce";
-  import { useDispatch, useSelector } from "react-redux";
+import debounce from "lodash.debounce";
+import { useDispatch, useSelector } from "react-redux";
 import { getMyInfo } from "../../redux/userSlice";
 
 const FormOnboard = () => {
@@ -26,9 +26,10 @@ const FormOnboard = () => {
   const [skillOptions, setSkillOptions] = useState([]);
   const userData = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const isFullNameLocked = Boolean(userData?.firstName || userData?.lastName);
+  const isEmailLocked = Boolean(userData?.email);
 
-
-   useEffect(() => {
+  useEffect(() => {
     // Gọi API để lấy thông tin người dùng
     dispatch(getMyInfo());
   }, [dispatch]);
@@ -46,15 +47,15 @@ const FormOnboard = () => {
   }, [userData, form]);
 
   // Gọi API gợi ý skill (debounce để tránh spam API)
-const fetchSkillSuggestions = debounce(async (keyword) => {
-  if (!keyword || keyword.trim().length < 2) return;
-  try {
-    const res = await suggestSkillAPI(keyword);
-    setSkillOptions(res.result || []);
-  } catch (err) {
-    console.error("Skill suggest error:", err);
-  }
-}, 300);
+  const fetchSkillSuggestions = debounce(async (keyword) => {
+    if (!keyword || keyword.trim().length < 2) return;
+    try {
+      const res = await suggestSkillAPI(keyword);
+      setSkillOptions(res.result || []);
+    } catch (err) {
+      console.error("Skill suggest error:", err);
+    }
+  }, 300);
 
   // Submit handler
   const handleSubmit = async (values) => {
@@ -73,9 +74,7 @@ const fetchSkillSuggestions = debounce(async (keyword) => {
       experiences: values.experiences?.map((e) => ({
         company: e.company,
         position: e.position,
-        startDate: e.startDate
-          ? dayjs(e.startDate).format("YYYY-MM-DD")
-          : null,
+        startDate: e.startDate ? dayjs(e.startDate).format("YYYY-MM-DD") : null,
         endDate: e.endDate ? dayjs(e.endDate).format("YYYY-MM-DD") : null,
       })),
       skills: values.skills || [],
@@ -94,7 +93,10 @@ const fetchSkillSuggestions = debounce(async (keyword) => {
   };
 
   return (
-    <div className="profile-update-container" style={{ maxWidth: 900, margin: "50px auto" }}>
+    <div
+      className="profile-update-container"
+      style={{ maxWidth: 900, margin: "50px auto" }}
+    >
       <Card
         title="Mô tả công việc mong muốn của bạn"
         headStyle={{
@@ -105,15 +107,26 @@ const fetchSkillSuggestions = debounce(async (keyword) => {
       >
         <Form layout="vertical" form={form} onFinish={handleSubmit}>
           {/* ---------- Thông tin cơ bản ---------- */}
-          <Card type="inner" title="Thông tin cá nhân" style={{ marginBottom: 20 }}>
+          <Card
+            type="inner"
+            title="Thông tin cá nhân"
+            style={{ marginBottom: 20 }}
+          >
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
                   name="fullName"
                   label="Họ và tên"
-                  rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
+                  rules={[
+                    { required: true, message: "Vui lòng nhập họ và tên" },
+                  ]}
                 >
-                  <Input placeholder="Nhập họ và tên" />
+                  <Input
+                    placeholder="Nhập họ và tên"
+                    disabled={Boolean(
+                      userData?.firstName || userData?.lastName
+                    )}
+                  />
                 </Form.Item>
               </Col>
               <Col span={12}>
@@ -130,7 +143,10 @@ const fetchSkillSuggestions = debounce(async (keyword) => {
                   label="Email"
                   rules={[{ type: "email", message: "Email không hợp lệ" }]}
                 >
-                  <Input placeholder="Nhập email" disabled/>
+                  <Input
+                    placeholder="Nhập email"
+                    disabled={Boolean(userData?.email)}
+                  />
                 </Form.Item>
               </Col>
               <Col span={12}>
@@ -187,7 +203,9 @@ const fetchSkillSuggestions = debounce(async (keyword) => {
                           {...rest}
                           name={[name, "company"]}
                           label="Công ty / Doanh nghiệp"
-                          rules={[{ required: true, message: "Nhập tên công ty" }]}
+                          rules={[
+                            { required: true, message: "Nhập tên công ty" },
+                          ]}
                         >
                           <Input />
                         </Form.Item>
@@ -205,12 +223,18 @@ const fetchSkillSuggestions = debounce(async (keyword) => {
                     <Row gutter={16}>
                       <Col span={12}>
                         <Form.Item name={[name, "startDate"]} label="Từ tháng">
-                          <DatePicker format="YYYY-MM-DD" style={{ width: "100%" }} />
+                          <DatePicker
+                            format="YYYY-MM-DD"
+                            style={{ width: "100%" }}
+                          />
                         </Form.Item>
                       </Col>
                       <Col span={12}>
                         <Form.Item name={[name, "endDate"]} label="Đến tháng">
-                          <DatePicker format="YYYY-MM-DD" style={{ width: "100%" }} />
+                          <DatePicker
+                            format="YYYY-MM-DD"
+                            style={{ width: "100%" }}
+                          />
                         </Form.Item>
                       </Col>
                     </Row>
@@ -263,7 +287,9 @@ const fetchSkillSuggestions = debounce(async (keyword) => {
                           {...rest}
                           name={[name, "school"]}
                           label="Trường học"
-                          rules={[{ required: true, message: "Nhập tên trường" }]}
+                          rules={[
+                            { required: true, message: "Nhập tên trường" },
+                          ]}
                         >
                           <Input />
                         </Form.Item>
@@ -296,11 +322,13 @@ const fetchSkillSuggestions = debounce(async (keyword) => {
           {/* ---------- Kỹ năng ---------- */}
           <Card type="inner" title="Kỹ năng" style={{ marginBottom: 20 }}>
             <Form.Item
-                name="skills"
-                label="Kỹ năng"
-                rules={[{ required: true, message: "Vui lòng nhập ít nhất 1 kỹ năng" }]}
+              name="skills"
+              label="Kỹ năng"
+              rules={[
+                { required: true, message: "Vui lòng nhập ít nhất 1 kỹ năng" },
+              ]}
             >
-                <Select
+              <Select
                 mode="multiple"
                 showSearch
                 size="large"
@@ -309,12 +337,20 @@ const fetchSkillSuggestions = debounce(async (keyword) => {
                 filterOption={false}
                 allowClear
                 notFoundContent={null}
-                options={skillOptions
-                    .filter((s) => s.trim() !== form.getFieldValue("skills")?.slice(-1)?.[0])
-                    .map((s) => ({ value: s, label: s }))}
-                />
+                options={(skillOptions || [])
+                  .filter(
+                    (s) =>
+                      typeof s?.name === "string" &&
+                      s.name.trim() !==
+                        form.getFieldValue("skills")?.slice(-1)?.[0]
+                  )
+                  .map((s) => ({
+                    value: s.name,
+                    label: s.name,
+                  }))}
+              />
             </Form.Item>
-            </Card>
+          </Card>
           {/* ---------- Nút hoàn thành ---------- */}
           <Form.Item>
             <Button

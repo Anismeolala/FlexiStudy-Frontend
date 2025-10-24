@@ -1,11 +1,5 @@
-import React from "react";
-import {
-  Card,
-  Input,
-  Button,
-  Avatar,
-  Badge,
-} from "antd";
+import React, { useEffect, useState } from "react";
+import { Card, Input, Button, Avatar, Badge, Spin, message, Modal } from "antd";
 import {
   SearchOutlined,
   EnvironmentOutlined,
@@ -15,77 +9,108 @@ import { IoBagOutline } from "react-icons/io5";
 import { FaGraduationCap } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import "./CandidateManage.css";
+import {
+  getApplicationsForMyCompanyAPI,
+  updateApplicationStatusAPI,
+} from "../../apis";
 
 const CandidateManage = () => {
-  const candidates = [
-    {
-      id: 1,
-      name: "Nguyen Van A",
-      email: "nguyenvana@email.com",
-      appliedFor: "Senior Frontend Developer",
-      location: "Ho Chi Minh City",
-      experience: "5 years",
-      education: "Bachelor in Computer Science",
-      status: "interview",
-      matchScore: 95,
-      skills: ["React", "TypeScript", "Node.js", "Tailwind CSS"],
-      appliedDate: "2 days ago",
-    },
-    {
-      id: 2,
-      name: "Tran Thi B",
-      email: "tranthib@email.com",
-      appliedFor: "Product Designer",
-      location: "Hanoi",
-      experience: "3 years",
-      education: "Bachelor in Design",
-      status: "review",
-      matchScore: 88,
-      skills: ["Figma", "UI/UX", "Design Systems", "Prototyping"],
-      appliedDate: "3 days ago",
-    },
-    {
-      id: 3,
-      name: "Le Van C",
-      email: "levanc@email.com",
-      appliedFor: "Marketing Manager",
-      location: "Da Nang",
-      experience: "7 years",
-      education: "MBA in Marketing",
-      status: "offer",
-      matchScore: 92,
-      skills: ["SEO", "Content Strategy", "Analytics", "Team Lead"],
-      appliedDate: "1 week ago",
-    },
-    {
-      id: 4,
-      name: "Pham Thi D",
-      email: "phamthid@email.com",
-      appliedFor: "Senior Frontend Developer",
-      location: "Ho Chi Minh City",
-      experience: "4 years",
-      education: "Bachelor in Software Engineering",
-      status: "hired",
-      matchScore: 90,
-      skills: ["React", "TypeScript", "GraphQL", "Testing"],
-      appliedDate: "2 weeks ago",
-    },
-  ];
+  const [candidates, setCandidates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+
+  const [filterText, setFilterText] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedApp, setSelectedApp] = useState(null);
+  const [updating, setUpdating] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      const res = await getApplicationsForMyCompanyAPI();
+      const apps = res || [];
+
+      console.log(res);
+
+      const mapped = apps.map((app) => ({
+        id: app.id,
+        name: app.fullName,
+        email: app.email,
+        phone: app.phone,
+        appliedFor: app.jobTitle,
+        location: app.city,
+        jobType: app.type,
+        status: app.status?.toLowerCase() || "review",
+        appliedDate: app.appliedAt
+          ? new Date(app.appliedAt).toLocaleDateString()
+          : "N/A",
+        cvUrl: app.cvUrl,
+        coverLetter: app.coverLetter,
+        matchScore: Math.floor(Math.random() * 21) + 80, // random 80-100
+      }));
+
+      setCandidates(mapped);
+    } catch (err) {
+      console.error(err);
+      message.error("Failed to load candidates");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case "hired":
+    switch (status?.toUpperCase()) {
+      case "HIRED":
         return "green";
-      case "offer":
-        return "blue";
-      case "interview":
+      case "INTERVIEW":
         return "orange";
-      case "review":
+      case "REJECTED":
+        return "red";
+      case "PENDING":
         return "purple";
       default:
         return "default";
     }
   };
+
+  const handleUpdateStatus = async (newStatus) => {
+    if (!selectedApp) return;
+    try {
+      setUpdating(true);
+      await updateApplicationStatusAPI(selectedApp.id, newStatus);
+
+      message.success("Application status updated!");
+      setCandidates((prev) =>
+        prev.map((c) =>
+          c.id === selectedApp.id ? { ...c, status: newStatus } : c
+        )
+      );
+
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error(err);
+      message.error("Failed to update status!");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const openStatusModal = (app) => {
+    setSelectedApp(app);
+    setIsModalOpen(true);
+  };
+
+  const filtered = candidates.filter(
+    (c) =>
+      c.name.toLowerCase().includes(search.toLowerCase()) ||
+      c.appliedFor.toLowerCase().includes(search.toLowerCase()) ||
+      c.location?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (loading) return <Spin size="large" style={{ marginTop: 40 }} />;
 
   return (
     <div className="candidates-page">
@@ -97,30 +122,24 @@ const CandidateManage = () => {
         </div>
       </div>
 
-      {/* Search & Filter */}
+      {/* Search */}
       <div className="candidates-toolbar">
         <Input
           prefix={<SearchOutlined />}
-          placeholder="Search candidates by name, skills, or position..."
+          placeholder="Search candidates..."
           size="large"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
-        <div className="toolbar-buttons">
-          <Button>Filter by Status</Button>
-          <Button>Sort by Match</Button>
-        </div>
       </div>
 
-      {/* Candidates List */}
+      {/* List */}
       <div className="candidates-list">
-        {candidates.map((candidate) => (
-          <Card key={candidate.id} className="candidate-card" hoverable>
+        {filtered.map((c) => (
+          <Card key={c.id} className="candidate-card" hoverable>
             <div className="candidate-content">
-              <Avatar
-                size={64}
-                className="candidate-avatar"
-                style={{ backgroundColor: "#1677ff" }}
-              >
-                {candidate.name
+              <Avatar size={64} style={{ backgroundColor: "#1677ff" }}>
+                {c.name
                   .split(" ")
                   .map((n) => n[0])
                   .join("")}
@@ -129,53 +148,87 @@ const CandidateManage = () => {
               <div className="candidate-info">
                 <div className="candidate-header">
                   <div>
-                    <h3>{candidate.name}</h3>
-                    <p className="candidate-email">{candidate.email}</p>
+                    <h3>{c.name}</h3>
+                    <p className="candidate-email">{c.email}</p>
                   </div>
+
                   <div className="candidate-status">
                     <div className="match-score">
                       <StarFilled className="star-icon" />
-                      <span>{candidate.matchScore}%</span>
+                      <span>{c.matchScore}%</span>
                     </div>
                     <Badge
-                      color={getStatusColor(candidate.status)}
-                      text={candidate.status.toUpperCase()}
+                      color={getStatusColor(c.status)}
+                      text={c.status.toUpperCase()}
                     />
                   </div>
                 </div>
 
                 <div className="candidate-role">
                   <IoBagOutline />
-                  <span>Applied for: {candidate.appliedFor}</span>
+                  <span>Applied for: {c.appliedFor}</span>
                 </div>
 
                 <div className="candidate-meta">
                   <span>
-                    <EnvironmentOutlined /> {candidate.location}
+                    <EnvironmentOutlined /> {c.location}
                   </span>
-                  <span>• {candidate.experience}</span>
-                  <span>• <FaGraduationCap /> {candidate.education}</span>
-                </div>
-
-                <div className="candidate-skills">
-                  {candidate.skills.map((skill) => (
-                    <Badge key={skill} count={skill} className="skill-badge" />
-                  ))}
+                  <span>• {c.jobType}</span>
+                  <span>
+                    • <FaGraduationCap /> Updating
+                  </span>
                 </div>
 
                 <div className="candidate-footer">
-                  <span className="applied-date">
-                    Applied {candidate.appliedDate}
-                  </span>
+                  <span className="applied-date">Applied: {c.appliedDate}</span>
+
                   <div className="footer-buttons">
-                    <Button>View Profile</Button>
-                    <Button type="primary">Update Status</Button>
+                    <a href={c.cvUrl} target="_blank" rel="noopener noreferrer">
+                      <Button>View CV</Button>
+                    </a>
+                    <Button type="primary" onClick={() => openStatusModal(c)}>
+                      Update Status
+                    </Button>
                   </div>
                 </div>
               </div>
             </div>
           </Card>
         ))}
+        <Modal
+          title="Update Application Status"
+          open={isModalOpen}
+          onCancel={() => setIsModalOpen(false)}
+          footer={null}
+        >
+          <Button
+            block
+            type="default"
+            onClick={() => handleUpdateStatus("PENDING")}
+          >
+            Pending
+          </Button>
+
+          <Button
+            block
+            type="primary"
+            onClick={() => handleUpdateStatus("HIRED")}
+            loading={updating}
+            style={{ marginTop: 10 }}
+          >
+            Hired ✅
+          </Button>
+
+          <Button
+            block
+            danger
+            onClick={() => handleUpdateStatus("REJECTED")}
+            loading={updating}
+            style={{ marginTop: 10 }}
+          >
+            Rejected ❌
+          </Button>
+        </Modal>
       </div>
     </div>
   );

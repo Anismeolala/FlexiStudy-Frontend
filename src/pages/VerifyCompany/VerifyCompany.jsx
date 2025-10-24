@@ -75,7 +75,7 @@ const ManageCompanyVerification = () => {
   };
 
   const updateStatus = async (id, status, reason) => {
-    console.log("🟡 [DEBUG] Gửi request cập nhật:", {
+    console.log("Gửi request cập nhật:", {
       companyId: id,
       status,
       reason,
@@ -89,26 +89,21 @@ const ManageCompanyVerification = () => {
         res = await rejectCompanyAPI(id, reason || "No reason provided");
       }
 
-      console.log("🟢 [DEBUG] Response backend:", res);
-
       if (!res) {
-        console.error("🔴 [DEBUG] Không nhận response");
         message.error("Không nhận phản hồi từ server!");
         return;
       }
 
       if (res?.code !== 1000 && res?.code !== 0) {
-        console.warn("🟠 [DEBUG] Code khác mong đợi:", res.code);
         message.warning(res?.message || "Backend trả code lạ");
       }
 
       message.success(
         status === "APPROVED"
-          ? "✅ Cập nhật: Đã duyệt công ty"
-          : "❌ Cập nhật: Đã từ chối công ty"
+          ? " Cập nhật: Đã duyệt công ty"
+          : " Cập nhật: Đã từ chối công ty"
       );
 
-      console.log("🟡 [DEBUG] Gọi fetchCompanies sau update...");
       await fetchCompanies();
     } catch (error) {
       console.error("🔴 [DEBUG] Error catch:", error);
@@ -175,7 +170,6 @@ const ManageCompanyVerification = () => {
 
         return (
           <Space>
-            {/* Xem chi tiết */}
             <Tooltip title="Xem chi tiết">
               <Button
                 icon={<EyeOutlined />}
@@ -184,7 +178,6 @@ const ManageCompanyVerification = () => {
               />
             </Tooltip>
 
-            {/* ✅ Chỉ PENDING mới cho duyệt */}
             {s === "PENDING" && (
               <>
                 <Button
@@ -238,7 +231,7 @@ const ManageCompanyVerification = () => {
         items={[
           { label: "Tất cả", key: "ALL" },
           { label: "Chờ duyệt", key: "PENDING" },
-          { label: "Đã duyệt", key: "APPROVED" },
+          { label: "Đã duyệt", key: "VERIFIED" },
           { label: "Từ chối", key: "REJECTED" },
         ]}
         onChange={(k) => setStatusFilter(k)}

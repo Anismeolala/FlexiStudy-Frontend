@@ -191,7 +191,7 @@ const CompanyRecruiter = () => {
   };
 
   const showModal = () => {
-    setModalVisible(true); // Mở modal mà không kiểm tra tài liệu đã upload hay chưa
+    setModalVisible(true);
   };
 
   const handleModalCancel = () => {
@@ -295,7 +295,7 @@ const CompanyRecruiter = () => {
                   { required: true, message: "Please enter company name" },
                 ]}
               >
-                <Input />
+                <Input disabled />
               </Form.Item>
 
               <Form.Item label="Website" name="website">
